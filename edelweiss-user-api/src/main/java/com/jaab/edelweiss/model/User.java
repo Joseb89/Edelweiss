@@ -1,9 +1,13 @@
 package com.jaab.edelweiss.model;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
 @Table(name = "users")
+@Getter
+@Setter
 public class User {
 
     @Id
@@ -24,13 +28,6 @@ public class User {
     private String password;
 
     @Column(name = "user_role", nullable = false, length = 11)
+    @Enumerated(EnumType.STRING)
     private Role role;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setRole(Role role) {
-        this.role = role;
-    }
 }

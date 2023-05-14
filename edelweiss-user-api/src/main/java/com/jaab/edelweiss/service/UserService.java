@@ -18,6 +18,12 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
+    /**
+     * Saves a new user to the users database
+     * @param userDTO - the user payload from external API
+     * @param role - the user's role
+     * @return - the user ID
+     */
     public Long createUser(UserDTO userDTO, Role role) {
         User user = new User();
         BeanUtils.copyProperties(userDTO, user);
