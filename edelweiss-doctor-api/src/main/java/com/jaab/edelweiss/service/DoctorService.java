@@ -1,8 +1,11 @@
 package com.jaab.edelweiss.service;
 
 import com.jaab.edelweiss.dao.DoctorRepository;
+import com.jaab.edelweiss.dao.PrescriptionRepository;
 import com.jaab.edelweiss.dto.UserDTO;
 import com.jaab.edelweiss.model.Doctor;
+import com.jaab.edelweiss.model.Prescription;
+import com.jaab.edelweiss.model.Status;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatusCode;
@@ -19,6 +22,8 @@ public class DoctorService {
 
     private DoctorRepository doctorRepository;
 
+    private PrescriptionRepository prescriptionRepository;
+
     @Autowired
     public DoctorService(WebClient.Builder builder) {
         this.webClient = builder.build();
@@ -27,6 +32,11 @@ public class DoctorService {
     @Autowired
     public void setDoctorRepository(DoctorRepository doctorRepository) {
         this.doctorRepository = doctorRepository;
+    }
+
+    @Autowired
+    public void setPrescriptionRepository(PrescriptionRepository prescriptionRepository) {
+        this.prescriptionRepository = prescriptionRepository;
     }
 
     /**
@@ -41,6 +51,22 @@ public class DoctorService {
         doctor.setId(userData.getId());
         doctorRepository.save(doctor);
         return userData;
+    }
+
+    /**
+     * Saves a new prescription to the pharmacy database
+     * @param prescription - the new prescription
+     * @param id - the ID of the doctor
+     * @return - new prescription
+     */
+    public Prescription createPrescription(Prescription prescription, Long id) {
+        Doctor doctor = doctorRepository.getReferenceById(id);
+        prescription.setDoctor(doctor);
+        prescription.setDoctorFirstName(doctor.getFirstName());
+        prescription.setDoctorLastName(doctor.getLastName());
+        prescription.setPrescriptionStatus(Status.PENDING);
+        prescriptionRepository.save(prescription);
+        return prescription;
     }
 
     /**
