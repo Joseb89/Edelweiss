@@ -1,6 +1,7 @@
 package com.jaab.edelweiss.service;
 
 import com.jaab.edelweiss.dao.PatientRepository;
+import com.jaab.edelweiss.dto.PatientDTO;
 import com.jaab.edelweiss.dto.UserDTO;
 import com.jaab.edelweiss.model.Patient;
 import org.springframework.beans.BeanUtils;
@@ -41,6 +42,13 @@ public class PatientService {
         patient.setId(userData.getId());
         patientRepository.save(patient);
         return userData;
+    }
+
+    public PatientDTO getPatientById(Long id) {
+        PatientDTO patientDTO = new PatientDTO();
+        Patient patient = patientRepository.getReferenceById(id);
+        BeanUtils.copyProperties(patient, patientDTO);
+        return patientDTO;
     }
 
     /**

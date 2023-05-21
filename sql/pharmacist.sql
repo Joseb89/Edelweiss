@@ -7,3 +7,5 @@ create table if not exists pharmacists(
 );
 
 select * from pharmacists p;
+
+drop table if exists pharmacists;

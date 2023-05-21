@@ -2,6 +2,7 @@ package com.jaab.edelweiss.service;
 
 import com.jaab.edelweiss.dao.DoctorRepository;
 import com.jaab.edelweiss.dao.PrescriptionRepository;
+import com.jaab.edelweiss.dto.PatientDTO;
 import com.jaab.edelweiss.dto.UserDTO;
 import com.jaab.edelweiss.model.Doctor;
 import com.jaab.edelweiss.model.Prescription;
@@ -67,6 +68,17 @@ public class DoctorService {
         prescription.setPrescriptionStatus(Status.PENDING);
         prescriptionRepository.save(prescription);
         return prescription;
+    }
+
+    public Mono<PatientDTO> getPatientData(Long patientId) {
+        return webClient.get()
+                .uri("http://localhost:8082/physician/getPatient/" + patientId)
+                .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError,
+                        response -> response.bodyToMono(String.class).map(Exception::new))
+                .onStatus(HttpStatusCode::is5xxServerError,
+                        response -> response.bodyToMono(String.class).map(ServerException::new))
+                .bodyToMono(PatientDTO.class);
     }
 
     /**

@@ -9,3 +9,5 @@ create table if not exists doctors (
 );
 
 select * from doctors d;
+
+drop table if exists doctors;

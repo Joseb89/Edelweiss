@@ -1,18 +1,15 @@
 package com.jaab.edelweiss.controller;
 
+import com.jaab.edelweiss.dto.PatientDTO;
 import com.jaab.edelweiss.dto.UserDTO;
 import com.jaab.edelweiss.model.Patient;
 import com.jaab.edelweiss.service.PatientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/patient")
 public class PatientController {
 
     private final PatientService patientService;
@@ -27,5 +24,10 @@ public class PatientController {
     public ResponseEntity<Long> createPatient(@RequestBody Patient patient) {
         UserDTO newPatient = patientService.createPatient(patient);
         return ResponseEntity.ok(newPatient.getId());
+    }
+
+    @GetMapping(value = "/physician/getPatient/{patientId}")
+    public PatientDTO getPatientById(@PathVariable Long patientId) {
+        return patientService.getPatientById(patientId);
     }
 }

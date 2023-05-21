@@ -14,3 +14,5 @@ create table if not exists patients (
 );
 
 select * from patients p;
+
+drop table if exists patients;

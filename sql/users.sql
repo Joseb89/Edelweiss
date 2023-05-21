@@ -8,3 +8,5 @@ create table if not exists users (
 );
 
 select * from users u;
+
+drop table if exists users;
