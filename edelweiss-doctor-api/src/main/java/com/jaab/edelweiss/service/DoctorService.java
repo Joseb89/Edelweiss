@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.rmi.ServerException;
@@ -24,6 +25,8 @@ public class DoctorService {
     private DoctorRepository doctorRepository;
 
     private PrescriptionRepository prescriptionRepository;
+
+    private static final String PATIENT_API_URL = "http://localhost:8082/physician";
 
     @Autowired
     public DoctorService(WebClient.Builder builder) {
@@ -70,15 +73,52 @@ public class DoctorService {
         return prescription;
     }
 
-    public Mono<PatientDTO> getPatientData(Long patientId) {
+    /**
+     * Retrieves patient information from patient API based on patient ID
+     * @param patientId - the ID of the patient
+     * @return - the patient's information
+     */
+    public Mono<PatientDTO> getPatientDataById(Long patientId) {
         return webClient.get()
-                .uri("http://localhost:8082/physician/getPatient/" + patientId)
+                .uri(PATIENT_API_URL + "/getPatientById/" + patientId)
                 .retrieve()
                 .onStatus(HttpStatusCode::is4xxClientError,
                         response -> response.bodyToMono(String.class).map(Exception::new))
                 .onStatus(HttpStatusCode::is5xxServerError,
                         response -> response.bodyToMono(String.class).map(ServerException::new))
                 .bodyToMono(PatientDTO.class);
+    }
+
+    /**
+     * Retrieves a list of patients based on their first name.
+     * @param firstName - the first name of the patient
+     * @return - the PatientDTO set from the patient API
+     */
+    public Flux<PatientDTO> getPatientDataByFirstName(String firstName) {
+        return webClient.get()
+                .uri(PATIENT_API_URL + "/getPatientByFirstName/" + firstName)
+                .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError,
+                        response -> response.bodyToMono(String.class).map(Exception::new))
+                .onStatus(HttpStatusCode::is5xxServerError,
+                        response -> response.bodyToMono(String.class).map(ServerException::new))
+                .bodyToFlux(PatientDTO.class);
+    }
+
+    /**
+     * Retrieves a list of patients based on their last name.
+     * @param lastName - the last name of the patient
+     * @return - the PatientDTO set from the patient API
+     */
+    public Flux<PatientDTO> getPatientDataByLastName(String lastName) {
+        return webClient.get()
+                .uri(PATIENT_API_URL + "/getPatientByLastName/" + lastName)
+                .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError,
+                        response -> response.bodyToMono(String.class).map(Exception::new))
+                .onStatus(HttpStatusCode::is5xxServerError,
+                        response -> response.bodyToMono(String.class).map(ServerException::new))
+                .bodyToFlux(PatientDTO.class);
     }
 
     /**

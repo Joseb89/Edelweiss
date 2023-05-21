@@ -9,6 +9,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Set;
+
 @RestController
 public class PatientController {
 
@@ -26,8 +28,18 @@ public class PatientController {
         return ResponseEntity.ok(newPatient.getId());
     }
 
-    @GetMapping(value = "/physician/getPatient/{patientId}")
+    @GetMapping(value = "/physician/getPatientById/{patientId}")
     public PatientDTO getPatientById(@PathVariable Long patientId) {
         return patientService.getPatientById(patientId);
+    }
+
+    @GetMapping(value = "/physician/getPatientByFirstName/{firstName}")
+    public Set<PatientDTO> getPatientByFirstName(@PathVariable String firstName) {
+        return patientService.getPatientByFirstName(firstName);
+    }
+
+    @GetMapping(value = "/physician/getPatientByLastName/{lastName}")
+    public Set<PatientDTO> getPatientByLastName(@PathVariable String lastName) {
+        return patientService.getPatientByLastName(lastName);
     }
 }

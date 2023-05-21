@@ -12,6 +12,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 import java.rmi.ServerException;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class PatientService {
@@ -44,9 +46,51 @@ public class PatientService {
         return userData;
     }
 
+    /**
+     * Retrieves patient data from the patient database based on patient ID
+     * @param id - the ID of the patient
+     * @return - patient data stored in DTO object
+     */
     public PatientDTO getPatientById(Long id) {
         PatientDTO patientDTO = new PatientDTO();
         Patient patient = patientRepository.getReferenceById(id);
+        BeanUtils.copyProperties(patient, patientDTO);
+        return patientDTO;
+    }
+
+    /**
+     * Retrieves a list of patients based on the patient's first name
+     * @param firstName - the first name of the patient
+     * @return - the set of the patients matching the criteria
+     */
+    public Set<PatientDTO> getPatientByFirstName(String firstName) {
+        Set<Patient> patients = patientRepository.getPatientByFirstName(firstName);
+
+        return patients.stream()
+                .map(this::copyToDTO)
+                .collect(Collectors.toSet());
+    }
+
+    /**
+     * Retrieves a list of patients based on the patient's last name
+     * @param lastName - the last name of the patient
+     * @return - the set of the patients matching the criteria
+     */
+    public Set<PatientDTO> getPatientByLastName(String lastName) {
+        Set<Patient> patients = patientRepository.getPatientsByLastName(lastName);
+
+        return patients.stream()
+                .map(this::copyToDTO)
+                .collect(Collectors.toSet());
+    }
+
+    /**
+     * Copies the values of a Patient object into a PatientDTO object
+     * @param patient - the Patient object
+     * @return - the PatientDTO object
+     */
+    private PatientDTO copyToDTO(Patient patient) {
+        PatientDTO patientDTO = new PatientDTO();
         BeanUtils.copyProperties(patient, patientDTO);
         return patientDTO;
     }
