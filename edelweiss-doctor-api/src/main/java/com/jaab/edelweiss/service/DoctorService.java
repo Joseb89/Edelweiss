@@ -65,7 +65,6 @@ public class DoctorService {
      */
     public Prescription createPrescription(Prescription prescription, Long id) {
         Doctor doctor = doctorRepository.getReferenceById(id);
-        prescription.setDoctor(doctor);
         prescription.setDoctorFirstName(doctor.getFirstName());
         prescription.setDoctorLastName(doctor.getLastName());
         prescription.setPrescriptionStatus(Status.PENDING);

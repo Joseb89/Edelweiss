@@ -1,11 +1,11 @@
 package com.jaab.edelweiss.model;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.HashSet;
-import java.util.Set;
 
 @Entity
 @Table(name = "doctors")
@@ -34,7 +34,4 @@ public class Doctor {
 
     @Column(name = "practice", nullable = false, length = 25)
     private String practice;
-
-    @OneToMany(mappedBy = "doctor", cascade = CascadeType.ALL)
-    private Set<Prescription> prescriptions = new HashSet<>();
 }

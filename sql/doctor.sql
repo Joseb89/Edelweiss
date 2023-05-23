@@ -7,7 +7,3 @@ create table if not exists doctors (
     phone_number BIGINT not null,
     practice VARCHAR(25) not null
 );
-
-select * from doctors d;
-
-drop table if exists doctors;

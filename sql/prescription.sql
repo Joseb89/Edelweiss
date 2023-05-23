@@ -5,10 +5,7 @@ create table if not exists prescriptions(
     doctor_last_name VARCHAR(30) not null,
     prescription_name VARCHAR(20) not null,
     prescription_dosage SMALLINT not null,
-    prescription_status VARCHAR(8) not null,
-    constraint fk_doctor_id
-        foreign key(doctor_id)
-            references doctors(doctor_id)
+    prescription_status VARCHAR(8) not null
 );
 
 select * from prescriptions p;

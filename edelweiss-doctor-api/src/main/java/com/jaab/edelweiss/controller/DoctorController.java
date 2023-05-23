@@ -13,7 +13,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @RestController
-@RequestMapping("/physician")
 public class DoctorController {
 
     private final DoctorService doctorService;
@@ -30,7 +29,7 @@ public class DoctorController {
         return ResponseEntity.ok(newDoctor.getId());
     }
 
-    @PostMapping(value = "/{physicianId}/newPrescription", consumes = MediaType.APPLICATION_JSON_VALUE,
+    @PostMapping(value = "/physician/{physicianId}/newPrescription", consumes = MediaType.APPLICATION_JSON_VALUE,
                 produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Long> createPrescription(@RequestBody Prescription prescription,
                                                    @PathVariable Long physicianId) {
@@ -38,19 +37,19 @@ public class DoctorController {
         return ResponseEntity.ok(newPrescription.getId());
     }
 
-    @GetMapping(value = "/getPatientById/{patientId}")
+    @GetMapping(value = "/physician/getPatientById/{patientId}")
     public ResponseEntity<Mono<PatientDTO>> getPatientDataById(@PathVariable Long patientId) {
         Mono<PatientDTO> patientData = doctorService.getPatientDataById(patientId);
         return ResponseEntity.ok(patientData);
     }
 
-    @GetMapping(value = "/getPatientByFirstName/{firstName}")
+    @GetMapping(value = "/physician/getPatientByFirstName/{firstName}")
     public ResponseEntity<Flux<PatientDTO>> getPatientDataByFirstName(@PathVariable String firstName) {
         Flux<PatientDTO> patientData = doctorService.getPatientDataByFirstName(firstName);
         return ResponseEntity.ok(patientData);
     }
 
-    @GetMapping(value = "/getPatientByLastName/{lastName}")
+    @GetMapping(value = "/physician/getPatientByLastName/{lastName}")
     public ResponseEntity<Flux<PatientDTO>> getPatientDataByLastName(@PathVariable String lastName) {
         Flux<PatientDTO> patientData = doctorService.getPatientDataByLastName(lastName);
         return ResponseEntity.ok(patientData);

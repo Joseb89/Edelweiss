@@ -15,10 +15,6 @@ public class Prescription {
     @Column(name = "prescription_id", nullable = false)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "doctor_id")
-    private Doctor doctor;
-
     @Column(name = "doctor_first_name", nullable = false, length = 20)
     private String doctorFirstName;
 

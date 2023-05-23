@@ -6,7 +6,3 @@ create table if not exists users (
     user_password VARCHAR(100) not null,
     user_role VARCHAR(11) not null
 );
-
-select * from users u;
-
-drop table if exists users;

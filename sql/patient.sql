@@ -12,7 +12,3 @@ create table if not exists patients (
     primary_doctor VARCHAR(50),
     blood_type VARCHAR(3) not null
 );
-
-select * from patients p;
-
-drop table if exists patients;
