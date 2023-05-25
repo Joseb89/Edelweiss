@@ -1,12 +1,10 @@
 package com.jaab.edelweiss.service;
 
 import com.jaab.edelweiss.dao.DoctorRepository;
-import com.jaab.edelweiss.dao.PrescriptionRepository;
 import com.jaab.edelweiss.dto.PatientDTO;
+import com.jaab.edelweiss.dto.PrescriptionDTO;
 import com.jaab.edelweiss.dto.UserDTO;
 import com.jaab.edelweiss.model.Doctor;
-import com.jaab.edelweiss.model.Prescription;
-import com.jaab.edelweiss.model.Status;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatusCode;
@@ -24,9 +22,9 @@ public class DoctorService {
 
     private DoctorRepository doctorRepository;
 
-    private PrescriptionRepository prescriptionRepository;
-
     private static final String PATIENT_API_URL = "http://localhost:8082/physician";
+
+    private static final String PRESCRIPTION_API_URL = "http://localhost:8085/physician/";
 
     @Autowired
     public DoctorService(WebClient.Builder builder) {
@@ -36,11 +34,6 @@ public class DoctorService {
     @Autowired
     public void setDoctorRepository(DoctorRepository doctorRepository) {
         this.doctorRepository = doctorRepository;
-    }
-
-    @Autowired
-    public void setPrescriptionRepository(PrescriptionRepository prescriptionRepository) {
-        this.prescriptionRepository = prescriptionRepository;
     }
 
     /**
@@ -58,18 +51,26 @@ public class DoctorService {
     }
 
     /**
-     * Saves a new prescription to the pharmacy database
-     * @param prescription - the new prescription
+     * Creates a new prescription and sends it to the prescription API
+     * @param prescriptionDTO - the new prescription
      * @param id - the ID of the doctor
      * @return - new prescription
      */
-    public Prescription createPrescription(Prescription prescription, Long id) {
+    public PrescriptionDTO createPrescription(PrescriptionDTO prescriptionDTO, Long id) {
         Doctor doctor = doctorRepository.getReferenceById(id);
-        prescription.setDoctorFirstName(doctor.getFirstName());
-        prescription.setDoctorLastName(doctor.getLastName());
-        prescription.setPrescriptionStatus(Status.PENDING);
-        prescriptionRepository.save(prescription);
-        return prescription;
+        prescriptionDTO.setDoctorFirstName(doctor.getFirstName());
+        prescriptionDTO.setDoctorLastName(doctor.getLastName());
+
+        return webClient.post()
+                .uri(PRESCRIPTION_API_URL + "/newPrescription")
+                .body(Mono.just(prescriptionDTO), PrescriptionDTO.class)
+                .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError,
+                        response -> response.bodyToMono(String.class).map(Exception::new))
+                .onStatus(HttpStatusCode::is5xxServerError,
+                        response -> response.bodyToMono(String.class).map(ServerException::new))
+                .bodyToMono(PrescriptionDTO.class)
+                .block();
     }
 
     /**
@@ -121,7 +122,7 @@ public class DoctorService {
     }
 
     /**
-     * Sends UserDTO object to the Main API
+     * Sends UserDTO object to the user API
      * @param userDTO - the userDTO object
      * @return - the userDTO payload
      */
