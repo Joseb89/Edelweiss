@@ -1,69 +1,17 @@
 version: "3.8"
 services:
-  user-database:
+  database:
     image: postgres:15.2-alpine3.17
     restart: always
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=users
+      - POSTGRES_DB=edelweiss
     ports:
       - '5432:5432'
     volumes:
-      - ./sql/users.sql:/docker-entrypoint-initdb.d/create_tables.sql
-  patient-database:
-    image: postgres:15.2-alpine3.17
-    restart: always
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=patients
-    ports:
-      - '5433:5432'
-    volumes:
-      - ./sql/patient.sql:/docker-entrypoint-initdb.d/create_tables.sql
-  doctor-database:
-    image: postgres:15.2-alpine3.17
-    restart: always
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=doctors
-    ports:
-      - '5434:5432'
-    volumes:
-      - ./sql/doctor.sql:/docker-entrypoint-initdb.d/create_tables.sql
-  pharmacy-database:
-    image: postgres:15.2-alpine3.17
-    restart: always
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=pharmacists
-    ports:
-      - '5435:5432'
-    volumes:
-      - ./sql/pharmacist.sql:/docker-entrypoint-initdb.d/create_tables.sql
-  prescription-database:
-    image: postgres:15.2-alpine3.17
-    restart: always
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=prescriptions
-    ports:
-      - '5436:5432'
-    volumes:
-      - ./sql/prescription.sql:/docker-entrypoint-initdb.d/create_tables.sql
+      - ./sql/tables.sql:/docker-entrypoint-initdb.d/create_tables.sql
 
 volumes:
-  user-database:
-    driver: local
-  patient-database:
-    driver: local
-  doctor-database:
-    driver: local
-  pharmacy-database:
-    driver: local
-  prescription-database:
+  database:
     driver: local
