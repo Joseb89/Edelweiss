@@ -1,5 +1,6 @@
 package com.jaab.edelweiss.controller;
 
+import com.jaab.edelweiss.dto.AppointmentDTO;
 import com.jaab.edelweiss.dto.PatientDTO;
 import com.jaab.edelweiss.dto.PrescriptionDTO;
 import com.jaab.edelweiss.dto.UserDTO;
@@ -35,6 +36,14 @@ public class DoctorController {
                                                    @PathVariable Long physicianId) {
         PrescriptionDTO newPrescription = doctorService.createPrescription(prescription, physicianId);
         return ResponseEntity.ok(newPrescription);
+    }
+
+    @PostMapping(value = "/physician/{physicianId}/newAppointment", consumes = MediaType.APPLICATION_JSON_VALUE,
+                    produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<AppointmentDTO> createAppointment(@RequestBody AppointmentDTO appointment,
+                                                            @PathVariable Long physicianId) {
+        AppointmentDTO newAppointment = doctorService.createAppointment(appointment, physicianId);
+        return ResponseEntity.ok(newAppointment);
     }
 
     @GetMapping(value = "/physician/getPatientById/{patientId}")

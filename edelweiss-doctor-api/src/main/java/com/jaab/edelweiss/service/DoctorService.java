@@ -1,6 +1,7 @@
 package com.jaab.edelweiss.service;
 
 import com.jaab.edelweiss.dao.DoctorRepository;
+import com.jaab.edelweiss.dto.AppointmentDTO;
 import com.jaab.edelweiss.dto.PatientDTO;
 import com.jaab.edelweiss.dto.PrescriptionDTO;
 import com.jaab.edelweiss.dto.UserDTO;
@@ -24,7 +25,9 @@ public class DoctorService {
 
     private static final String PATIENT_API_URL = "http://localhost:8082/physician";
 
-    private static final String PRESCRIPTION_API_URL = "http://localhost:8085/physician/";
+    private static final String PRESCRIPTION_API_URL = "http://localhost:8085/physician";
+
+    private static final String APPOINTMENT_API_URL = "http://localhost:8086/physician";
 
     @Autowired
     public DoctorService(WebClient.Builder builder) {
@@ -70,6 +73,29 @@ public class DoctorService {
                 .onStatus(HttpStatusCode::is5xxServerError,
                         response -> response.bodyToMono(String.class).map(ServerException::new))
                 .bodyToMono(PrescriptionDTO.class)
+                .block();
+    }
+
+    /**
+     * Creates a new appointment and sends it to the appointment API
+     * @param appointmentDTO - the new appointment
+     * @param id - the ID of the doctor
+     * @return - new appointment
+     */
+    public AppointmentDTO createAppointment(AppointmentDTO appointmentDTO, Long id) {
+        Doctor doctor = doctorRepository.getReferenceById(id);
+        appointmentDTO.setDoctorFirstName(doctor.getFirstName());
+        appointmentDTO.setDoctorLastName(doctor.getLastName());
+
+        return webClient.post()
+                .uri(APPOINTMENT_API_URL + "/newAppointment")
+                .body(Mono.just(appointmentDTO), AppointmentDTO.class)
+                .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError,
+                        response -> response.bodyToMono(String.class).map(Exception::new))
+                .onStatus(HttpStatusCode::is5xxServerError,
+                        response -> response.bodyToMono(String.class).map(ServerException::new))
+                .bodyToMono(AppointmentDTO.class)
                 .block();
     }
 

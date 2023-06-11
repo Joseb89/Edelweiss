@@ -48,3 +48,13 @@ create table if not exists prescriptions (
     prescription_dosage SMALLINT not null,
     prescription_status VARCHAR(8) not null
 );
+
+create table if not exists appointments (
+    appointment_id serial primary key,
+    doctor_first_name VARCHAR(20) not null,
+    doctor_last_name VARCHAR(30) not null,
+    patient_first_name VARCHAR(20) not null,
+    patient_last_name VARCHAR(30) not null,
+    appointment_date date not null,
+    appointment_time time not null
+);

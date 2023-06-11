@@ -9,10 +9,10 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.jaab</groupId>
-	<artifactId>edelweiss-doctor-api</artifactId>
-	<version>1.0.5-SNAPSHOT</version>
-	<name>edelweiss-doctor-api</name>
-	<description>edelweiss-doctor-api</description>
+	<artifactId>edelweiss-appointment-api</artifactId>
+	<version>1.0.0-SNAPSHOT</version>
+	<name>edelweiss-appointment-api</name>
+	<description>edelweiss-appointment-api</description>
 	<properties>
 		<java.version>17</java.version>
 		<spring-cloud-gcp.version>4.3.0</spring-cloud-gcp.version>
