@@ -29,6 +29,11 @@ public class PharmacistService {
         this.pharmacistRepository = pharmacistRepository;
     }
 
+    /**
+     * Saves a new pharmacist to the pharmacist database
+     * @param pharmacist - the new pharmacist
+     * @return - the userDTO payload
+     */
     public UserDTO createPharmacist(Pharmacist pharmacist) {
         UserDTO userDTO = new UserDTO();
         BeanUtils.copyProperties(pharmacist, userDTO);
@@ -38,6 +43,11 @@ public class PharmacistService {
         return userData;
     }
 
+    /**
+     * Sends UserDTO object to the user API
+     * @param userDTO - the userDTO object
+     * @return - the userDTO payload
+     */
     private UserDTO sendUserData(UserDTO userDTO) {
         return webClient.post()
                 .uri("http://localhost:8081/newPharmacist")

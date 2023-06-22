@@ -19,6 +19,11 @@ public class AppointmentController {
         this.appointmentService = appointmentService;
     }
 
+    /**
+     * Creates a new prescription based on AppointmentDTO object from the doctor API
+     * @param appointmentDTO - the AppointmentDTO object from the doctor API
+     * @return - appointment data
+     */
     @PostMapping(value = "/physician/newAppointment", consumes = MediaType.APPLICATION_JSON_VALUE,
                     produces = MediaType.APPLICATION_JSON_VALUE)
     public Appointment createAppointment(@RequestBody AppointmentDTO appointmentDTO) {

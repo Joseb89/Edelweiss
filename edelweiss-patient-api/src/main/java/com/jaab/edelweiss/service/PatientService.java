@@ -49,7 +49,7 @@ public class PatientService {
     /**
      * Retrieves patient data from the patient database based on patient ID
      * @param id - the ID of the patient
-     * @return - patient data stored in DTO object
+     * @return - patient data stored in PatientDTO object
      */
     public PatientDTO getPatientById(Long id) {
         PatientDTO patientDTO = new PatientDTO();
@@ -59,7 +59,7 @@ public class PatientService {
     }
 
     /**
-     * Retrieves a list of patients based on the patient's first name
+     * Retrieves a list of patients from the patient database based on the patient's first name
      * @param firstName - the first name of the patient
      * @return - the set of the patients matching the criteria
      */
@@ -72,7 +72,7 @@ public class PatientService {
     }
 
     /**
-     * Retrieves a list of patients based on the patient's last name
+     * Retrieves a list of patients from the patient database based on the patient's last name
      * @param lastName - the last name of the patient
      * @return - the set of the patients matching the criteria
      */
@@ -96,9 +96,9 @@ public class PatientService {
     }
 
     /**
-     * Sends a userDTO payload to the Main Api and returns the user id
-     * @param userDTO - the userDTO object
-     * @return - the userDTO post payload
+     * Sends a UserDTO payload to the user API and returns the user id
+     * @param userDTO - the UserDTO object
+     * @return - the UserDTO post payload
      */
     private UserDTO sendUserData(UserDTO userDTO) {
         return webClient.post()

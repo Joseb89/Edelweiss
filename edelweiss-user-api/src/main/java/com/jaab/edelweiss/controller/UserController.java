@@ -17,18 +17,33 @@ public class UserController {
         this.userService = userService;
     }
 
+    /**
+     * Saves a user with Patient role to the user database and sends ID to the patient API
+     * @param userDTO - the UserDTO object from the patient API
+     * @return = the ID of the new patient
+     */
     @PostMapping(value = "/newPatient", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public Long createPatient(@RequestBody UserDTO userDTO) {
         return userService.createUser(userDTO, Role.PATIENT);
     }
 
+    /**
+     * Saves a user with Physician role to the user database and sends ID to the doctor API
+     * @param userDTO - the UserDTO object from the doctor API
+     * @return - the ID of the new doctor
+     */
     @PostMapping(value = "/newPhysician", consumes = MediaType.APPLICATION_JSON_VALUE,
     produces = MediaType.APPLICATION_JSON_VALUE)
     public Long createPhysician(@RequestBody UserDTO userDTO) {
         return userService.createUser(userDTO, Role.PHYSICIAN);
     }
 
+    /**
+     * Saves a user with Pharmacist role to the user database and sends ID to the pharmacy API
+     * @param userDTO - the UserDTO object from the pharmacy API
+     * @return - the ID of the new pharmacist
+     */
     @PostMapping(value = "/newPharmacist", consumes = MediaType.APPLICATION_JSON_VALUE,
     produces = MediaType.APPLICATION_JSON_VALUE)
     public Long createPharmacist(@RequestBody UserDTO userDTO) {

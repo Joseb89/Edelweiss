@@ -18,8 +18,8 @@ public class AppointmentService {
     }
 
     /**
-     * Creates a new appointment based on appointmentDTO from doctor API
-     * @param appointmentDTO - the appointmentDTO from the doctor API
+     * Creates a new appointment based on appointmentDTO from the doctor API
+     * @param appointmentDTO - the AppointmentDTO object from the doctor API
      * @return - appointment data
      */
     public Appointment createAppointment (AppointmentDTO appointmentDTO) {

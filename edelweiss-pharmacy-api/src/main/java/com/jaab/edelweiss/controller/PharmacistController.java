@@ -20,6 +20,11 @@ public class PharmacistController {
         this.pharmacistService = pharmacistService;
     }
 
+    /**
+     * Saves a new pharmacist to the pharmacist database and sends data to user API
+     * @param pharmacist - the pharmacist payload
+     * @return - HTTP status response with ID of pharmacist
+     */
     @PostMapping(value = "/newPharmacist", consumes = MediaType.APPLICATION_JSON_VALUE,
                 produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Long> createPharmacist(@RequestBody Pharmacist pharmacist) {

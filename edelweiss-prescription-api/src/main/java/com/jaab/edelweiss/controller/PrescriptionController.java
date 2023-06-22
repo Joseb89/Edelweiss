@@ -19,6 +19,11 @@ public class PrescriptionController {
         this.prescriptionService = prescriptionService;
     }
 
+    /**
+     * Saves a new prescription to the prescription database based on prescriptionDTO from doctor API
+     * @param prescriptionDTO - PrescriptionDTO object from doctor API
+     * @return - the new prescription
+     */
     @PostMapping(value = "/physician/newPrescription", consumes = MediaType.APPLICATION_JSON_VALUE,
                     produces = MediaType.APPLICATION_JSON_VALUE)
     public Prescription createPrescription(@RequestBody PrescriptionDTO prescriptionDTO) {

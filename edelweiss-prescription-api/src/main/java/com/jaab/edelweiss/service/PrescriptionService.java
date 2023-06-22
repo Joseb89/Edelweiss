@@ -19,8 +19,8 @@ public class PrescriptionService {
     }
 
     /**
-     * Creates a new prescription based on prescriptionDTO from doctor API
-     * @param prescriptionDTO - the prescriptionDTO from the doctor API
+     * Creates a new prescription based on PrescriptionDTO object from the doctor API
+     * @param prescriptionDTO - the PrescriptionDTO object from the doctor API
      * @return - prescription data
      */
     public Prescription createPrescription(PrescriptionDTO prescriptionDTO) {

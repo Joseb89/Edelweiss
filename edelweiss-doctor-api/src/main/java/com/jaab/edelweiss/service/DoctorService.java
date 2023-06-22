@@ -55,9 +55,9 @@ public class DoctorService {
 
     /**
      * Creates a new prescription and sends it to the prescription API
-     * @param prescriptionDTO - the new prescription
+     * @param prescriptionDTO - the PrescriptionDTO payload
      * @param id - the ID of the doctor
-     * @return - new prescription
+     * @return - the new prescription
      */
     public PrescriptionDTO createPrescription(PrescriptionDTO prescriptionDTO, Long id) {
         Doctor doctor = doctorRepository.getReferenceById(id);
@@ -78,9 +78,9 @@ public class DoctorService {
 
     /**
      * Creates a new appointment and sends it to the appointment API
-     * @param appointmentDTO - the new appointment
+     * @param appointmentDTO - the AppointmentDTO payload
      * @param id - the ID of the doctor
-     * @return - new appointment
+     * @return - the new appointment
      */
     public AppointmentDTO createAppointment(AppointmentDTO appointmentDTO, Long id) {
         Doctor doctor = doctorRepository.getReferenceById(id);
@@ -116,9 +116,9 @@ public class DoctorService {
     }
 
     /**
-     * Retrieves a list of patients based on their first name.
+     * Retrieves a list of patients from patient API based on their first name.
      * @param firstName - the first name of the patient
-     * @return - the PatientDTO set from the patient API
+     * @return - the PatientDTO Set from the patient API
      */
     public Flux<PatientDTO> getPatientDataByFirstName(String firstName) {
         return webClient.get()
@@ -132,9 +132,9 @@ public class DoctorService {
     }
 
     /**
-     * Retrieves a list of patients based on their last name.
+     * Retrieves a list of patients from patient API based on their last name.
      * @param lastName - the last name of the patient
-     * @return - the PatientDTO set from the patient API
+     * @return - the PatientDTO Set from the patient API
      */
     public Flux<PatientDTO> getPatientDataByLastName(String lastName) {
         return webClient.get()
