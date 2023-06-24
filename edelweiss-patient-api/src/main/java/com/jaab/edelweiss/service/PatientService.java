@@ -61,10 +61,10 @@ public class PatientService {
     /**
      * Retrieves a list of patients from the patient database based on the patient's first name
      * @param firstName - the first name of the patient
-     * @return - the set of the patients matching the criteria
+     * @return - the Set of the patients matching the criteria
      */
-    public Set<PatientDTO> getPatientByFirstName(String firstName) {
-        Set<Patient> patients = patientRepository.getPatientByFirstName(firstName);
+    public Set<PatientDTO> getPatientsByFirstName(String firstName) {
+        Set<Patient> patients = patientRepository.getPatientsByFirstName(firstName);
 
         return patients.stream()
                 .map(this::copyToDTO)
@@ -74,10 +74,23 @@ public class PatientService {
     /**
      * Retrieves a list of patients from the patient database based on the patient's last name
      * @param lastName - the last name of the patient
-     * @return - the set of the patients matching the criteria
+     * @return - the Set of the patients matching the criteria
      */
-    public Set<PatientDTO> getPatientByLastName(String lastName) {
+    public Set<PatientDTO> getPatientsByLastName(String lastName) {
         Set<Patient> patients = patientRepository.getPatientsByLastName(lastName);
+
+        return patients.stream()
+                .map(this::copyToDTO)
+                .collect(Collectors.toSet());
+    }
+
+    /**
+     * Retrieves a list of patients from the patient database based on the patient's blood type
+     * @param bloodType - the blood type of the patient
+     * @return - the Set of the patients matching the criteria
+     */
+    public Set<PatientDTO> getPatientsByBloodType(String bloodType) {
+        Set<Patient> patients = patientRepository.getPatientsByBloodType(bloodType);
 
         return patients.stream()
                 .map(this::copyToDTO)

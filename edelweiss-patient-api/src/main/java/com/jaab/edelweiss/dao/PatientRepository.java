@@ -11,9 +11,12 @@ import java.util.Set;
 @Repository
 public interface PatientRepository extends JpaRepository<Patient, Long> {
 
-    @Query("FROM Patient p where p.firstName = :firstName order by p.lastName")
-    Set<Patient> getPatientByFirstName(@Param("firstName") String firstName);
+    @Query("FROM Patient p where p.firstName = :firstName ORDER BY p.lastName")
+    Set<Patient> getPatientsByFirstName(@Param("firstName") String firstName);
 
-    @Query("FROM Patient p where p.lastName = :lastName order by p.firstName")
+    @Query("FROM Patient p where p.lastName = :lastName ORDER BY p.firstName")
     Set<Patient> getPatientsByLastName(@Param("lastName") String lastName);
+
+    @Query("FROM Patient p where p.bloodType = :bloodType ORDER BY p.bloodType")
+    Set<Patient> getPatientsByBloodType(@Param("bloodType") String bloodType);
 }

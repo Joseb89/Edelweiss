@@ -104,7 +104,7 @@ public class DoctorService {
      * @param patientId - the ID of the patient
      * @return - the patient's information
      */
-    public Mono<PatientDTO> getPatientDataById(Long patientId) {
+    public Mono<PatientDTO> getPatientById(Long patientId) {
         return webClient.get()
                 .uri(PATIENT_API_URL + "/getPatientById/" + patientId)
                 .retrieve()
@@ -116,13 +116,13 @@ public class DoctorService {
     }
 
     /**
-     * Retrieves a list of patients from patient API based on their first name.
+     * Retrieves a list of patients from patient API based on their first name
      * @param firstName - the first name of the patient
      * @return - the PatientDTO Set from the patient API
      */
-    public Flux<PatientDTO> getPatientDataByFirstName(String firstName) {
+    public Flux<PatientDTO> getPatientsByFirstName(String firstName) {
         return webClient.get()
-                .uri(PATIENT_API_URL + "/getPatientByFirstName/" + firstName)
+                .uri(PATIENT_API_URL + "/getPatientsByFirstName/" + firstName)
                 .retrieve()
                 .onStatus(HttpStatusCode::is4xxClientError,
                         response -> response.bodyToMono(String.class).map(Exception::new))
@@ -132,13 +132,29 @@ public class DoctorService {
     }
 
     /**
-     * Retrieves a list of patients from patient API based on their last name.
+     * Retrieves a list of patients from patient API based on their last name
      * @param lastName - the last name of the patient
      * @return - the PatientDTO Set from the patient API
      */
-    public Flux<PatientDTO> getPatientDataByLastName(String lastName) {
+    public Flux<PatientDTO> getPatientsByLastName(String lastName) {
         return webClient.get()
-                .uri(PATIENT_API_URL + "/getPatientByLastName/" + lastName)
+                .uri(PATIENT_API_URL + "/getPatientsByLastName/" + lastName)
+                .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError,
+                        response -> response.bodyToMono(String.class).map(Exception::new))
+                .onStatus(HttpStatusCode::is5xxServerError,
+                        response -> response.bodyToMono(String.class).map(ServerException::new))
+                .bodyToFlux(PatientDTO.class);
+    }
+
+    /**
+     * Retrieves a list of patients from patient API based on their blood type
+     * @param bloodType - the blood type of the patient
+     * @return - the PatientDTO Set from the patient API
+     */
+    public Flux<PatientDTO> getPatientsByBloodType(String bloodType) {
+        return webClient.get()
+                .uri(PATIENT_API_URL + "/getPatientsByBloodType/" + bloodType)
                 .retrieve()
                 .onStatus(HttpStatusCode::is4xxClientError,
                         response -> response.bodyToMono(String.class).map(Exception::new))

@@ -48,9 +48,9 @@ public class PatientController {
      * @param firstName - the first name of the patient
      * @return - Set of patients
      */
-    @GetMapping(value = "/physician/getPatientByFirstName/{firstName}")
-    public Set<PatientDTO> getPatientByFirstName(@PathVariable String firstName) {
-        return patientService.getPatientByFirstName(firstName);
+    @GetMapping(value = "/physician/getPatientsByFirstName/{firstName}")
+    public Set<PatientDTO> getPatientsByFirstName(@PathVariable String firstName) {
+        return patientService.getPatientsByFirstName(firstName);
     }
 
     /**
@@ -58,8 +58,18 @@ public class PatientController {
      * @param lastName - the last name of the patient
      * @return - Set of patients
      */
-    @GetMapping(value = "/physician/getPatientByLastName/{lastName}")
-    public Set<PatientDTO> getPatientByLastName(@PathVariable String lastName) {
-        return patientService.getPatientByLastName(lastName);
+    @GetMapping(value = "/physician/getPatientsByLastName/{lastName}")
+    public Set<PatientDTO> getPatientsByLastName(@PathVariable String lastName) {
+        return patientService.getPatientsByLastName(lastName);
+    }
+
+    /**
+     * Retrieves a list of patients from the patient database based on patient's blood type
+     * @param bloodType - the blood type of the patient
+     * @return - Set of patients
+     */
+    @GetMapping(value = "/physician/getPatientsByBloodType/{bloodType}")
+    public Set<PatientDTO> getPatientsByBloodType(@PathVariable String bloodType) {
+        return patientService.getPatientsByBloodType(bloodType);
     }
 }

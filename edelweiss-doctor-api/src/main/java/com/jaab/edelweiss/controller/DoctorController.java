@@ -69,8 +69,8 @@ public class DoctorController {
      * @return - HTTP status response with patient data
      */
     @GetMapping(value = "/physician/getPatientById/{patientId}")
-    public ResponseEntity<Mono<PatientDTO>> getPatientDataById(@PathVariable Long patientId) {
-        Mono<PatientDTO> patientData = doctorService.getPatientDataById(patientId);
+    public ResponseEntity<Mono<PatientDTO>> getPatientById(@PathVariable Long patientId) {
+        Mono<PatientDTO> patientData = doctorService.getPatientById(patientId);
         return ResponseEntity.ok(patientData);
     }
 
@@ -79,9 +79,9 @@ public class DoctorController {
      * @param firstName - the first name of the patient
      * @return - HTTP status response with list of patients
      */
-    @GetMapping(value = "/physician/getPatientByFirstName/{firstName}")
-    public ResponseEntity<Flux<PatientDTO>> getPatientDataByFirstName(@PathVariable String firstName) {
-        Flux<PatientDTO> patientData = doctorService.getPatientDataByFirstName(firstName);
+    @GetMapping(value = "/physician/getPatientsByFirstName/{firstName}")
+    public ResponseEntity<Flux<PatientDTO>> getPatientsByFirstName(@PathVariable String firstName) {
+        Flux<PatientDTO> patientData = doctorService.getPatientsByFirstName(firstName);
         return ResponseEntity.ok(patientData);
     }
 
@@ -90,9 +90,19 @@ public class DoctorController {
      * @param lastName - the last name of the patient
      * @return - HTTP status response with list of patients
      */
-    @GetMapping(value = "/physician/getPatientByLastName/{lastName}")
-    public ResponseEntity<Flux<PatientDTO>> getPatientDataByLastName(@PathVariable String lastName) {
-        Flux<PatientDTO> patientData = doctorService.getPatientDataByLastName(lastName);
+    @GetMapping(value = "/physician/getPatientsByLastName/{lastName}")
+    public ResponseEntity<Flux<PatientDTO>> getPatientsByLastName(@PathVariable String lastName) {
+        Flux<PatientDTO> patientData = doctorService.getPatientsByLastName(lastName);
         return ResponseEntity.ok(patientData);
+    }
+
+    /**
+     * Retrieves a list of patients from the patient API based on the patient's blood type
+     * @param bloodType - the blood type of the patient
+     * @return - HTTP status response with list of patients
+     */
+    @GetMapping(value = "/physician/getPatientsByBloodType/{bloodType}")
+    public ResponseEntity<Flux<PatientDTO>> getPatientsByBloodType(@PathVariable String bloodType) {
+        return ResponseEntity.ok(doctorService.getPatientsByBloodType(bloodType));
     }
 }
