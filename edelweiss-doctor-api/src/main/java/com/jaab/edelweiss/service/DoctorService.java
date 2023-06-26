@@ -56,13 +56,13 @@ public class DoctorService {
     /**
      * Creates a new prescription and sends it to the prescription API
      * @param prescriptionDTO - the PrescriptionDTO payload
-     * @param id - the ID of the doctor
+     * @param physicianId - the ID of the doctor
      * @return - the new prescription
      */
-    public PrescriptionDTO createPrescription(PrescriptionDTO prescriptionDTO, Long id) {
-        Doctor doctor = doctorRepository.getReferenceById(id);
-        prescriptionDTO.setDoctorFirstName(doctor.getFirstName());
-        prescriptionDTO.setDoctorLastName(doctor.getLastName());
+    public Mono<PrescriptionDTO> createPrescription(PrescriptionDTO prescriptionDTO, Long physicianId) {
+        String[] doctorName = setDoctorName(physicianId);
+        prescriptionDTO.setDoctorFirstName(doctorName[0]);
+        prescriptionDTO.setDoctorLastName(doctorName[1]);
 
         return webClient.post()
                 .uri(PRESCRIPTION_API_URL + "/newPrescription")
@@ -72,20 +72,19 @@ public class DoctorService {
                         response -> response.bodyToMono(String.class).map(Exception::new))
                 .onStatus(HttpStatusCode::is5xxServerError,
                         response -> response.bodyToMono(String.class).map(ServerException::new))
-                .bodyToMono(PrescriptionDTO.class)
-                .block();
+                .bodyToMono(PrescriptionDTO.class);
     }
 
     /**
      * Creates a new appointment and sends it to the appointment API
      * @param appointmentDTO - the AppointmentDTO payload
-     * @param id - the ID of the doctor
+     * @param physicianId - the ID of the doctor
      * @return - the new appointment
      */
-    public AppointmentDTO createAppointment(AppointmentDTO appointmentDTO, Long id) {
-        Doctor doctor = doctorRepository.getReferenceById(id);
-        appointmentDTO.setDoctorFirstName(doctor.getFirstName());
-        appointmentDTO.setDoctorLastName(doctor.getLastName());
+    public Mono<AppointmentDTO> createAppointment(AppointmentDTO appointmentDTO, Long physicianId) {
+        String[] doctorName = setDoctorName(physicianId);
+        appointmentDTO.setDoctorFirstName(doctorName[0]);
+        appointmentDTO.setDoctorLastName(doctorName[1]);
 
         return webClient.post()
                 .uri(APPOINTMENT_API_URL + "/newAppointment")
@@ -95,8 +94,7 @@ public class DoctorService {
                         response -> response.bodyToMono(String.class).map(Exception::new))
                 .onStatus(HttpStatusCode::is5xxServerError,
                         response -> response.bodyToMono(String.class).map(ServerException::new))
-                .bodyToMono(AppointmentDTO.class)
-                .block();
+                .bodyToMono(AppointmentDTO.class);
     }
 
     /**
@@ -161,6 +159,56 @@ public class DoctorService {
                 .onStatus(HttpStatusCode::is5xxServerError,
                         response -> response.bodyToMono(String.class).map(ServerException::new))
                 .bodyToFlux(PatientDTO.class);
+    }
+
+    /**
+     * Retrieves the prescriptions from the prescription API for the doctor with the specified ID
+     * @param physicianId - the ID of the doctor
+     * @return - the list of the prescriptions
+     */
+    public Flux<PrescriptionDTO> getPrescriptions(Long physicianId) {
+        String[] doctorName = setDoctorName(physicianId);
+
+        return webClient.get()
+                .uri(PRESCRIPTION_API_URL + "/myPrescriptions/" + doctorName[0] + "/" + doctorName[1])
+                .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError,
+                        response -> response.bodyToMono(String.class).map(Exception::new))
+                .onStatus(HttpStatusCode::is5xxServerError,
+                        response -> response.bodyToMono(String.class).map(ServerException::new))
+                .bodyToFlux(PrescriptionDTO.class);
+    }
+
+    /**
+     * Retrieves the appointments from the appointment API for the doctor with the specified ID
+     * @param physicianId - the ID of the doctor
+     * @return - the list of the appointments
+     */
+    public Flux<AppointmentDTO> getAppointments(Long physicianId) {
+        String[] doctorName = setDoctorName(physicianId);
+
+        return webClient.get()
+                .uri(APPOINTMENT_API_URL + "/myAppointments/" + doctorName[0] + "/" + doctorName[1])
+                .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError,
+                        response -> response.bodyToMono(String.class).map(Exception::new))
+                .onStatus(HttpStatusCode::is5xxServerError,
+                        response -> response.bodyToMono(String.class).map(ServerException::new))
+                .bodyToFlux(AppointmentDTO.class);
+    }
+
+    /**
+     * Retrieves a doctor from the doctor database based on the physician ID and sets the doctor's
+     * first and last name to a String array
+     * @param physicianId - the ID of the doctor
+     * @return - the String array containing the doctor's first and last name
+     */
+    private String[] setDoctorName(Long physicianId) {
+        String[] doctorName = new String[2];
+        Doctor doctor = doctorRepository.getReferenceById(physicianId);
+        doctorName[0] = doctor.getFirstName();
+        doctorName[1] = doctor.getLastName();
+        return doctorName;
     }
 
     /**

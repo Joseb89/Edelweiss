@@ -43,10 +43,9 @@ public class DoctorController {
      */
     @PostMapping(value = "/physician/{physicianId}/newPrescription", consumes = MediaType.APPLICATION_JSON_VALUE,
                 produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<PrescriptionDTO> createPrescription(@RequestBody PrescriptionDTO prescription,
+    public ResponseEntity<Mono<PrescriptionDTO>> createPrescription(@RequestBody PrescriptionDTO prescription,
                                                    @PathVariable Long physicianId) {
-        PrescriptionDTO newPrescription = doctorService.createPrescription(prescription, physicianId);
-        return ResponseEntity.ok(newPrescription);
+        return ResponseEntity.ok(doctorService.createPrescription(prescription, physicianId));
     }
 
     /**
@@ -57,10 +56,9 @@ public class DoctorController {
      */
     @PostMapping(value = "/physician/{physicianId}/newAppointment", consumes = MediaType.APPLICATION_JSON_VALUE,
                     produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<AppointmentDTO> createAppointment(@RequestBody AppointmentDTO appointment,
+    public ResponseEntity<Mono<AppointmentDTO>> createAppointment(@RequestBody AppointmentDTO appointment,
                                                             @PathVariable Long physicianId) {
-        AppointmentDTO newAppointment = doctorService.createAppointment(appointment, physicianId);
-        return ResponseEntity.ok(newAppointment);
+        return ResponseEntity.ok(doctorService.createAppointment(appointment, physicianId));
     }
 
     /**
@@ -70,8 +68,7 @@ public class DoctorController {
      */
     @GetMapping(value = "/physician/getPatientById/{patientId}")
     public ResponseEntity<Mono<PatientDTO>> getPatientById(@PathVariable Long patientId) {
-        Mono<PatientDTO> patientData = doctorService.getPatientById(patientId);
-        return ResponseEntity.ok(patientData);
+        return ResponseEntity.ok(doctorService.getPatientById(patientId));
     }
 
     /**
@@ -81,8 +78,7 @@ public class DoctorController {
      */
     @GetMapping(value = "/physician/getPatientsByFirstName/{firstName}")
     public ResponseEntity<Flux<PatientDTO>> getPatientsByFirstName(@PathVariable String firstName) {
-        Flux<PatientDTO> patientData = doctorService.getPatientsByFirstName(firstName);
-        return ResponseEntity.ok(patientData);
+        return ResponseEntity.ok(doctorService.getPatientsByFirstName(firstName));
     }
 
     /**
@@ -92,8 +88,7 @@ public class DoctorController {
      */
     @GetMapping(value = "/physician/getPatientsByLastName/{lastName}")
     public ResponseEntity<Flux<PatientDTO>> getPatientsByLastName(@PathVariable String lastName) {
-        Flux<PatientDTO> patientData = doctorService.getPatientsByLastName(lastName);
-        return ResponseEntity.ok(patientData);
+        return ResponseEntity.ok(doctorService.getPatientsByLastName(lastName));
     }
 
     /**
@@ -104,5 +99,25 @@ public class DoctorController {
     @GetMapping(value = "/physician/getPatientsByBloodType/{bloodType}")
     public ResponseEntity<Flux<PatientDTO>> getPatientsByBloodType(@PathVariable String bloodType) {
         return ResponseEntity.ok(doctorService.getPatientsByBloodType(bloodType));
+    }
+
+    /**
+     * Retrieves the specified doctor's prescriptions from the prescription API
+     * @param physicianId - the ID of the doctor
+     * @return - HTTP status response with list of the doctor's prescriptions
+     */
+    @GetMapping(value = "/physician/{physicianId}/myPrescriptions")
+    public ResponseEntity<Flux<PrescriptionDTO>> getPrescriptions(@PathVariable Long physicianId) {
+        return ResponseEntity.ok(doctorService.getPrescriptions(physicianId));
+    }
+
+    /**
+     * Retrieves the specified doctor's appointments from the appointment API
+     * @param physicianId - the ID of the doctor
+     * @return - HTTP status response with list of the doctor's appointments
+     */
+    @GetMapping(value = "/physician/{physicianId}/myAppointments")
+    public ResponseEntity<Flux<AppointmentDTO>> getAppointments(@PathVariable Long physicianId) {
+        return ResponseEntity.ok(doctorService.getAppointments(physicianId));
     }
 }

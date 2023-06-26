@@ -8,6 +8,9 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Set;
+import java.util.stream.Collectors;
+
 @Service
 public class PrescriptionService {
 
@@ -29,5 +32,30 @@ public class PrescriptionService {
         prescription.setPrescriptionStatus(Status.PENDING);
         prescriptionRepository.save(prescription);
         return prescription;
+    }
+
+    /**
+     * Retrieves a list of prescriptions from the prescription database based on the doctor's name
+     * @param firstName - the first name of the doctor
+     * @param lastName - the last name of the doctor
+     * @return - Set of prescriptions
+     */
+    public Set<PrescriptionDTO> getPrescriptionsByDoctorName(String firstName, String lastName) {
+        Set<Prescription> prescriptions = prescriptionRepository.getPrescriptionsByDoctorName(firstName, lastName);
+
+        return prescriptions.stream()
+                .map(this::copyToDTO)
+                .collect(Collectors.toSet());
+    }
+
+    /**
+     * Copies the values of a Prescription object into a PrescriptionDTO object
+     * @param prescription - the Prescription object
+     * @return - the PrescriptionDTO object
+     */
+    private PrescriptionDTO copyToDTO(Prescription prescription) {
+        PrescriptionDTO prescriptionDTO = new PrescriptionDTO();
+        BeanUtils.copyProperties(prescription, prescriptionDTO);
+        return prescriptionDTO;
     }
 }
