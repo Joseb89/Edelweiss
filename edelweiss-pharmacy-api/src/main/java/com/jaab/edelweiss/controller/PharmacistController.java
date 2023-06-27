@@ -1,14 +1,17 @@
 package com.jaab.edelweiss.controller;
 
+import com.jaab.edelweiss.dto.PrescriptionDTO;
 import com.jaab.edelweiss.dto.UserDTO;
 import com.jaab.edelweiss.model.Pharmacist;
 import com.jaab.edelweiss.service.PharmacistService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Flux;
 
 @RestController
 public class PharmacistController {
@@ -30,5 +33,10 @@ public class PharmacistController {
     public ResponseEntity<Long> createPharmacist(@RequestBody Pharmacist pharmacist) {
         UserDTO newPharmacist = pharmacistService.createPharmacist(pharmacist);
         return ResponseEntity.ok(newPharmacist.getId());
+    }
+
+    @GetMapping(value = "/pharmacy/home")
+    public ResponseEntity<Flux<PrescriptionDTO>> getPendingPrescriptions() {
+        return ResponseEntity.ok(pharmacistService.getPendingPrescriptions());
     }
 }

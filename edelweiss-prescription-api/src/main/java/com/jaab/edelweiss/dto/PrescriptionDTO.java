@@ -1,5 +1,6 @@
 package com.jaab.edelweiss.dto;
 
+import com.jaab.edelweiss.model.Status;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -11,4 +12,5 @@ public class PrescriptionDTO {
     private String doctorLastName;
     private String prescriptionName;
     private Byte prescriptionDosage;
+    private Status prescriptionStatus;
 }

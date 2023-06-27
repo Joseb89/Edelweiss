@@ -48,6 +48,14 @@ public class PrescriptionService {
                 .collect(Collectors.toSet());
     }
 
+    public Set<PrescriptionDTO> getPrescriptionsByPrescriptionStatus(Status status) {
+        Set<Prescription> prescriptions = prescriptionRepository.getPrescriptionsByPrescriptionStatus(status);
+
+        return prescriptions.stream()
+                .map(this::copyToDTO)
+                .collect(Collectors.toSet());
+    }
+
     /**
      * Copies the values of a Prescription object into a PrescriptionDTO object
      * @param prescription - the Prescription object

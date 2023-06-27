@@ -2,6 +2,7 @@ package com.jaab.edelweiss.controller;
 
 import com.jaab.edelweiss.dto.PrescriptionDTO;
 import com.jaab.edelweiss.model.Prescription;
+import com.jaab.edelweiss.model.Status;
 import com.jaab.edelweiss.service.PrescriptionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -41,5 +42,10 @@ public class PrescriptionController {
     public Set<PrescriptionDTO> getPrescriptionsByDoctorName(@PathVariable String firstName,
                                                              @PathVariable String lastName) {
         return prescriptionService.getPrescriptionsByDoctorName(firstName, lastName);
+    }
+
+    @GetMapping(value = "/pharmacy/getPendingPrescriptions")
+    public Set<PrescriptionDTO> getPendingPrescriptions() {
+        return prescriptionService.getPrescriptionsByPrescriptionStatus(Status.PENDING);
     }
 }
