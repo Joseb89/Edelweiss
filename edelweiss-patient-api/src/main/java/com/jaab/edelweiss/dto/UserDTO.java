@@ -18,4 +18,9 @@ public class UserDTO {
     public UserDTO(Long id) {
         this.id = id;
     }
+
+    public UserDTO(Long id, String lastName) {
+        this.id = id;
+        this.lastName = lastName;
+    }
 }

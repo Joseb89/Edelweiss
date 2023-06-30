@@ -31,4 +31,23 @@ public class UserService {
         userRepository.save(user);
         return user.getId();
     }
+
+    /**
+     * Updates user information based on UserDTO payload and merges it to the user database
+     * @param userDTO - the UserDTO payload
+     */
+    public void updateUserInfo(UserDTO userDTO) {
+        User user = userRepository.getReferenceById(userDTO.getId());
+
+        if (userDTO.getLastName() != null)
+            user.setLastName(userDTO.getLastName());
+
+        if (userDTO.getEmail() != null)
+            user.setEmail(user.getEmail());
+
+        if (userDTO.getPassword() != null)
+            user.setPassword(userDTO.getPassword());
+
+        userRepository.save(user);
+    }
 }

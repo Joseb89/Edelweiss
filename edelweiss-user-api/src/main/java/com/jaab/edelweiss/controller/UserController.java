@@ -4,6 +4,7 @@ import com.jaab.edelweiss.dto.UserDTO;
 import com.jaab.edelweiss.model.Role;
 import com.jaab.edelweiss.service.UserService;
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -48,5 +49,14 @@ public class UserController {
     produces = MediaType.APPLICATION_JSON_VALUE)
     public Long createPharmacist(@RequestBody UserDTO userDTO) {
         return userService.createUser(userDTO, Role.PHARMACIST);
+    }
+
+    /**
+     * Updates the user info based on UserDTO payload from external API and merges it to the user database
+     * @param userDTO - the UserDTO payload
+     */
+    @PatchMapping(value = "/updateUserInfo")
+    public void updateUserInfo(@RequestBody UserDTO userDTO) {
+        userService.updateUserInfo(userDTO);
     }
 }

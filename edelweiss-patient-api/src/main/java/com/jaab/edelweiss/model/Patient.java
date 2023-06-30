@@ -14,10 +14,10 @@ import lombok.Setter;
 public class Patient {
 
     @Id
-    @Column(name = "patient_id", nullable = false)
+    @Column(name = "patient_id", nullable = false, updatable = false)
     private Long id;
 
-    @Column(name = "first_name", nullable = false, length = 20)
+    @Column(name = "first_name", nullable = false, updatable = false, length = 20)
     private String firstName;
 
     @Column(name = "last_name", nullable = false, length = 30)
@@ -47,6 +47,6 @@ public class Patient {
     @Column(name = "primary_doctor", length = 50)
     private String primaryDoctor;
 
-    @Column(name = "blood_type", nullable = false, length = 3)
+    @Column(name = "blood_type", nullable = false, updatable = false, length = 3)
     private String bloodType;
 }

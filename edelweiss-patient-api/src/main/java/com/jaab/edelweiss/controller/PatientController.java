@@ -4,11 +4,14 @@ import com.jaab.edelweiss.dto.PatientDTO;
 import com.jaab.edelweiss.dto.UserDTO;
 import com.jaab.edelweiss.model.Patient;
 import com.jaab.edelweiss.service.PatientService;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Mono;
 
+import java.io.IOException;
 import java.util.Set;
 
 @RestController
@@ -71,5 +74,30 @@ public class PatientController {
     @GetMapping(value = "/physician/getPatientsByBloodType/{bloodType}")
     public Set<PatientDTO> getPatientsByBloodType(@PathVariable String bloodType) {
         return patientService.getPatientsByBloodType(bloodType);
+    }
+
+    /**
+     * Updates the patient's information and saves it to the patient database
+     * @param patient - the Patient payload containing the new last name
+     * @param patientId - the ID of the patient
+     */
+    @PatchMapping(value = "/patient/{patientId}/updatePatientInfo", consumes = MediaType.APPLICATION_JSON_VALUE,
+                    produces = MediaType.APPLICATION_JSON_VALUE)
+    public void updatePatientInfo(@RequestBody Patient patient, @PathVariable Long patientId,
+                                    HttpServletResponse response) throws IOException {
+        patientService.updatePatientInfo(patient, patientId);
+
+        if (patient.getLastName() != null)
+            response.sendRedirect("/patient/" + patientId + "/updateLastName");
+    }
+
+    /**
+     * Sends updated patient last name to the user API to update user database
+     * @param patientId - the ID of the patient saved in a UserDTO object
+     * @return - the UserDTO payload
+     */
+    @PatchMapping(value = "/patient/{patientId}/updateLastName")
+    public Mono<UserDTO> updateLastName(@PathVariable Long patientId) {
+        return patientService.updateLastName(patientId);
     }
 }
