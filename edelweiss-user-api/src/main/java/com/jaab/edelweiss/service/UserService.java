@@ -43,7 +43,7 @@ public class UserService {
             user.setLastName(userDTO.getLastName());
 
         if (userDTO.getEmail() != null)
-            user.setEmail(user.getEmail());
+            user.setEmail(userDTO.getEmail());
 
         if (userDTO.getPassword() != null)
             user.setPassword(userDTO.getPassword());
