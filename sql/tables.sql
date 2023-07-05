@@ -14,12 +14,19 @@ create table if not exists patients (
     patient_email VARCHAR(30) not null,
     patient_password VARCHAR(100) not null,
     phone_number BIGINT not null,
-    street_address VARCHAR(40),
-    city VARCHAR(20),
-    state VARCHAR(2),
-    zipcode INTEGER,
     primary_doctor VARCHAR(50),
     blood_type VARCHAR(3) not null
+);
+
+create table if not exists address (
+    patient_id BIGINT primary key,
+    street_address VARCHAR(40) not null,
+    city VARCHAR(20) not null,
+    state VARCHAR(2) not null,
+    zipcode INTEGER not null,
+    CONSTRAINT fk_patient
+        FOREIGN KEY(patient_id)
+            REFERENCES patients(patient_id)
 );
 
 create table if not exists doctors (

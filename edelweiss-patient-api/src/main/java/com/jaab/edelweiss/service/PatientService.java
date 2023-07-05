@@ -3,6 +3,7 @@ package com.jaab.edelweiss.service;
 import com.jaab.edelweiss.dao.PatientRepository;
 import com.jaab.edelweiss.dto.PatientDTO;
 import com.jaab.edelweiss.dto.UserDTO;
+import com.jaab.edelweiss.model.Address;
 import com.jaab.edelweiss.model.Patient;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,15 +34,19 @@ public class PatientService {
     }
 
     /**
-     * Saves a new patient to the patient database
+     * Saves a new patient to the patient database and the patient's address to the address database
      * @param patient - the new Patient
      * @return - the user payload
      */
     public UserDTO createPatient(Patient patient) {
         UserDTO userDTO = new UserDTO();
+        Address address = new Address();
         BeanUtils.copyProperties(patient, userDTO);
         UserDTO userData = sendUserData(userDTO);
         patient.setId(userData.getId());
+        BeanUtils.copyProperties(patient.getAddress(), address);
+        address.setPatient(patient);
+        patient.setAddress(address);
         patientRepository.save(patient);
         return userData;
     }
@@ -104,7 +109,6 @@ public class PatientService {
      * @return - the UserDTO object containing the updated information
      */
     public Mono<UserDTO> updateUserInfo(Patient patient, Long patientId) {
-
         UserDTO userDTO = updatePatientInfo(patient, patientId);
 
         return webClient.patch()
