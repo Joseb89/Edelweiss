@@ -117,6 +117,22 @@ public class PatientService {
     }
 
     /**
+     * Updates the patient's address and merges it to the address database
+     * @param address - the Address payload
+     * @param patientId - the ID of the patient
+     * @return - the AddressDTO object containing the updated address
+     */
+    public AddressDTO updateAddress(Address address, Long patientId) {
+        AddressDTO addressDTO = new AddressDTO();
+        Patient patient = patientRepository.getReferenceById(patientId);
+        address.setId(patient.getId());
+        BeanUtils.copyProperties(address, patient.getAddress());
+        BeanUtils.copyProperties(patient.getAddress(), addressDTO);
+        patientRepository.save(patient);
+        return addressDTO;
+    }
+
+    /**
      * Sends the updated patient information to the user API
      * @param patient - the Patient payload
      * @param patientId - the ID of the patient

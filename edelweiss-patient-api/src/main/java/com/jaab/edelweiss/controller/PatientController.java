@@ -3,6 +3,7 @@ package com.jaab.edelweiss.controller;
 import com.jaab.edelweiss.dto.AddressDTO;
 import com.jaab.edelweiss.dto.PatientDTO;
 import com.jaab.edelweiss.dto.UserDTO;
+import com.jaab.edelweiss.model.Address;
 import com.jaab.edelweiss.model.Patient;
 import com.jaab.edelweiss.service.PatientService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -83,6 +84,18 @@ public class PatientController {
     @GetMapping(value = "/physician/getPatientAddress/{patientId}")
     public AddressDTO getAddress(@PathVariable Long patientId) {
         return patientService.getAddress(patientId);
+    }
+
+    /**
+     * Updates the patient's address and merges it to the address database
+     * @param address - the Address payload
+     * @param patientId - the ID of the patient
+     * @return - HTTP status response containing the updated address
+     */
+    @PatchMapping(value = "/patient/{patientId}/updateAddress", consumes = MediaType.APPLICATION_JSON_VALUE,
+                produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<AddressDTO> updateAddress(@RequestBody Address address, @PathVariable Long patientId) {
+        return ResponseEntity.ok(patientService.updateAddress(address, patientId));
     }
 
     /**
