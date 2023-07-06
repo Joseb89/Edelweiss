@@ -1,10 +1,7 @@
 package com.jaab.edelweiss.service;
 
 import com.jaab.edelweiss.dao.DoctorRepository;
-import com.jaab.edelweiss.dto.AppointmentDTO;
-import com.jaab.edelweiss.dto.PatientDTO;
-import com.jaab.edelweiss.dto.PrescriptionDTO;
-import com.jaab.edelweiss.dto.UserDTO;
+import com.jaab.edelweiss.dto.*;
 import com.jaab.edelweiss.model.Doctor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -195,6 +192,22 @@ public class DoctorService {
                 .onStatus(HttpStatusCode::is5xxServerError,
                         response -> response.bodyToMono(String.class).map(ServerException::new))
                 .bodyToFlux(AppointmentDTO.class);
+    }
+
+    /**
+     * Retrieves the address of a patient with the corresponding ID from the patient API
+     * @param patientId - the ID of the patient
+     * @return - the patient's address
+     */
+    public Mono<AddressDTO> getPatientAddress(Long patientId) {
+        return webClient.get()
+                .uri(PATIENT_API_URL + "/getPatientAddress/" + patientId)
+                .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError,
+                        response -> response.bodyToMono(String.class).map(Exception::new))
+                .onStatus(HttpStatusCode::is5xxServerError,
+                        response -> response.bodyToMono(String.class).map(ServerException::new))
+                .bodyToMono(AddressDTO.class);
     }
 
     /**

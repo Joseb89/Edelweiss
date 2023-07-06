@@ -1,9 +1,6 @@
 package com.jaab.edelweiss.controller;
 
-import com.jaab.edelweiss.dto.AppointmentDTO;
-import com.jaab.edelweiss.dto.PatientDTO;
-import com.jaab.edelweiss.dto.PrescriptionDTO;
-import com.jaab.edelweiss.dto.UserDTO;
+import com.jaab.edelweiss.dto.*;
 import com.jaab.edelweiss.model.Doctor;
 import com.jaab.edelweiss.service.DoctorService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -119,5 +116,15 @@ public class DoctorController {
     @GetMapping(value = "/physician/{physicianId}/myAppointments")
     public ResponseEntity<Flux<AppointmentDTO>> getAppointments(@PathVariable Long physicianId) {
         return ResponseEntity.ok(doctorService.getAppointments(physicianId));
+    }
+
+    /**
+     * Retrieves the address of a patient with the corresponding ID from the patient API
+     * @param patientId - the ID of the patient
+     * @return - HTTP status response with the patient's address
+     */
+    @GetMapping(value = "/physician/getPatientAddress/{patientId}")
+    public ResponseEntity<Mono<AddressDTO>> getPatientAddress(@PathVariable Long patientId) {
+        return ResponseEntity.ok(doctorService.getPatientAddress(patientId));
     }
 }

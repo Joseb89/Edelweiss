@@ -1,5 +1,6 @@
 package com.jaab.edelweiss.controller;
 
+import com.jaab.edelweiss.dto.AddressDTO;
 import com.jaab.edelweiss.dto.PatientDTO;
 import com.jaab.edelweiss.dto.UserDTO;
 import com.jaab.edelweiss.model.Patient;
@@ -72,6 +73,16 @@ public class PatientController {
     @GetMapping(value = "/physician/getPatientsByBloodType/{bloodType}")
     public Set<PatientDTO> getPatientsByBloodType(@PathVariable String bloodType) {
         return patientService.getPatientsByBloodType(bloodType);
+    }
+
+    /**
+     * Retrieves the patient's address from the address database and sends it to the doctor API
+     * @param patientId - the ID of the patient
+     * @return - the AddressDTO object
+     */
+    @GetMapping(value = "/physician/getPatientAddress/{patientId}")
+    public AddressDTO getAddress(@PathVariable Long patientId) {
+        return patientService.getAddress(patientId);
     }
 
     /**

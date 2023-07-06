@@ -1,6 +1,7 @@
 package com.jaab.edelweiss.service;
 
 import com.jaab.edelweiss.dao.PatientRepository;
+import com.jaab.edelweiss.dto.AddressDTO;
 import com.jaab.edelweiss.dto.PatientDTO;
 import com.jaab.edelweiss.dto.UserDTO;
 import com.jaab.edelweiss.model.Address;
@@ -100,6 +101,19 @@ public class PatientService {
         return patients.stream()
                 .map(this::copyToDTO)
                 .collect(Collectors.toSet());
+    }
+
+    /**
+     * Retrieves a patient's address from the address database and saves it to an AddressDTO object
+     * @param patientId - the ID of the patient
+     * @return - the AddressDTO object
+     */
+    public AddressDTO getAddress(Long patientId) {
+        Patient patient = patientRepository.getReferenceById(patientId);
+        Address address = patient.getAddress();
+        AddressDTO addressDTO = new AddressDTO();
+        BeanUtils.copyProperties(address, addressDTO);
+        return addressDTO;
     }
 
     /**
