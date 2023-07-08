@@ -53,10 +53,11 @@ public class UserController {
 
     /**
      * Updates the user info based on UserDTO payload from external API and merges it to the user database
-     * @param userDTO - the UserDTO payload
+     * @param userDTO - the UserDTO payload from the external API
+     * @return - the UserDTO object containing the updated information
      */
     @PatchMapping(value = "/updateUserInfo")
-    public void updateUserInfo(@RequestBody UserDTO userDTO) {
-        userService.updateUserInfo(userDTO);
+    public UserDTO updateUserInfo(@RequestBody UserDTO userDTO) {
+        return userService.updateUserInfo(userDTO);
     }
 }

@@ -21,6 +21,8 @@ public class PharmacistService {
 
     private PharmacistRepository pharmacistRepository;
 
+    private static final String USER_API_URL = "http://localhost:8081";
+
     private static final String PRESCRIPTION_API_URL = "http://localhost:8085/pharmacy";
 
     @Autowired
@@ -47,6 +49,10 @@ public class PharmacistService {
         return userData;
     }
 
+    /**
+     * Retrieves all prescriptions from the prescription API with the PENDING status
+     * @return - all pending prescriptions
+     */
     public Flux<PrescriptionDTO> getPendingPrescriptions() {
         return webClient.get()
                 .uri(PRESCRIPTION_API_URL + "/getPendingPrescriptions")
@@ -59,7 +65,58 @@ public class PharmacistService {
     }
 
     /**
-     * Sends UserDTO object to the user API
+     * Sends the updated pharmacist information to the user API
+     * @param pharmacist - the Pharmacist payload
+     * @param pharmacistId - the ID of the pharmacist
+     * @return - the UserDTO object containing the updated information
+     */
+    public Mono<UserDTO> updateUserInfo(Pharmacist pharmacist, Long pharmacistId) {
+        UserDTO userDTO = updatePharmacistInfo(pharmacist, pharmacistId);
+
+        return webClient.patch()
+                .uri(USER_API_URL + "/updateUserInfo")
+                .body(Mono.just(userDTO), UserDTO.class)
+                .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError,
+                        response -> response.bodyToMono(String.class).map(Exception::new))
+                .onStatus(HttpStatusCode::is5xxServerError,
+                        response -> response.bodyToMono(String.class).map(ServerException::new))
+                .bodyToMono(UserDTO.class);
+    }
+
+    /**
+     * Updates the information of the pharmacist via a Pharmacist payload, merges it to the pharmacist database,
+     * and stores it in a UserDTO object
+     * @param pharmacist - the Pharmacist payload
+     * @param pharmacistId - the ID of the pharmacist
+     * @return - the UserDTO object with the updated information
+     */
+    private UserDTO updatePharmacistInfo(Pharmacist pharmacist, Long pharmacistId) {
+        Pharmacist getPharmacist = pharmacistRepository.getReferenceById(pharmacistId);
+        UserDTO userDTO = new UserDTO(pharmacistId);
+
+        if (pharmacist.getLastName() != null) {
+            getPharmacist.setLastName(pharmacist.getLastName());
+            userDTO.setLastName(pharmacist.getLastName());
+        }
+
+        if (pharmacist.getEmail() != null) {
+            getPharmacist.setEmail(pharmacist.getEmail());
+            userDTO.setEmail(pharmacist.getEmail());
+        }
+
+        if (pharmacist.getPassword() != null) {
+            getPharmacist.setPassword(pharmacist.getPassword());
+            userDTO.setPassword(pharmacist.getPassword());
+        }
+
+        pharmacistRepository.save(getPharmacist);
+
+        return userDTO;
+    }
+
+    /**
+     * Sends a UserDTO payload to the user API and returns the user ID
      * @param userDTO - the userDTO object
      * @return - the userDTO payload
      */

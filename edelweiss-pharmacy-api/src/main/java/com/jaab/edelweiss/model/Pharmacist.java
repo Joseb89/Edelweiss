@@ -14,10 +14,10 @@ import lombok.Setter;
 public class Pharmacist {
 
     @Id
-    @Column(name = "pharmacist_id", nullable = false)
+    @Column(name = "pharmacist_id", nullable = false, unique = true, updatable = false)
     private Long id;
 
-    @Column(name = "first_name", nullable = false, length = 20)
+    @Column(name = "first_name", nullable = false, updatable = false, length = 20)
     private String firstName;
 
     @Column(name = "last_name", nullable = false, length = 30)

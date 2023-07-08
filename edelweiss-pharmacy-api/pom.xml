@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.jaab</groupId>
 	<artifactId>edelweiss-pharmacy-api</artifactId>
-	<version>1.0.3-SNAPSHOT</version>
+	<version>1.0.4-SNAPSHOT</version>
 	<name>edelweiss-pharmacy-api</name>
 	<description>edelweiss-pharmacy-api</description>
 	<properties>

@@ -20,6 +20,8 @@ public class DoctorService {
 
     private DoctorRepository doctorRepository;
 
+    private static final String USER_API_URL = "http://localhost:8081";
+
     private static final String PATIENT_API_URL = "http://localhost:8082/physician";
 
     private static final String PRESCRIPTION_API_URL = "http://localhost:8085/physician";
@@ -159,6 +161,22 @@ public class DoctorService {
     }
 
     /**
+     * Retrieves the address of a patient with the corresponding ID from the patient API
+     * @param patientId - the ID of the patient
+     * @return - the patient's address
+     */
+    public Mono<AddressDTO> getPatientAddress(Long patientId) {
+        return webClient.get()
+                .uri(PATIENT_API_URL + "/getPatientAddress/" + patientId)
+                .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError,
+                        response -> response.bodyToMono(String.class).map(Exception::new))
+                .onStatus(HttpStatusCode::is5xxServerError,
+                        response -> response.bodyToMono(String.class).map(ServerException::new))
+                .bodyToMono(AddressDTO.class);
+    }
+
+    /**
      * Retrieves the prescriptions from the prescription API for the doctor with the specified ID
      * @param physicianId - the ID of the doctor
      * @return - the list of the prescriptions
@@ -195,19 +213,23 @@ public class DoctorService {
     }
 
     /**
-     * Retrieves the address of a patient with the corresponding ID from the patient API
-     * @param patientId - the ID of the patient
-     * @return - the patient's address
+     * Sends the updated doctor information to the user API
+     * @param doctor - the Doctor payload
+     * @param physicianId - the ID of the physician
+     * @return - the UserDTO object containing the updated information
      */
-    public Mono<AddressDTO> getPatientAddress(Long patientId) {
-        return webClient.get()
-                .uri(PATIENT_API_URL + "/getPatientAddress/" + patientId)
+    public Mono<UserDTO> updateUserInfo(Doctor doctor, Long physicianId) {
+        UserDTO userDTO = updateDoctorInfo(doctor, physicianId);
+
+        return webClient.patch()
+                .uri(USER_API_URL + "/updateUserInfo")
+                .body(Mono.just(userDTO), UserDTO.class)
                 .retrieve()
                 .onStatus(HttpStatusCode::is4xxClientError,
                         response -> response.bodyToMono(String.class).map(Exception::new))
                 .onStatus(HttpStatusCode::is5xxServerError,
                         response -> response.bodyToMono(String.class).map(ServerException::new))
-                .bodyToMono(AddressDTO.class);
+                .bodyToMono(UserDTO.class);
     }
 
     /**
@@ -225,7 +247,41 @@ public class DoctorService {
     }
 
     /**
-     * Sends UserDTO object to the user API
+     * Updates the information of the doctor via a Doctor payload, merges it to the doctor database,
+     * and stores it in a UserDTO object
+     * @param doctor - the Doctor payload
+     * @param physicianId - the ID of the doctor
+     * @return - the UserDTO object with the updated information
+     */
+    private UserDTO updateDoctorInfo(Doctor doctor, Long physicianId) {
+        Doctor getDoctor = doctorRepository.getReferenceById(physicianId);
+        UserDTO userDTO = new UserDTO(physicianId);
+
+        if (doctor.getLastName() != null) {
+            getDoctor.setLastName(doctor.getLastName());
+            userDTO.setLastName(doctor.getLastName());
+        }
+
+        if (doctor.getEmail() != null) {
+            getDoctor.setEmail(doctor.getEmail());
+            userDTO.setEmail(doctor.getEmail());
+        }
+
+        if (doctor.getPassword() != null) {
+            getDoctor.setPassword(doctor.getPassword());
+            userDTO.setPassword(doctor.getPassword());
+        }
+
+        if (doctor.getPhoneNumber() != null)
+            getDoctor.setPhoneNumber(doctor.getPhoneNumber());
+
+        doctorRepository.save(getDoctor);
+
+        return userDTO;
+    }
+
+    /**
+     * Sends a UserDTO payload to the user API and returns the user ID
      * @param userDTO - the userDTO object
      * @return - the userDTO payload
      */

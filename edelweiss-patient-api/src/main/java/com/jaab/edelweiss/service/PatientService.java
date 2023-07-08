@@ -164,8 +164,8 @@ public class PatientService {
     }
 
     /**
-     * Updates the information of the patient via a Patient payload, saves it to the patient database,
-     * and stores the information in a UserDTO object
+     * Updates the information of the patient via a Patient payload, merges it to the patient database,
+     * and stores it in a UserDTO object
      * @param patient - the Patient payload
      * @param patientId - the ID of the patient
      * @return - the UserDTO object with the updated information
@@ -201,9 +201,9 @@ public class PatientService {
     }
 
     /**
-     * Sends a UserDTO payload to the user API and returns the user id
+     * Sends a UserDTO payload to the user API and returns the user ID
      * @param userDTO - the UserDTO object
-     * @return - the UserDTO post payload
+     * @return - the UserDTO payload
      */
     private UserDTO sendUserData(UserDTO userDTO) {
         return webClient.post()

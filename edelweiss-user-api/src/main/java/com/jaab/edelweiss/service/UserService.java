@@ -33,11 +33,13 @@ public class UserService {
     }
 
     /**
-     * Updates user information based on UserDTO payload and merges it to the user database
-     * @param userDTO - the UserDTO payload
+     * Updates user information based on UserDTO payload from external API and merges it to the user database
+     * @param userDTO - the UserDTO payload from the external API
+     * @return - the UserDTO object containing the updated information
      */
-    public void updateUserInfo(UserDTO userDTO) {
+    public UserDTO updateUserInfo(UserDTO userDTO) {
         User user = userRepository.getReferenceById(userDTO.getId());
+        UserDTO returnUser = new UserDTO();
 
         if (userDTO.getLastName() != null)
             user.setLastName(userDTO.getLastName());
@@ -48,6 +50,10 @@ public class UserService {
         if (userDTO.getPassword() != null)
             user.setPassword(userDTO.getPassword());
 
+        BeanUtils.copyProperties(user, returnUser);
+
         userRepository.save(user);
+
+        return returnUser;
     }
 }

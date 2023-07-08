@@ -127,4 +127,16 @@ public class DoctorController {
     public ResponseEntity<Mono<AddressDTO>> getPatientAddress(@PathVariable Long patientId) {
         return ResponseEntity.ok(doctorService.getPatientAddress(patientId));
     }
+
+    /**
+     * Updates the doctor's information and merges it to the doctor database
+     * @param doctor - the Doctor payload containing the updated information
+     * @param physicianId - the ID of the doctor
+     * @return - HTTP status response with the updated information
+     */
+    @PatchMapping(value = "/physician/{physicianId}/updatePhysicianInfo")
+    public ResponseEntity<Mono<UserDTO>> updateDoctorInfo(@RequestBody Doctor doctor,
+                                                          @PathVariable Long physicianId) {
+        return ResponseEntity.ok((doctorService.updateUserInfo(doctor, physicianId)));
+    }
 }

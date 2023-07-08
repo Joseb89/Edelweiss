@@ -99,14 +99,15 @@ public class PatientController {
     }
 
     /**
-     * Updates the patient's information and saves it to the patient database
+     * Updates the patient's information and merges it to the patient database
      * @param patient - the Patient payload containing the updated information
      * @param patientId - the ID of the patient
+     * @return - HTTP status response with the updated information
      */
     @PatchMapping(value = "/patient/{patientId}/updatePatientInfo", consumes = MediaType.APPLICATION_JSON_VALUE,
                     produces = MediaType.APPLICATION_JSON_VALUE)
-    public Mono<UserDTO> updatePatientInfo(@RequestBody Patient patient,
-                                           @PathVariable Long patientId) {
-        return patientService.updateUserInfo(patient, patientId);
+    public ResponseEntity<Mono<UserDTO>> updatePatientInfo(@RequestBody Patient patient,
+                                                           @PathVariable Long patientId) {
+        return ResponseEntity.ok(patientService.updateUserInfo(patient, patientId));
     }
 }
