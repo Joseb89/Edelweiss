@@ -12,13 +12,13 @@ public class Prescription {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "prescription_id", nullable = false)
+    @Column(name = "prescription_id", nullable = false, unique = true, updatable = false)
     private Long id;
 
-    @Column(name = "doctor_first_name", nullable = false, length = 20)
+    @Column(name = "doctor_first_name", nullable = false, updatable = false, length = 20)
     private String doctorFirstName;
 
-    @Column(name = "doctor_last_name", nullable = false, length = 30)
+    @Column(name = "doctor_last_name", nullable = false, updatable = false, length = 30)
     private String doctorLastName;
 
     @Column(name = "prescription_name", nullable = false, length = 20)

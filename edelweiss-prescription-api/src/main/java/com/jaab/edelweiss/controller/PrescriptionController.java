@@ -1,6 +1,7 @@
 package com.jaab.edelweiss.controller;
 
 import com.jaab.edelweiss.dto.PrescriptionDTO;
+import com.jaab.edelweiss.dto.PrescriptionStatusDTO;
 import com.jaab.edelweiss.model.Prescription;
 import com.jaab.edelweiss.model.Status;
 import com.jaab.edelweiss.service.PrescriptionService;
@@ -44,8 +45,39 @@ public class PrescriptionController {
         return prescriptionService.getPrescriptionsByDoctorName(firstName, lastName);
     }
 
+    /**
+     * Retrieves a list of prescriptions with the PENDING status and sends them to the pharmacy API
+     * @return - the Set of PENDING prescriptions
+     */
     @GetMapping(value = "/pharmacy/getPendingPrescriptions")
     public Set<PrescriptionDTO> getPendingPrescriptions() {
         return prescriptionService.getPrescriptionsByPrescriptionStatus(Status.PENDING);
+    }
+
+    /**
+     * Updates the prescription with the corresponding ID and merges it to the prescription database
+     * @param prescriptionDTO - the prescription payload from the doctor API
+     * @param prescriptionId - the ID of the prescription
+     * @return - the updated prescription
+     */
+    @PatchMapping(value = "/physician/updatePrescriptionInfo/{prescriptionId}",
+                    consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public PrescriptionDTO updatePrescriptionInfo(@RequestBody PrescriptionDTO prescriptionDTO,
+                                                  @PathVariable Long prescriptionId) {
+        return prescriptionService.updatePrescriptionInfo(prescriptionDTO, prescriptionId);
+    }
+
+    /**
+     * Approves or denies a prescription based on a PrescriptionStatusDTO payload from the pharmacy API
+     * and merges it to the prescription database
+     * @param status - the PrescriptionStatusDTO payload containing the new status
+     * @param prescriptionId - the ID of the prescription to approve
+     * @return - the PrescriptionDTO object containing the updated status
+     */
+    @PatchMapping(value = "/pharmacy/approvePrescription/{prescriptionId}",
+            consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public PrescriptionDTO approvePrescription(@RequestBody PrescriptionStatusDTO status,
+                                                               @PathVariable Long prescriptionId) {
+        return prescriptionService.approvePrescription(status, prescriptionId);
     }
 }

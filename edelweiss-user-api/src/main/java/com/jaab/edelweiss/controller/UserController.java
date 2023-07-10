@@ -24,7 +24,7 @@ public class UserController {
      * @return = the ID of the new patient
      */
     @PostMapping(value = "/newPatient", consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE)
+                    produces = MediaType.APPLICATION_JSON_VALUE)
     public Long createPatient(@RequestBody UserDTO userDTO) {
         return userService.createUser(userDTO, Role.PATIENT);
     }
@@ -35,7 +35,7 @@ public class UserController {
      * @return - the ID of the new doctor
      */
     @PostMapping(value = "/newPhysician", consumes = MediaType.APPLICATION_JSON_VALUE,
-    produces = MediaType.APPLICATION_JSON_VALUE)
+                    produces = MediaType.APPLICATION_JSON_VALUE)
     public Long createPhysician(@RequestBody UserDTO userDTO) {
         return userService.createUser(userDTO, Role.PHYSICIAN);
     }
@@ -46,7 +46,7 @@ public class UserController {
      * @return - the ID of the new pharmacist
      */
     @PostMapping(value = "/newPharmacist", consumes = MediaType.APPLICATION_JSON_VALUE,
-    produces = MediaType.APPLICATION_JSON_VALUE)
+                    produces = MediaType.APPLICATION_JSON_VALUE)
     public Long createPharmacist(@RequestBody UserDTO userDTO) {
         return userService.createUser(userDTO, Role.PHARMACIST);
     }
@@ -56,7 +56,8 @@ public class UserController {
      * @param userDTO - the UserDTO payload from the external API
      * @return - the UserDTO object containing the updated information
      */
-    @PatchMapping(value = "/updateUserInfo")
+    @PatchMapping(value = "/updateUserInfo", consumes = MediaType.APPLICATION_JSON_VALUE,
+                    produces = MediaType.APPLICATION_JSON_VALUE)
     public UserDTO updateUserInfo(@RequestBody UserDTO userDTO) {
         return userService.updateUserInfo(userDTO);
     }

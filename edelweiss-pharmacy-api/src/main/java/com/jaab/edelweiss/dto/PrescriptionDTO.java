@@ -8,6 +8,7 @@ import lombok.Setter;
 @Setter
 public class PrescriptionDTO {
 
+    private Long id;
     private String doctorFirstName;
     private String doctorLastName;
     private String prescriptionName;

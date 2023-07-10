@@ -1,6 +1,7 @@
 package com.jaab.edelweiss.controller;
 
 import com.jaab.edelweiss.dto.PrescriptionDTO;
+import com.jaab.edelweiss.dto.PrescriptionStatusDTO;
 import com.jaab.edelweiss.dto.UserDTO;
 import com.jaab.edelweiss.model.Pharmacist;
 import com.jaab.edelweiss.service.PharmacistService;
@@ -48,9 +49,23 @@ public class PharmacistController {
      * @param pharmacistId - the ID of the pharmacist
      * @return - HTTP status response with the updated information
      */
-    @PatchMapping(value = "/pharmacy/{pharmacistId}/updatePharmacistInfo")
+    @PatchMapping(value = "/pharmacy/{pharmacistId}/updatePharmacistInfo",
+                    consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Mono<UserDTO>> updatePharmacistInfo(@RequestBody Pharmacist pharmacist,
                                                               @PathVariable Long pharmacistId) {
         return ResponseEntity.ok(pharmacistService.updateUserInfo(pharmacist, pharmacistId));
+    }
+
+    /**
+     * Sets an APPROVED or DENIED status for a PrescriptionStatusDTO object and sends it to the prescriptionAPI
+     * @param status - the PrescriptionStatusDTO payload containing the new status
+     * @param prescriptionId - the ID of the prescription
+     * @return - HTTP status containing the updated prescription status
+     */
+    @PatchMapping(value = "/pharmacy/approvePrescription/{prescriptionId}",
+            consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Mono<PrescriptionStatusDTO>> approvePrescription (@RequestBody PrescriptionStatusDTO status,
+                                                            @PathVariable Long prescriptionId) {
+        return ResponseEntity.ok(pharmacistService.approvePrescription(status, prescriptionId));
     }
 }

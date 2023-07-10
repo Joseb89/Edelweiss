@@ -54,18 +54,18 @@ public class DoctorService {
 
     /**
      * Creates a new prescription and sends it to the prescription API
-     * @param prescriptionDTO - the PrescriptionDTO payload
+     * @param newPrescription - the PrescriptionDTO payload
      * @param physicianId - the ID of the doctor
      * @return - the new prescription
      */
-    public Mono<PrescriptionDTO> createPrescription(PrescriptionDTO prescriptionDTO, Long physicianId) {
+    public Mono<PrescriptionDTO> createPrescription(PrescriptionDTO newPrescription, Long physicianId) {
         String[] doctorName = setDoctorName(physicianId);
-        prescriptionDTO.setDoctorFirstName(doctorName[0]);
-        prescriptionDTO.setDoctorLastName(doctorName[1]);
+        newPrescription.setDoctorFirstName(doctorName[0]);
+        newPrescription.setDoctorLastName(doctorName[1]);
 
         return webClient.post()
                 .uri(PRESCRIPTION_API_URL + "/newPrescription")
-                .body(Mono.just(prescriptionDTO), PrescriptionDTO.class)
+                .body(Mono.just(newPrescription), PrescriptionDTO.class)
                 .retrieve()
                 .onStatus(HttpStatusCode::is4xxClientError,
                         response -> response.bodyToMono(String.class).map(Exception::new))
@@ -230,6 +230,34 @@ public class DoctorService {
                 .onStatus(HttpStatusCode::is5xxServerError,
                         response -> response.bodyToMono(String.class).map(ServerException::new))
                 .bodyToMono(UserDTO.class);
+    }
+
+    /**
+     * Updates a prescription with the corresponding ID and sends it to the prescription API
+     * @param prescriptionDTO - the prescription payload
+     * @param prescriptionId - the ID of the prescription
+     * @return - the updated prescription
+     */
+    public Mono<PrescriptionDTO> updatePrescriptionInfo(PrescriptionDTO prescriptionDTO,
+                                                           Long prescriptionId) {
+        PrescriptionDTO updatedPrescription = new PrescriptionDTO();
+        updatedPrescription.setId(prescriptionId);
+
+        if (prescriptionDTO.getPrescriptionName() != null)
+            updatedPrescription.setPrescriptionName(prescriptionDTO.getPrescriptionName());
+
+        if (prescriptionDTO.getPrescriptionDosage() != null)
+            updatedPrescription.setPrescriptionDosage(prescriptionDTO.getPrescriptionDosage());
+
+        return webClient.patch()
+                .uri(PRESCRIPTION_API_URL + "/updatePrescriptionInfo/" + prescriptionId)
+                .body(Mono.just(updatedPrescription), PrescriptionDTO.class)
+                .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError,
+                        response -> response.bodyToMono(String.class).map(Exception::new))
+                .onStatus(HttpStatusCode::is5xxServerError,
+                        response -> response.bodyToMono(String.class).map(ServerException::new))
+                .bodyToMono(PrescriptionDTO.class);
     }
 
     /**

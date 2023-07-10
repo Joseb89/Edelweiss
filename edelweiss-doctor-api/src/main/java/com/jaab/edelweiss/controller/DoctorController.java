@@ -40,7 +40,8 @@ public class DoctorController {
      */
     @PostMapping(value = "/physician/{physicianId}/newPrescription", consumes = MediaType.APPLICATION_JSON_VALUE,
                 produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Mono<PrescriptionDTO>> createPrescription(@RequestBody PrescriptionDTO prescription,
+    public ResponseEntity<Mono<PrescriptionDTO>> createPrescription(
+                                                   @RequestBody PrescriptionDTO prescription,
                                                    @PathVariable Long physicianId) {
         return ResponseEntity.ok(doctorService.createPrescription(prescription, physicianId));
     }
@@ -134,9 +135,23 @@ public class DoctorController {
      * @param physicianId - the ID of the doctor
      * @return - HTTP status response with the updated information
      */
-    @PatchMapping(value = "/physician/{physicianId}/updatePhysicianInfo")
+    @PatchMapping(value = "/physician/{physicianId}/updatePhysicianInfo",
+                    consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Mono<UserDTO>> updateDoctorInfo(@RequestBody Doctor doctor,
                                                           @PathVariable Long physicianId) {
         return ResponseEntity.ok((doctorService.updateUserInfo(doctor, physicianId)));
+    }
+
+    /**
+     * Updates a prescription with the corresponding ID and sends it to the prescription API
+     * @param prescriptionDTO - the prescription payload
+     * @param prescriptionId - the ID of the prescription
+     * @return - HTTP status response with the updated information
+     */
+    @PatchMapping(value = "/physician/updatePrescriptionInfo/{prescriptionId}",
+                    consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Mono<PrescriptionDTO>> updatePrescriptionInfo(
+            @RequestBody PrescriptionDTO prescriptionDTO, @PathVariable Long prescriptionId) {
+        return ResponseEntity.ok(doctorService.updatePrescriptionInfo(prescriptionDTO, prescriptionId));
     }
 }

@@ -2,6 +2,7 @@ package com.jaab.edelweiss.service;
 
 import com.jaab.edelweiss.dao.PrescriptionRepository;
 import com.jaab.edelweiss.dto.PrescriptionDTO;
+import com.jaab.edelweiss.dto.PrescriptionStatusDTO;
 import com.jaab.edelweiss.model.Prescription;
 import com.jaab.edelweiss.model.Status;
 import org.springframework.beans.BeanUtils;
@@ -24,7 +25,7 @@ public class PrescriptionService {
     /**
      * Creates a new prescription based on PrescriptionDTO object from the doctor API
      * @param prescriptionDTO - the PrescriptionDTO object from the doctor API
-     * @return - prescription data
+     * @return - the prescription data
      */
     public Prescription createPrescription(PrescriptionDTO prescriptionDTO) {
         Prescription prescription = new Prescription();
@@ -38,7 +39,7 @@ public class PrescriptionService {
      * Retrieves a list of prescriptions from the prescription database based on the doctor's name
      * @param firstName - the first name of the doctor
      * @param lastName - the last name of the doctor
-     * @return - Set of prescriptions
+     * @return - the Set of prescriptions
      */
     public Set<PrescriptionDTO> getPrescriptionsByDoctorName(String firstName, String lastName) {
         Set<Prescription> prescriptions = prescriptionRepository.getPrescriptionsByDoctorName(firstName, lastName);
@@ -48,12 +49,59 @@ public class PrescriptionService {
                 .collect(Collectors.toSet());
     }
 
+    /**
+     * Retrieves a list of prescriptions based on their current status
+     * @param status - the status of the prescription
+     * @return - the Set of prescriptions with the specified status
+     */
     public Set<PrescriptionDTO> getPrescriptionsByPrescriptionStatus(Status status) {
         Set<Prescription> prescriptions = prescriptionRepository.getPrescriptionsByPrescriptionStatus(status);
 
         return prescriptions.stream()
                 .map(this::copyToDTO)
                 .collect(Collectors.toSet());
+    }
+
+    /**
+     * Updates the prescription with the corresponding ID and merges it to the prescription database
+     * @param prescriptionDTO - the prescription payload from the doctor API
+     * @param prescriptionId - the ID of the prescription
+     * @return - the updated prescription
+     */
+    public PrescriptionDTO updatePrescriptionInfo(PrescriptionDTO prescriptionDTO, Long prescriptionId) {
+        Prescription prescription = prescriptionRepository.getReferenceById(prescriptionId);
+        PrescriptionDTO getPrescription = new PrescriptionDTO();
+        getPrescription.setId(prescription.getId());
+
+        if (prescriptionDTO.getPrescriptionName() != null)
+            prescription.setPrescriptionName(prescriptionDTO.getPrescriptionName());
+
+        if (prescriptionDTO.getPrescriptionDosage() != null)
+            prescription.setPrescriptionDosage(prescriptionDTO.getPrescriptionDosage());
+
+        BeanUtils.copyProperties(prescription, getPrescription);
+
+        prescriptionRepository.save(prescription);
+
+        return getPrescription;
+    }
+
+    /**
+     * Sets an APPROVED or DENIED status to a PENDING prescription based on a PrescriptionStatusDTO payload
+     * from the pharmacy API and merges it to the prescription database
+     * @param status - the new status of the prescription
+     * @param prescriptionId - the ID of the prescription to approve
+     * @return - PrescriptionDTO object containing the updated status
+     */
+    public PrescriptionDTO approvePrescription(PrescriptionStatusDTO status, Long prescriptionId) {
+        Prescription prescription = prescriptionRepository.getReferenceById(prescriptionId);
+        prescription.setPrescriptionStatus(status.getPrescriptionStatus());
+        prescriptionRepository.save(prescription);
+
+        PrescriptionDTO updatedPrescription = new PrescriptionDTO();
+        BeanUtils.copyProperties(prescription, updatedPrescription);
+
+        return updatedPrescription;
     }
 
     /**
