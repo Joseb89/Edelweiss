@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@RequestMapping("/physician")
 public class AppointmentController {
 
     private final AppointmentService appointmentService;
@@ -24,7 +25,7 @@ public class AppointmentController {
      * @param appointmentDTO - the AppointmentDTO payload from the doctor API
      * @return - the appointment data
      */
-    @PostMapping(value = "/physician/newAppointment", consumes = MediaType.APPLICATION_JSON_VALUE,
+    @PostMapping(value = "/newAppointment", consumes = MediaType.APPLICATION_JSON_VALUE,
                     produces = MediaType.APPLICATION_JSON_VALUE)
     public Appointment createAppointment(@RequestBody AppointmentDTO appointmentDTO) {
        return appointmentService.createAppointment(appointmentDTO);
@@ -37,9 +38,22 @@ public class AppointmentController {
      * @param lastName - the last name of the doctor
      * @return - the list of the doctor's appointments
      */
-    @GetMapping(value = "/physician/myAppointments/{firstName}/{lastName}")
+    @GetMapping(value = "/myAppointments/{firstName}/{lastName}")
     public List<AppointmentDTO> getAppointmentsByDoctorName(@PathVariable String firstName,
                                                             @PathVariable String lastName) {
         return appointmentService.getAppointmentsByDoctorName(firstName, lastName);
+    }
+
+    /**
+     * Updates the appointment with the corresponding ID and merges it to the appointment database
+     * @param appointmentDTO - the AppointmentDTO payload from the doctor API
+     * @param appointmentId - the ID of the appointment
+     * @return - the updated appointment
+     */
+    @PatchMapping(value = "/updateAppointmentInfo/{appointmentId}", consumes = MediaType.APPLICATION_JSON_VALUE,
+                    produces = MediaType.APPLICATION_JSON_VALUE)
+    public AppointmentDTO updateAppointmentInfo(@RequestBody AppointmentDTO appointmentDTO,
+                                                @PathVariable Long appointmentId) {
+        return appointmentService.updateAppointmentInfo(appointmentDTO, appointmentId);
     }
 }

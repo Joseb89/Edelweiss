@@ -79,9 +79,9 @@ public class PrescriptionService {
         if (prescriptionDTO.getPrescriptionDosage() != null)
             prescription.setPrescriptionDosage(prescriptionDTO.getPrescriptionDosage());
 
-        BeanUtils.copyProperties(prescription, getPrescription);
-
         prescriptionRepository.save(prescription);
+
+        BeanUtils.copyProperties(prescription, getPrescription);
 
         return getPrescription;
     }
@@ -91,7 +91,7 @@ public class PrescriptionService {
      * from the pharmacy API and merges it to the prescription database
      * @param status - the new status of the prescription
      * @param prescriptionId - the ID of the prescription
-     * @return - PrescriptionDTO object containing the updated status
+     * @return - the PrescriptionDTO object containing the updated status
      */
     public PrescriptionDTO approvePrescription(PrescriptionStatusDTO status, Long prescriptionId) {
         Prescription prescription = prescriptionRepository.getReferenceById(prescriptionId);

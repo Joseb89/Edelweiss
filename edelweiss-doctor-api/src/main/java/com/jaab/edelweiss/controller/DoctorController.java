@@ -147,7 +147,7 @@ public class DoctorController {
 
     /**
      * Updates a prescription with the corresponding ID and sends it to the prescription API
-     * @param prescriptionDTO - the prescription payload
+     * @param prescriptionDTO - the PrescriptionDTO payload containing the updated information
      * @param prescriptionId - the ID of the prescription
      * @return - HTTP status response with the updated information
      */
@@ -156,5 +156,18 @@ public class DoctorController {
     public ResponseEntity<Mono<PrescriptionDTO>> updatePrescriptionInfo(
             @RequestBody PrescriptionDTO prescriptionDTO, @PathVariable Long prescriptionId) {
         return ResponseEntity.ok(doctorService.updatePrescriptionInfo(prescriptionDTO, prescriptionId));
+    }
+
+    /**
+     * Updates an appointment with the corresponding ID and sends it to the appointment API
+     * @param appointmentDTO - the AppointmentDTO payload containing the updated information
+     * @param appointmentId - the ID of the appointment
+     * @return - HTTP status response with the updated information
+     */
+    @PatchMapping(value = "/physician/updateAppointmentInfo/{appointmentId}",
+            consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Mono<AppointmentDTO>> updateAppointmentIndo(@RequestBody AppointmentDTO appointmentDTO,
+                                                                      @PathVariable Long appointmentId) {
+        return ResponseEntity.ok(doctorService.updateAppointmentInfo(appointmentDTO, appointmentId));
     }
 }

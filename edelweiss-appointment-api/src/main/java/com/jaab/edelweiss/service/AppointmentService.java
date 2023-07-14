@@ -47,6 +47,36 @@ public class AppointmentService {
     }
 
     /**
+     * Updates the appointment with the corresponding ID and merges it to the appointment database
+     * @param appointmentDTO - the AppointmentDTO payload from the doctor API
+     * @param appointmentId - the ID of the appointment
+     * @return - the updated appointment
+     */
+    public AppointmentDTO updateAppointmentInfo(AppointmentDTO appointmentDTO, Long appointmentId) {
+        Appointment appointment = appointmentRepository.getReferenceById(appointmentId);
+        AppointmentDTO getAppointment = new AppointmentDTO();
+        getAppointment.setId(appointmentId);
+
+        if (appointmentDTO.getPatientFirstName() != null)
+            appointment.setPatientFirstName(appointmentDTO.getPatientFirstName());
+
+        if (appointmentDTO.getPatientLastName() != null)
+            appointment.setPatientLastName(appointmentDTO.getPatientLastName());
+
+        if (appointmentDTO.getAppointmentDate() != null)
+            appointment.setAppointmentDate(appointmentDTO.getAppointmentDate());
+
+        if (appointmentDTO.getAppointmentTime() != null)
+            appointment.setAppointmentTime(appointmentDTO.getAppointmentTime());
+
+        appointmentRepository.save(appointment);
+
+        BeanUtils.copyProperties(appointment, getAppointment);
+
+        return getAppointment;
+    }
+
+    /**
      * Copies the values of an Appointment object into a AppointmentDTO object
      * @param appointment - the Appointment object
      * @return - the AppointmentDTO object

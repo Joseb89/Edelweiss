@@ -234,20 +234,14 @@ public class DoctorService {
 
     /**
      * Updates a prescription with the corresponding ID and sends it to the prescription API
-     * @param prescriptionDTO - the PrescriptionDTO payload
+     * @param prescriptionDTO - the PrescriptionDTO payload containing the updated information
      * @param prescriptionId - the ID of the prescription
      * @return - the updated prescription
      */
-    public Mono<PrescriptionDTO> updatePrescriptionInfo(PrescriptionDTO prescriptionDTO,
-                                                           Long prescriptionId) {
+    public Mono<PrescriptionDTO> updatePrescriptionInfo(PrescriptionDTO prescriptionDTO, Long prescriptionId) {
         PrescriptionDTO updatedPrescription = new PrescriptionDTO();
+        BeanUtils.copyProperties(prescriptionDTO, updatedPrescription);
         updatedPrescription.setId(prescriptionId);
-
-        if (prescriptionDTO.getPrescriptionName() != null)
-            updatedPrescription.setPrescriptionName(prescriptionDTO.getPrescriptionName());
-
-        if (prescriptionDTO.getPrescriptionDosage() != null)
-            updatedPrescription.setPrescriptionDosage(prescriptionDTO.getPrescriptionDosage());
 
         return webClient.patch()
                 .uri(PRESCRIPTION_API_URL + "/updatePrescriptionInfo/" + prescriptionId)
@@ -258,6 +252,28 @@ public class DoctorService {
                 .onStatus(HttpStatusCode::is5xxServerError,
                         response -> response.bodyToMono(String.class).map(ServerException::new))
                 .bodyToMono(PrescriptionDTO.class);
+    }
+
+    /**
+     * Updates an appointment with the corresponding ID and sends it to the appointment API
+     * @param appointmentDTO - the AppointmentDTO payload containing the updated information
+     * @param appointmentId - the ID of the appointment
+     * @return - the updated appointment
+     */
+    public Mono<AppointmentDTO> updateAppointmentInfo(AppointmentDTO appointmentDTO, Long appointmentId) {
+        AppointmentDTO updatedAppointment = new AppointmentDTO();
+        BeanUtils.copyProperties(appointmentDTO, updatedAppointment);
+        updatedAppointment.setId(appointmentId);
+
+        return webClient.patch()
+                .uri(APPOINTMENT_API_URL + "/updateAppointmentInfo/" + appointmentId)
+                .body(Mono.just(updatedAppointment), AppointmentDTO.class)
+                .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError,
+                        response -> response.bodyToMono(String.class).map(Exception::new))
+                .onStatus(HttpStatusCode::is5xxServerError,
+                        response -> response.bodyToMono(String.class).map(ServerException::new))
+                .bodyToMono(AppointmentDTO.class);
     }
 
     /**

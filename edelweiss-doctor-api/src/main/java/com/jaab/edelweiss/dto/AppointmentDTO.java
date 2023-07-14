@@ -10,6 +10,7 @@ import java.time.LocalTime;
 @Setter
 public class AppointmentDTO {
 
+    private Long id;
     private String doctorFirstName;
     private String doctorLastName;
     private String patientFirstName;
