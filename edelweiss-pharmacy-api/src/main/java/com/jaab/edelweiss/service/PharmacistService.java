@@ -38,8 +38,8 @@ public class PharmacistService {
 
     /**
      * Saves a new pharmacist to the pharmacist database
-     * @param pharmacist - the new pharmacist
-     * @return - the userDTO payload
+     * @param pharmacist - the new Pharmacist
+     * @return - the UserDTO payload
      */
     public UserDTO createPharmacist(Pharmacist pharmacist) {
         UserDTO userDTO = new UserDTO();
@@ -51,8 +51,8 @@ public class PharmacistService {
     }
 
     /**
-     * Retrieves all prescriptions from the prescription API with the PENDING status
-     * @return - all pending prescriptions
+     * Retrieves all the prescriptions from the prescription API with PENDING status
+     * @return - the list of pending prescriptions
      */
     public Flux<PrescriptionDTO> getPendingPrescriptions() {
         return webClient.get()

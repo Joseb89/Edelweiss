@@ -40,8 +40,8 @@ public class DoctorService {
 
     /**
      * Saves a new doctor to the doctor database
-     * @param doctor - the new doctor
-     * @return - the userDTO payload
+     * @param doctor - the new Doctor
+     * @return - the UserDTO payload
      */
     public UserDTO createDoctor(Doctor doctor) {
         UserDTO userDTO = new UserDTO();
@@ -97,9 +97,9 @@ public class DoctorService {
     }
 
     /**
-     * Retrieves patient information from patient API based on patient ID
+     * Retrieves a patient from the patient API based on the patient's ID
      * @param patientId - the ID of the patient
-     * @return - the patient's information
+     * @return - the patient's information from the patient API
      */
     public Mono<PatientDTO> getPatientById(Long patientId) {
         return webClient.get()
@@ -113,9 +113,9 @@ public class DoctorService {
     }
 
     /**
-     * Retrieves a list of patients from patient API based on their first name
+     * Retrieves a list of patients from the patient API based on their first name
      * @param firstName - the first name of the patient
-     * @return - the PatientDTO Set from the patient API
+     * @return - the PatientDTO List from the patient API
      */
     public Flux<PatientDTO> getPatientsByFirstName(String firstName) {
         return webClient.get()
@@ -129,9 +129,9 @@ public class DoctorService {
     }
 
     /**
-     * Retrieves a list of patients from patient API based on their last name
+     * Retrieves a list of patients from the patient API based on their last name
      * @param lastName - the last name of the patient
-     * @return - the PatientDTO Set from the patient API
+     * @return - the PatientDTO List from the patient API
      */
     public Flux<PatientDTO> getPatientsByLastName(String lastName) {
         return webClient.get()
@@ -145,9 +145,9 @@ public class DoctorService {
     }
 
     /**
-     * Retrieves a list of patients from patient API based on their blood type
+     * Retrieves a list of patients from the patient API based on their blood type
      * @param bloodType - the blood type of the patient
-     * @return - the PatientDTO Set from the patient API
+     * @return - the PatientDTO List from the patient API
      */
     public Flux<PatientDTO> getPatientsByBloodType(String bloodType) {
         return webClient.get()
@@ -161,7 +161,7 @@ public class DoctorService {
     }
 
     /**
-     * Retrieves the address of a patient with the corresponding ID from the patient API
+     * Retrieves the address of the patient with the corresponding ID from the patient API
      * @param patientId - the ID of the patient
      * @return - the patient's address
      */
@@ -215,7 +215,7 @@ public class DoctorService {
     /**
      * Sends the updated doctor information to the user API
      * @param doctor - the Doctor payload
-     * @param physicianId - the ID of the physician
+     * @param physicianId - the ID of the doctor
      * @return - the UserDTO object containing the updated information
      */
     public Mono<UserDTO> updateUserInfo(Doctor doctor, Long physicianId) {
@@ -234,7 +234,7 @@ public class DoctorService {
 
     /**
      * Updates a prescription with the corresponding ID and sends it to the prescription API
-     * @param prescriptionDTO - the prescription payload
+     * @param prescriptionDTO - the PrescriptionDTO payload
      * @param prescriptionId - the ID of the prescription
      * @return - the updated prescription
      */
@@ -261,7 +261,7 @@ public class DoctorService {
     }
 
     /**
-     * Retrieves a doctor from the doctor database based on the physician ID and sets the doctor's
+     * Retrieves a doctor from the doctor database based on the doctor's ID and sets the doctor's
      * first and last name to a String array
      * @param physicianId - the ID of the doctor
      * @return - the String array containing the doctor's first and last name

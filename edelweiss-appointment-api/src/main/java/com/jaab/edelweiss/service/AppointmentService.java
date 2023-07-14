@@ -7,7 +7,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Set;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
@@ -21,9 +21,9 @@ public class AppointmentService {
     }
 
     /**
-     * Creates a new appointment based on appointmentDTO from the doctor API
+     * Creates a new appointment based on an AppointmentDTO from the doctor API
      * @param appointmentDTO - the AppointmentDTO object from the doctor API
-     * @return - appointment data
+     * @return - the appointment data
      */
     public Appointment createAppointment(AppointmentDTO appointmentDTO) {
         Appointment appointment = new Appointment();
@@ -36,14 +36,14 @@ public class AppointmentService {
      * Retrieves a list of appointments from the appointment database based on the doctor's name
      * @param firstName - the first name of the doctor
      * @param lastName - the last name of the doctor
-     * @return - Set of appointments
+     * @return - the List of appointments
      */
-    public Set<AppointmentDTO> getAppointmentsByDoctorName (String firstName, String lastName) {
-        Set<Appointment> appointments = appointmentRepository.getAppointmentsByDoctorName(firstName, lastName);
+    public List<AppointmentDTO> getAppointmentsByDoctorName (String firstName, String lastName) {
+        List<Appointment> appointments = appointmentRepository.getAppointmentsByDoctorName(firstName, lastName);
 
         return appointments.stream()
                 .map(this::copyToDTO)
-                .collect(Collectors.toSet());
+                .collect(Collectors.toList());
     }
 
     /**

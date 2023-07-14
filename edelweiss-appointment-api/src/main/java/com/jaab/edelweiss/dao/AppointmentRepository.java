@@ -6,12 +6,13 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.util.Set;
+import java.util.List;
 
 @Repository
 public interface AppointmentRepository extends JpaRepository<Appointment, Long> {
 
-    @Query("FROM Appointment a WHERE a.doctorFirstName = :firstName AND a.doctorLastName = :lastName")
-    Set<Appointment> getAppointmentsByDoctorName(@Param("firstName") String firstName,
-                                                 @Param("lastName") String lastName);
+    @Query("FROM Appointment a WHERE a.doctorFirstName = :firstName AND a.doctorLastName = :lastName " +
+            "order by a.appointmentDate")
+    List<Appointment> getAppointmentsByDoctorName(@Param("firstName") String firstName,
+                                                  @Param("lastName") String lastName);
 }

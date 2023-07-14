@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Set;
+import java.util.List;
 
 @RestController
 public class AppointmentController {
@@ -20,9 +20,9 @@ public class AppointmentController {
     }
 
     /**
-     * Creates a new prescription based on AppointmentDTO object from the doctor API
-     * @param appointmentDTO - the AppointmentDTO object from the doctor API
-     * @return - appointment data
+     * Creates a new prescription based on an AppointmentDTO payload from the doctor API
+     * @param appointmentDTO - the AppointmentDTO payload from the doctor API
+     * @return - the appointment data
      */
     @PostMapping(value = "/physician/newAppointment", consumes = MediaType.APPLICATION_JSON_VALUE,
                     produces = MediaType.APPLICATION_JSON_VALUE)
@@ -38,8 +38,8 @@ public class AppointmentController {
      * @return - the list of the doctor's appointments
      */
     @GetMapping(value = "/physician/myAppointments/{firstName}/{lastName}")
-    public Set<AppointmentDTO> getAppointmentsByDoctorName(@PathVariable String firstName,
-                                                           @PathVariable String lastName) {
+    public List<AppointmentDTO> getAppointmentsByDoctorName(@PathVariable String firstName,
+                                                            @PathVariable String lastName) {
         return appointmentService.getAppointmentsByDoctorName(firstName, lastName);
     }
 }

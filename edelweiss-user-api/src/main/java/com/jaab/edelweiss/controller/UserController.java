@@ -19,8 +19,8 @@ public class UserController {
     }
 
     /**
-     * Saves a user with Patient role to the user database and sends ID to the patient API
-     * @param userDTO - the UserDTO object from the patient API
+     * Saves a user with Patient role to the user database and sends the ID to the patient API
+     * @param userDTO - the UserDTO payload from the patient API
      * @return = the ID of the new patient
      */
     @PostMapping(value = "/newPatient", consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -30,8 +30,8 @@ public class UserController {
     }
 
     /**
-     * Saves a user with Physician role to the user database and sends ID to the doctor API
-     * @param userDTO - the UserDTO object from the doctor API
+     * Saves a user with Physician role to the user database and sends the ID to the doctor API
+     * @param userDTO - the UserDTO payload from the doctor API
      * @return - the ID of the new doctor
      */
     @PostMapping(value = "/newPhysician", consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -41,8 +41,8 @@ public class UserController {
     }
 
     /**
-     * Saves a user with Pharmacist role to the user database and sends ID to the pharmacy API
-     * @param userDTO - the UserDTO object from the pharmacy API
+     * Saves a user with Pharmacist role to the user database and sends the ID to the pharmacy API
+     * @param userDTO - the UserDTO payload from the pharmacy API
      * @return - the ID of the new pharmacist
      */
     @PostMapping(value = "/newPharmacist", consumes = MediaType.APPLICATION_JSON_VALUE,

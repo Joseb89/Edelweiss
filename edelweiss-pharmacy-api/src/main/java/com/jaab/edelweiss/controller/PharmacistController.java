@@ -6,6 +6,7 @@ import com.jaab.edelweiss.dto.UserDTO;
 import com.jaab.edelweiss.model.Pharmacist;
 import com.jaab.edelweiss.service.PharmacistService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,20 +24,20 @@ public class PharmacistController {
     }
 
     /**
-     * Saves a new pharmacist to the pharmacist database and sends data to user API
-     * @param pharmacist - the pharmacist payload
-     * @return - HTTP status response with ID of pharmacist
+     * Saves a new pharmacist to the pharmacist database and sends the data to the user API
+     * @param pharmacist - the Pharmacist payload
+     * @return - HTTP status response with the ID of the pharmacist
      */
     @PostMapping(value = "/newPharmacist", consumes = MediaType.APPLICATION_JSON_VALUE,
                 produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Long> createPharmacist(@RequestBody Pharmacist pharmacist) {
         UserDTO newPharmacist = pharmacistService.createPharmacist(pharmacist);
-        return ResponseEntity.ok(newPharmacist.getId());
+        return ResponseEntity.status(HttpStatus.CREATED).body(newPharmacist.getId());
     }
 
     /**
      * Pharmacy home page; displays all pending prescriptions
-     * @return -HTTP status response containing all pending prescriptions
+     * @return - HTTP status response containing all pending prescriptions
      */
     @GetMapping(value = "/pharmacy/home")
     public ResponseEntity<Flux<PrescriptionDTO>> getPendingPrescriptions() {
@@ -57,7 +58,7 @@ public class PharmacistController {
     }
 
     /**
-     * Sets an APPROVED or DENIED status for a PrescriptionStatusDTO object and sends it to the prescriptionAPI
+     * Sets an APPROVED or DENIED status for a PrescriptionStatusDTO object and sends it to the prescription API
      * @param status - the PrescriptionStatusDTO payload containing the new status
      * @param prescriptionId - the ID of the prescription
      * @return - HTTP status containing the updated prescription status

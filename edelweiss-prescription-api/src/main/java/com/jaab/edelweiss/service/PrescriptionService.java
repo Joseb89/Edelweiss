@@ -9,7 +9,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Set;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
@@ -23,7 +23,7 @@ public class PrescriptionService {
     }
 
     /**
-     * Creates a new prescription based on PrescriptionDTO object from the doctor API
+     * Creates a new prescription based on a PrescriptionDTO object from the doctor API
      * @param prescriptionDTO - the PrescriptionDTO object from the doctor API
      * @return - the prescription data
      */
@@ -39,32 +39,32 @@ public class PrescriptionService {
      * Retrieves a list of prescriptions from the prescription database based on the doctor's name
      * @param firstName - the first name of the doctor
      * @param lastName - the last name of the doctor
-     * @return - the Set of prescriptions
+     * @return - the List of prescriptions matching the criteria
      */
-    public Set<PrescriptionDTO> getPrescriptionsByDoctorName(String firstName, String lastName) {
-        Set<Prescription> prescriptions = prescriptionRepository.getPrescriptionsByDoctorName(firstName, lastName);
+    public List<PrescriptionDTO> getPrescriptionsByDoctorName(String firstName, String lastName) {
+        List<Prescription> prescriptions = prescriptionRepository.getPrescriptionsByDoctorName(firstName, lastName);
 
         return prescriptions.stream()
                 .map(this::copyToDTO)
-                .collect(Collectors.toSet());
+                .collect(Collectors.toList());
     }
 
     /**
      * Retrieves a list of prescriptions based on their current status
      * @param status - the status of the prescription
-     * @return - the Set of prescriptions with the specified status
+     * @return - the List of prescriptions with the specified status
      */
-    public Set<PrescriptionDTO> getPrescriptionsByPrescriptionStatus(Status status) {
-        Set<Prescription> prescriptions = prescriptionRepository.getPrescriptionsByPrescriptionStatus(status);
+    public List<PrescriptionDTO> getPrescriptionsByPrescriptionStatus(Status status) {
+        List<Prescription> prescriptions = prescriptionRepository.getPrescriptionsByPrescriptionStatus(status);
 
         return prescriptions.stream()
                 .map(this::copyToDTO)
-                .collect(Collectors.toSet());
+                .collect(Collectors.toList());
     }
 
     /**
      * Updates the prescription with the corresponding ID and merges it to the prescription database
-     * @param prescriptionDTO - the prescription payload from the doctor API
+     * @param prescriptionDTO - the PrescriptionDTO payload from the doctor API
      * @param prescriptionId - the ID of the prescription
      * @return - the updated prescription
      */
@@ -90,7 +90,7 @@ public class PrescriptionService {
      * Sets an APPROVED or DENIED status to a PENDING prescription based on a PrescriptionStatusDTO payload
      * from the pharmacy API and merges it to the prescription database
      * @param status - the new status of the prescription
-     * @param prescriptionId - the ID of the prescription to approve
+     * @param prescriptionId - the ID of the prescription
      * @return - PrescriptionDTO object containing the updated status
      */
     public PrescriptionDTO approvePrescription(PrescriptionStatusDTO status, Long prescriptionId) {

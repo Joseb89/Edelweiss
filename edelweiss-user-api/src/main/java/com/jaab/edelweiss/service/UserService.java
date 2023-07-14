@@ -19,8 +19,8 @@ public class UserService {
     }
 
     /**
-     * Copies UserDTO object from external API into new User entity and saves it to the user database
-     * @param userDTO - the UserDTO object from external API
+     * Copies UserDTO payload from external API into new User entity and saves it to the user database
+     * @param userDTO - the UserDTO payload from the external API
      * @param role - the user's role
      * @return - the user ID
      */

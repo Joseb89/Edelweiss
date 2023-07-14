@@ -7,12 +7,13 @@ import com.jaab.edelweiss.model.Address;
 import com.jaab.edelweiss.model.Patient;
 import com.jaab.edelweiss.service.PatientService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
-import java.util.Set;
+import java.util.List;
 
 @RestController
 public class PatientController {
@@ -25,19 +26,19 @@ public class PatientController {
     }
 
     /**
-     * Saves a new patient to the patient database and sends data to the user API
-     * @param patient - the patient payload
-     * @return - HTTP status response with ID of patient
+     * Saves a new patient to the patient database and sends the data to the user API
+     * @param patient - the Patient payload
+     * @return - HTTP status response with the ID of the patient
      */
     @PostMapping(value = "/newPatient", consumes = MediaType.APPLICATION_JSON_VALUE,
                 produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Long> createPatient(@RequestBody Patient patient) {
         UserDTO newPatient = patientService.createPatient(patient);
-        return ResponseEntity.ok(newPatient.getId());
+        return ResponseEntity.status(HttpStatus.CREATED).body(newPatient.getId());
     }
 
     /**
-     * Retrieves a patient from the patient database based on ID
+     * Retrieves a patient from the patient database based on the patient's ID
      * @param patientId - the ID of the patient
      * @return - the patient with the specified ID
      */
@@ -47,39 +48,39 @@ public class PatientController {
     }
 
     /**
-     * Retrieves a list of patients from the patient database based on patient's first name
+     * Retrieves a list of patients from the patient database based on the patient's first name
      * @param firstName - the first name of the patient
-     * @return - Set of patients
+     * @return - List of patients matching the criteria
      */
     @GetMapping(value = "/physician/getPatientsByFirstName/{firstName}")
-    public Set<PatientDTO> getPatientsByFirstName(@PathVariable String firstName) {
+    public List<PatientDTO> getPatientsByFirstName(@PathVariable String firstName) {
         return patientService.getPatientsByFirstName(firstName);
     }
 
     /**
-     * Retrieves a list of patients from the patient database based on patient's last name
+     * Retrieves a list of patients from the patient database based on the patient's last name
      * @param lastName - the last name of the patient
-     * @return - Set of patients
+     * @return - List of patients matching the criteria
      */
     @GetMapping(value = "/physician/getPatientsByLastName/{lastName}")
-    public Set<PatientDTO> getPatientsByLastName(@PathVariable String lastName) {
+    public List<PatientDTO> getPatientsByLastName(@PathVariable String lastName) {
         return patientService.getPatientsByLastName(lastName);
     }
 
     /**
-     * Retrieves a list of patients from the patient database based on patient's blood type
+     * Retrieves a list of patients from the patient database based on the patient's blood type
      * @param bloodType - the blood type of the patient
-     * @return - Set of patients
+     * @return - List of patients matching the criteria
      */
     @GetMapping(value = "/physician/getPatientsByBloodType/{bloodType}")
-    public Set<PatientDTO> getPatientsByBloodType(@PathVariable String bloodType) {
+    public List<PatientDTO> getPatientsByBloodType(@PathVariable String bloodType) {
         return patientService.getPatientsByBloodType(bloodType);
     }
 
     /**
      * Retrieves the patient's address from the address database and sends it to the doctor API
      * @param patientId - the ID of the patient
-     * @return - the AddressDTO object
+     * @return - the AddressDTO object containing the patient's address
      */
     @GetMapping(value = "/physician/getPatientAddress/{patientId}")
     public AddressDTO getAddress(@PathVariable Long patientId) {
@@ -88,7 +89,7 @@ public class PatientController {
 
     /**
      * Updates the patient's address and merges it to the address database
-     * @param address - the Address payload
+     * @param address - the Address payload containing the updated information
      * @param patientId - the ID of the patient
      * @return - HTTP status response containing the updated address
      */

@@ -14,7 +14,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 import java.rmi.ServerException;
-import java.util.Set;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
@@ -37,7 +37,7 @@ public class PatientService {
     /**
      * Saves a new patient to the patient database and the patient's address to the address database
      * @param patient - the new Patient
-     * @return - the user payload
+     * @return - the UserDTO payload
      */
     public UserDTO createPatient(Patient patient) {
         UserDTO userDTO = new UserDTO();
@@ -53,9 +53,9 @@ public class PatientService {
     }
 
     /**
-     * Retrieves patient data from the patient database based on patient ID
+     * Retrieves a patient from the patient database based on the patient ID
      * @param id - the ID of the patient
-     * @return - patient data stored in PatientDTO object
+     * @return - the patient with the corresponding ID
      */
     public PatientDTO getPatientById(Long id) {
         PatientDTO patientDTO = new PatientDTO();
@@ -67,46 +67,46 @@ public class PatientService {
     /**
      * Retrieves a list of patients from the patient database based on the patient's first name
      * @param firstName - the first name of the patient
-     * @return - the Set of the patients matching the criteria
+     * @return - the list of the patients matching the criteria
      */
-    public Set<PatientDTO> getPatientsByFirstName(String firstName) {
-        Set<Patient> patients = patientRepository.getPatientsByFirstName(firstName);
+    public List<PatientDTO> getPatientsByFirstName(String firstName) {
+        List<Patient> patients = patientRepository.getPatientsByFirstName(firstName);
 
         return patients.stream()
                 .map(this::copyToDTO)
-                .collect(Collectors.toSet());
+                .collect(Collectors.toList());
     }
 
     /**
      * Retrieves a list of patients from the patient database based on the patient's last name
      * @param lastName - the last name of the patient
-     * @return - the Set of the patients matching the criteria
+     * @return - the list of the patients matching the criteria
      */
-    public Set<PatientDTO> getPatientsByLastName(String lastName) {
-        Set<Patient> patients = patientRepository.getPatientsByLastName(lastName);
+    public List<PatientDTO> getPatientsByLastName(String lastName) {
+        List<Patient> patients = patientRepository.getPatientsByLastName(lastName);
 
         return patients.stream()
                 .map(this::copyToDTO)
-                .collect(Collectors.toSet());
+                .collect(Collectors.toList());
     }
 
     /**
      * Retrieves a list of patients from the patient database based on the patient's blood type
      * @param bloodType - the blood type of the patient
-     * @return - the Set of the patients matching the criteria
+     * @return - the list of the patients matching the criteria
      */
-    public Set<PatientDTO> getPatientsByBloodType(String bloodType) {
-        Set<Patient> patients = patientRepository.getPatientsByBloodType(bloodType);
+    public List<PatientDTO> getPatientsByBloodType(String bloodType) {
+        List<Patient> patients =patientRepository.getPatientsByBloodType(bloodType);
 
         return patients.stream()
                 .map(this::copyToDTO)
-                .collect(Collectors.toSet());
+                .collect(Collectors.toList());
     }
 
     /**
      * Retrieves a patient's address from the address database and saves it to an AddressDTO object
      * @param patientId - the ID of the patient
-     * @return - the AddressDTO object
+     * @return - the AddressDTO object with the address information
      */
     public AddressDTO getAddress(Long patientId) {
         Patient patient = patientRepository.getReferenceById(patientId);

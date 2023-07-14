@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Set;
+import java.util.List;
 
 @RestController
 public class PrescriptionController {
@@ -22,8 +22,8 @@ public class PrescriptionController {
     }
 
     /**
-     * Saves a new prescription to the prescription database based on prescriptionDTO from doctor API
-     * @param prescriptionDTO - PrescriptionDTO object from doctor API
+     * Saves a new prescription to the prescription database based on a PrescriptionDTO from the doctor API
+     * @param prescriptionDTO - PrescriptionDTO object from the doctor API
      * @return - the new prescription
      */
     @PostMapping(value = "/physician/newPrescription", consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -40,23 +40,23 @@ public class PrescriptionController {
      * @return - the list of the doctor's prescriptions
      */
     @GetMapping(value = "/physician/myPrescriptions/{firstName}/{lastName}")
-    public Set<PrescriptionDTO> getPrescriptionsByDoctorName(@PathVariable String firstName,
-                                                             @PathVariable String lastName) {
+    public List<PrescriptionDTO> getPrescriptionsByDoctorName(@PathVariable String firstName,
+                                                              @PathVariable String lastName) {
         return prescriptionService.getPrescriptionsByDoctorName(firstName, lastName);
     }
 
     /**
-     * Retrieves a list of prescriptions with the PENDING status and sends them to the pharmacy API
-     * @return - the Set of PENDING prescriptions
+     * Retrieves a list of prescriptions with the PENDING status and sends it to the pharmacy API
+     * @return - the list of PENDING prescriptions
      */
     @GetMapping(value = "/pharmacy/getPendingPrescriptions")
-    public Set<PrescriptionDTO> getPendingPrescriptions() {
+    public List<PrescriptionDTO> getPendingPrescriptions() {
         return prescriptionService.getPrescriptionsByPrescriptionStatus(Status.PENDING);
     }
 
     /**
      * Updates the prescription with the corresponding ID and merges it to the prescription database
-     * @param prescriptionDTO - the prescription payload from the doctor API
+     * @param prescriptionDTO - the PrescriptionDTO payload from the doctor API
      * @param prescriptionId - the ID of the prescription
      * @return - the updated prescription
      */
@@ -71,7 +71,7 @@ public class PrescriptionController {
      * Approves or denies a prescription based on a PrescriptionStatusDTO payload from the pharmacy API
      * and merges it to the prescription database
      * @param status - the PrescriptionStatusDTO payload containing the new status
-     * @param prescriptionId - the ID of the prescription to approve
+     * @param prescriptionId - the ID of the prescription
      * @return - the PrescriptionDTO object containing the updated status
      */
     @PatchMapping(value = "/pharmacy/approvePrescription/{prescriptionId}",
