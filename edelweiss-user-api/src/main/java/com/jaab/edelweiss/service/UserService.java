@@ -56,4 +56,12 @@ public class UserService {
 
         return returnUser;
     }
+
+    /**
+     * Deletes a user from the user database based on their ID
+     * @param userId - the ID of the user
+     */
+    public void deleteUser(Long userId) {
+        userRepository.deleteById(userId);
+    }
 }

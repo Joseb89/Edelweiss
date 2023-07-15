@@ -4,10 +4,7 @@ import com.jaab.edelweiss.dto.UserDTO;
 import com.jaab.edelweiss.model.Role;
 import com.jaab.edelweiss.service.UserService;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 public class UserController {
@@ -60,5 +57,14 @@ public class UserController {
                     produces = MediaType.APPLICATION_JSON_VALUE)
     public UserDTO updateUserInfo(@RequestBody UserDTO userDTO) {
         return userService.updateUserInfo(userDTO);
+    }
+
+    /**
+     * Deletes a user from the user database based on their ID
+     * @param userId - the ID of the user
+     */
+    @DeleteMapping(value = "/deleteUser/{userId}")
+    public void deleteUser(@PathVariable Long userId) {
+        userService.deleteUser(userId);
     }
 }

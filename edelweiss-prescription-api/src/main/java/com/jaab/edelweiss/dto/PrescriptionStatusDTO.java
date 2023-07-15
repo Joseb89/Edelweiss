@@ -1,16 +1,12 @@
 package com.jaab.edelweiss.dto;
 
 import com.jaab.edelweiss.model.Status;
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
 public class PrescriptionStatusDTO {
 
     private Status prescriptionStatus;
-
-    public Status getPrescriptionStatus() {
-        return prescriptionStatus;
-    }
-
-    public void setPrescriptionStatus(Status prescriptionStatus) {
-        this.prescriptionStatus = prescriptionStatus;
-    }
 }

@@ -3,6 +3,7 @@ package com.jaab.edelweiss.service;
 import com.jaab.edelweiss.dao.PrescriptionRepository;
 import com.jaab.edelweiss.dto.PrescriptionDTO;
 import com.jaab.edelweiss.dto.PrescriptionStatusDTO;
+import com.jaab.edelweiss.dto.UpdatePrescriptionDTO;
 import com.jaab.edelweiss.model.Prescription;
 import com.jaab.edelweiss.model.Status;
 import org.springframework.beans.BeanUtils;
@@ -68,7 +69,8 @@ public class PrescriptionService {
      * @param prescriptionId - the ID of the prescription
      * @return - the updated prescription
      */
-    public PrescriptionDTO updatePrescriptionInfo(PrescriptionDTO prescriptionDTO, Long prescriptionId) {
+    public PrescriptionDTO updatePrescriptionInfo(UpdatePrescriptionDTO prescriptionDTO,
+                                                        Long prescriptionId) {
         Prescription prescription = prescriptionRepository.getReferenceById(prescriptionId);
         PrescriptionDTO getPrescription = new PrescriptionDTO();
         getPrescription.setId(prescription.getId());

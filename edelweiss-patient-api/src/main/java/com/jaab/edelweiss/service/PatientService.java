@@ -153,6 +153,33 @@ public class PatientService {
     }
 
     /**
+     * Deletes a patient from the patient database and sends a request to the user API to delete the user with
+     * the corresponding ID
+     * @param patientId - the ID of the patient
+     * @return - the delete request
+     */
+    public Mono<Void> deleteUser(Long patientId) {
+        deletePatient(patientId);
+
+        return webClient.delete()
+                .uri("/deleteUser/" + patientId)
+                .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError,
+                        response -> response.bodyToMono(String.class).map(Exception::new))
+                .onStatus(HttpStatusCode::is5xxServerError,
+                        response -> response.bodyToMono(String.class).map(ServerException::new))
+                .bodyToMono(Void.class);
+    }
+
+    /**
+     * Deletes a patient from the patient database and their corresponding address based on the patient's ID
+     * @param patientId - the ID of the patient
+     */
+    private void deletePatient(Long patientId) {
+        patientRepository.deleteById(patientId);
+    }
+
+    /**
      * Copies the values of a Patient object into a PatientDTO object
      * @param patient - the Patient object
      * @return - the PatientDTO object

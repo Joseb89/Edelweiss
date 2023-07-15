@@ -147,14 +147,14 @@ public class DoctorController {
 
     /**
      * Updates a prescription with the corresponding ID and sends it to the prescription API
-     * @param prescriptionDTO - the PrescriptionDTO payload containing the updated information
+     * @param prescriptionDTO - the UpdatePrescriptionDTO payload containing the updated information
      * @param prescriptionId - the ID of the prescription
      * @return - HTTP status response with the updated information
      */
     @PatchMapping(value = "/physician/updatePrescriptionInfo/{prescriptionId}",
                     consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Mono<PrescriptionDTO>> updatePrescriptionInfo(
-            @RequestBody PrescriptionDTO prescriptionDTO, @PathVariable Long prescriptionId) {
+    public ResponseEntity<Mono<UpdatePrescriptionDTO>> updatePrescriptionInfo(
+            @RequestBody UpdatePrescriptionDTO prescriptionDTO, @PathVariable Long prescriptionId) {
         return ResponseEntity.ok(doctorService.updatePrescriptionInfo(prescriptionDTO, prescriptionId));
     }
 
@@ -169,5 +169,26 @@ public class DoctorController {
     public ResponseEntity<Mono<AppointmentDTO>> updateAppointmentIndo(@RequestBody AppointmentDTO appointmentDTO,
                                                                       @PathVariable Long appointmentId) {
         return ResponseEntity.ok(doctorService.updateAppointmentInfo(appointmentDTO, appointmentId));
+    }
+
+    /**
+     * Deletes a doctor from the doctor database and sends a request to the user API to delete the user with
+     * the corresponding ID
+     * @param physicianId - the ID of the doctor
+     * @return - the delete request
+     */
+    @DeleteMapping(value = "/physician/deleteDoctor/{physicianId}")
+    public ResponseEntity<Mono<Void>> deleteDoctor(@PathVariable Long physicianId) {
+        return ResponseEntity.ok(doctorService.deleteUser(physicianId));
+    }
+
+    /**
+     * Sends a request to the patient API to delete the patient with the specified ID
+     * @param patientId - the ID of the patient
+     * @return - the delete request
+     */
+    @DeleteMapping(value = "/physician/deletePatient/{patientId}")
+    public ResponseEntity<Mono<Void>> deletePatient(@PathVariable Long patientId) {
+        return ResponseEntity.ok(doctorService.deletePatient(patientId));
     }
 }

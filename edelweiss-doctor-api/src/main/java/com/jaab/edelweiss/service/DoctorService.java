@@ -234,24 +234,25 @@ public class DoctorService {
 
     /**
      * Updates a prescription with the corresponding ID and sends it to the prescription API
-     * @param prescriptionDTO - the PrescriptionDTO payload containing the updated information
+     * @param prescriptionDTO - the UpdatePrescriptionDTO payload containing the updated information
      * @param prescriptionId - the ID of the prescription
      * @return - the updated prescription
      */
-    public Mono<PrescriptionDTO> updatePrescriptionInfo(PrescriptionDTO prescriptionDTO, Long prescriptionId) {
-        PrescriptionDTO updatedPrescription = new PrescriptionDTO();
+    public Mono<UpdatePrescriptionDTO> updatePrescriptionInfo(UpdatePrescriptionDTO prescriptionDTO,
+                                                        Long prescriptionId) {
+        UpdatePrescriptionDTO updatedPrescription = new UpdatePrescriptionDTO();
         BeanUtils.copyProperties(prescriptionDTO, updatedPrescription);
         updatedPrescription.setId(prescriptionId);
 
         return webClient.patch()
                 .uri(PRESCRIPTION_API_URL + "/updatePrescriptionInfo/" + prescriptionId)
-                .body(Mono.just(updatedPrescription), PrescriptionDTO.class)
+                .body(Mono.just(updatedPrescription), UpdatePrescriptionDTO.class)
                 .retrieve()
                 .onStatus(HttpStatusCode::is4xxClientError,
                         response -> response.bodyToMono(String.class).map(Exception::new))
                 .onStatus(HttpStatusCode::is5xxServerError,
                         response -> response.bodyToMono(String.class).map(ServerException::new))
-                .bodyToMono(PrescriptionDTO.class);
+                .bodyToMono(UpdatePrescriptionDTO.class);
     }
 
     /**
@@ -275,6 +276,47 @@ public class DoctorService {
                         response -> response.bodyToMono(String.class).map(ServerException::new))
                 .bodyToMono(AppointmentDTO.class);
     }
+
+    /**
+     * Deletes a doctor from the doctor database and sends a request to the user API to delete the user with
+     * the corresponding ID
+     * @param physicianId - the ID of the doctor
+     * @return - the delete request
+     */
+    public Mono<Void> deleteUser(Long physicianId) {
+        deleteDoctor(physicianId);
+
+        return webClient.delete()
+                .uri(USER_API_URL + "/deleteUser/" + physicianId)
+                .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError,
+                        response -> response.bodyToMono(String.class).map(Exception::new))
+                .onStatus(HttpStatusCode::is5xxServerError,
+                        response -> response.bodyToMono(String.class).map(ServerException::new))
+                .bodyToMono(Void.class);
+    }
+
+    /**
+     * Sends a request to the patient API to delete the patient with the specified ID
+     * @param patientId - the ID of the patient
+     * @return - the delete request
+     */
+    public Mono<Void> deletePatient(Long patientId) {
+        return webClient.delete()
+                .uri(PATIENT_API_URL + "/deletePatient/" + patientId)
+                .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError,
+                        response -> response.bodyToMono(String.class).map(Exception::new))
+                .onStatus(HttpStatusCode::is5xxServerError,
+                        response -> response.bodyToMono(String.class).map(ServerException::new))
+                .bodyToMono(Void.class);
+    }
+
+    /**
+     * Deletes a doctor from the doctor database based on their ID
+     * @param physicianId - the ID of the doctor
+     */
+    private void deleteDoctor(Long physicianId){ doctorRepository.deleteById(physicianId); }
 
     /**
      * Retrieves a doctor from the doctor database based on the doctor's ID and sets the doctor's

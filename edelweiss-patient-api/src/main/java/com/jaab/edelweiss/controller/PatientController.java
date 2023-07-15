@@ -111,4 +111,15 @@ public class PatientController {
                                                            @PathVariable Long patientId) {
         return ResponseEntity.ok(patientService.updateUserInfo(patient, patientId));
     }
+
+    /**
+     * Deletes a patient from the patient database and sends a request to the user API to delete the user with
+     * the corresponding ID
+     * @param patientId - the ID of the patient
+     * @return - the delete request
+     */
+    @DeleteMapping(value = "/physician/deletePatient/{patientId}")
+    public ResponseEntity<Mono<Void>> deletePatient(@PathVariable Long patientId) {
+        return ResponseEntity.ok(patientService.deleteUser(patientId));
+    }
 }

@@ -2,6 +2,7 @@ package com.jaab.edelweiss.controller;
 
 import com.jaab.edelweiss.dto.PrescriptionDTO;
 import com.jaab.edelweiss.dto.PrescriptionStatusDTO;
+import com.jaab.edelweiss.dto.UpdatePrescriptionDTO;
 import com.jaab.edelweiss.model.Prescription;
 import com.jaab.edelweiss.model.Status;
 import com.jaab.edelweiss.service.PrescriptionService;
@@ -62,8 +63,8 @@ public class PrescriptionController {
      */
     @PatchMapping(value = "/physician/updatePrescriptionInfo/{prescriptionId}",
                     consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public PrescriptionDTO updatePrescriptionInfo(@RequestBody PrescriptionDTO prescriptionDTO,
-                                                  @PathVariable Long prescriptionId) {
+    public PrescriptionDTO updatePrescriptionInfo(@RequestBody UpdatePrescriptionDTO prescriptionDTO,
+                                                        @PathVariable Long prescriptionId) {
         return prescriptionService.updatePrescriptionInfo(prescriptionDTO, prescriptionId);
     }
 
