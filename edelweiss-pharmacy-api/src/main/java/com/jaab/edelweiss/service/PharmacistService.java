@@ -107,6 +107,33 @@ public class PharmacistService {
     }
 
     /**
+     * Deletes a pharmacist from the pharmacist database and sends a DELETE request to the user API to delete
+     * the user with the corresponding ID
+     * @param pharmacistId - the ID of the pharmacist
+     * @return - the DELETE request
+     */
+    public Mono<Void> deleteUser(Long pharmacistId) {
+        deletePharmacist(pharmacistId);
+
+        return webClient.delete()
+                .uri(USER_API_URL + "/deleteUser/" + pharmacistId)
+                .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError,
+                        response -> response.bodyToMono(String.class).map(Exception::new))
+                .onStatus(HttpStatusCode::is5xxServerError,
+                        response -> response.bodyToMono(String.class).map(ServerException::new))
+                .bodyToMono(Void.class);
+    }
+
+    /**
+     * Deletes a pharmacist from the pharmacist database based on their ID
+     * @param pharmacistId - the ID of the pharmacist
+     */
+    private void deletePharmacist(Long pharmacistId) {
+        pharmacistRepository.deleteById(pharmacistId);
+    }
+
+    /**
      * Updates the information of the pharmacist via a Pharmacist payload, merges it to the pharmacist database,
      * and stores it in a UserDTO object
      * @param pharmacist - the Pharmacist payload

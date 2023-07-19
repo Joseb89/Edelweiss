@@ -56,4 +56,13 @@ public class AppointmentController {
                                                 @PathVariable Long appointmentId) {
         return appointmentService.updateAppointmentInfo(appointmentDTO, appointmentId);
     }
+
+    /**
+     * Deletes an appointment from the appointment database based on their ID
+     * @param appointmentId - the ID of the appointment
+     */
+    @DeleteMapping(value = "/deleteAppointment/{appointmentId}")
+    public void deleteAppointment(@PathVariable Long appointmentId) {
+        appointmentService.deleteAppointment(appointmentId);
+    }
 }

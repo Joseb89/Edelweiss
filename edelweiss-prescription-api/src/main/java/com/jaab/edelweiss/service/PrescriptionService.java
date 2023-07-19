@@ -107,6 +107,14 @@ public class PrescriptionService {
     }
 
     /**
+     * Deletes a prescription from the prescription database based on their ID
+     * @param prescriptionId - the ID of the prescription
+     */
+    public void deletePrescription(Long prescriptionId) {
+        prescriptionRepository.deleteById(prescriptionId);
+    }
+
+    /**
      * Copies the values of a Prescription object into a PrescriptionDTO object
      * @param prescription - the Prescription object
      * @return - the PrescriptionDTO object

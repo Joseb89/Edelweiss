@@ -77,6 +77,14 @@ public class AppointmentService {
     }
 
     /**
+     * Deletes an appointment from the appointment database based on their ID
+     * @param appointmentId - the ID of the appointment
+     */
+    public void deleteAppointment(Long appointmentId) {
+        appointmentRepository.deleteById(appointmentId);
+    }
+
+    /**
      * Copies the values of an Appointment object into a AppointmentDTO object
      * @param appointment - the Appointment object
      * @return - the AppointmentDTO object

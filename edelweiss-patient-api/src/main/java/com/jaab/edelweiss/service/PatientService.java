@@ -96,7 +96,7 @@ public class PatientService {
      * @return - the list of the patients matching the criteria
      */
     public List<PatientDTO> getPatientsByBloodType(String bloodType) {
-        List<Patient> patients =patientRepository.getPatientsByBloodType(bloodType);
+        List<Patient> patients = patientRepository.getPatientsByBloodType(bloodType);
 
         return patients.stream()
                 .map(this::copyToDTO)

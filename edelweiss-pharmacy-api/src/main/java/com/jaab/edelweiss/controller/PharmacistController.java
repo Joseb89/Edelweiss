@@ -69,4 +69,15 @@ public class PharmacistController {
                                                             @PathVariable Long prescriptionId) {
         return ResponseEntity.ok(pharmacistService.approvePrescription(status, prescriptionId));
     }
+
+    /**
+     * Deletes a pharmacist from the pharmacist database and sends a DELETE request to the user API to delete
+     * the user with the corresponding ID
+     * @param pharmacistId - the ID of the pharmacist
+     * @return - the DELETE request
+     */
+    @DeleteMapping(value = "/pharmacy/deletePharmacist/{pharmacistId}")
+    public ResponseEntity<Mono<Void>> deletePharmacist(@PathVariable Long pharmacistId) {
+        return ResponseEntity.ok(pharmacistService.deleteUser(pharmacistId));
+    }
 }

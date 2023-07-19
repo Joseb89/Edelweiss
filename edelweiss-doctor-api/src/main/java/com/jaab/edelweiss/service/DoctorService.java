@@ -16,7 +16,7 @@ import java.rmi.ServerException;
 @Service
 public class DoctorService {
 
-    private final WebClient webClient;
+    public final WebClient webClient;
 
     private DoctorRepository doctorRepository;
 
@@ -102,6 +102,7 @@ public class DoctorService {
      * @return - the patient's information from the patient API
      */
     public Mono<PatientDTO> getPatientById(Long patientId) {
+
         return webClient.get()
                 .uri(PATIENT_API_URL + "/getPatientById/" + patientId)
                 .retrieve()
@@ -118,14 +119,7 @@ public class DoctorService {
      * @return - the PatientDTO List from the patient API
      */
     public Flux<PatientDTO> getPatientsByFirstName(String firstName) {
-        return webClient.get()
-                .uri(PATIENT_API_URL + "/getPatientsByFirstName/" + firstName)
-                .retrieve()
-                .onStatus(HttpStatusCode::is4xxClientError,
-                        response -> response.bodyToMono(String.class).map(Exception::new))
-                .onStatus(HttpStatusCode::is5xxServerError,
-                        response -> response.bodyToMono(String.class).map(ServerException::new))
-                .bodyToFlux(PatientDTO.class);
+        return getPatientRequest("/getPatientsByFirstName/", firstName);
     }
 
     /**
@@ -134,14 +128,7 @@ public class DoctorService {
      * @return - the PatientDTO List from the patient API
      */
     public Flux<PatientDTO> getPatientsByLastName(String lastName) {
-        return webClient.get()
-                .uri(PATIENT_API_URL + "/getPatientsByLastName/" + lastName)
-                .retrieve()
-                .onStatus(HttpStatusCode::is4xxClientError,
-                        response -> response.bodyToMono(String.class).map(Exception::new))
-                .onStatus(HttpStatusCode::is5xxServerError,
-                        response -> response.bodyToMono(String.class).map(ServerException::new))
-                .bodyToFlux(PatientDTO.class);
+        return getPatientRequest("/getPatientsByLastName/", lastName);
     }
 
     /**
@@ -150,14 +137,7 @@ public class DoctorService {
      * @return - the PatientDTO List from the patient API
      */
     public Flux<PatientDTO> getPatientsByBloodType(String bloodType) {
-        return webClient.get()
-                .uri(PATIENT_API_URL + "/getPatientsByBloodType/" + bloodType)
-                .retrieve()
-                .onStatus(HttpStatusCode::is4xxClientError,
-                        response -> response.bodyToMono(String.class).map(Exception::new))
-                .onStatus(HttpStatusCode::is5xxServerError,
-                        response -> response.bodyToMono(String.class).map(ServerException::new))
-                .bodyToFlux(PatientDTO.class);
+        return getPatientRequest("/getPatientsByBloodType/", bloodType);
     }
 
     /**
@@ -278,38 +258,42 @@ public class DoctorService {
     }
 
     /**
-     * Deletes a doctor from the doctor database and sends a request to the user API to delete the user with
-     * the corresponding ID
+     * Deletes a doctor from the doctor database and sends a DELETE request to the user API to delete the user
+     * with the corresponding ID
      * @param physicianId - the ID of the doctor
-     * @return - the delete request
+     * @return - the DELETE request
      */
     public Mono<Void> deleteUser(Long physicianId) {
         deleteDoctor(physicianId);
 
-        return webClient.delete()
-                .uri(USER_API_URL + "/deleteUser/" + physicianId)
-                .retrieve()
-                .onStatus(HttpStatusCode::is4xxClientError,
-                        response -> response.bodyToMono(String.class).map(Exception::new))
-                .onStatus(HttpStatusCode::is5xxServerError,
-                        response -> response.bodyToMono(String.class).map(ServerException::new))
-                .bodyToMono(Void.class);
+        return deleteRequest(USER_API_URL + "/deleteUser/", physicianId);
     }
 
     /**
-     * Sends a request to the patient API to delete the patient with the specified ID
+     * Sends a DELETE request to the patient API to delete the patient with the specified ID
      * @param patientId - the ID of the patient
-     * @return - the delete request
+     * @return - the DELETE request
      */
     public Mono<Void> deletePatient(Long patientId) {
-        return webClient.delete()
-                .uri(PATIENT_API_URL + "/deletePatient/" + patientId)
-                .retrieve()
-                .onStatus(HttpStatusCode::is4xxClientError,
-                        response -> response.bodyToMono(String.class).map(Exception::new))
-                .onStatus(HttpStatusCode::is5xxServerError,
-                        response -> response.bodyToMono(String.class).map(ServerException::new))
-                .bodyToMono(Void.class);
+        return deleteRequest(PATIENT_API_URL + "/deletePatient/", patientId);
+    }
+
+    /**
+     * Sends a DELETE request to the prescription API to delete the prescription with the specified ID
+     * @param prescriptionId - the ID of the prescription
+     * @return - the DELETE request
+     */
+    public Mono<Void> deletePrescription(Long prescriptionId) {
+        return deleteRequest(PRESCRIPTION_API_URL + "/deletePrescription/", prescriptionId);
+    }
+
+    /**
+     * Sends a DELETE request to the appointment API to delete the appointment with the specified ID
+     * @param appointmentId - the ID of the appointment
+     * @return - the DELETE request
+     */
+    public Mono<Void> deleteAppointment(Long appointmentId) {
+        return deleteRequest(APPOINTMENT_API_URL + "/deleteAppointment/", appointmentId);
     }
 
     /**
@@ -364,6 +348,40 @@ public class DoctorService {
         doctorRepository.save(getDoctor);
 
         return userDTO;
+    }
+
+    /**
+     * Creates a GET request to send to the patient API
+     * @param uri - the specified URI at the patient API
+     * @param parameter - the search parameter for retrieving the specified data
+     * @return - the GET request
+     */
+    private Flux<PatientDTO> getPatientRequest(String uri, String parameter) {
+        return webClient.get()
+                .uri(PATIENT_API_URL + uri + parameter)
+                .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError,
+                        response -> response.bodyToMono(String.class).map(Exception::new))
+                .onStatus(HttpStatusCode::is5xxServerError,
+                        response -> response.bodyToMono(String.class).map(ServerException::new))
+                .bodyToFlux(PatientDTO.class);
+    }
+
+    /**
+     * Returns the DELETE request of the corresponding endpoint
+     * @param uri - the endpoint URI
+     * @param id - the ID of the resource to delete
+     * @return - the DELETE request
+     */
+    private Mono<Void> deleteRequest(String uri, Long id) {
+        return webClient.delete()
+                .uri(uri + id)
+                .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError,
+                        response -> response.bodyToMono(String.class).map(Exception::new))
+                .onStatus(HttpStatusCode::is5xxServerError,
+                        response -> response.bodyToMono(String.class).map(ServerException::new))
+                .bodyToMono(Void.class);
     }
 
     /**

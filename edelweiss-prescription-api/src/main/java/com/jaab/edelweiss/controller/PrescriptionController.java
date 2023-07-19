@@ -81,4 +81,13 @@ public class PrescriptionController {
                                                                @PathVariable Long prescriptionId) {
         return prescriptionService.approvePrescription(status, prescriptionId);
     }
+
+    /**
+     * Deletes a prescription from the prescription database based on their ID
+     * @param prescriptionId - the ID of the prescription
+     */
+    @DeleteMapping(value = "/physician/deletePrescription/{prescriptionId}")
+    public void deletePrescription(@PathVariable Long prescriptionId) {
+        prescriptionService.deletePrescription(prescriptionId);
+    }
 }

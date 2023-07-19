@@ -172,10 +172,10 @@ public class DoctorController {
     }
 
     /**
-     * Deletes a doctor from the doctor database and sends a request to the user API to delete the user with
-     * the corresponding ID
+     * Deletes a doctor from the doctor database and sends a DELETE request to the user API to delete the user
+     * with the corresponding ID
      * @param physicianId - the ID of the doctor
-     * @return - the delete request
+     * @return - the DELETE request
      */
     @DeleteMapping(value = "/physician/deleteDoctor/{physicianId}")
     public ResponseEntity<Mono<Void>> deleteDoctor(@PathVariable Long physicianId) {
@@ -183,12 +183,32 @@ public class DoctorController {
     }
 
     /**
-     * Sends a request to the patient API to delete the patient with the specified ID
+     * Sends a DELETE request to the patient API to delete the patient with the specified ID
      * @param patientId - the ID of the patient
-     * @return - the delete request
+     * @return - the DELETE request
      */
     @DeleteMapping(value = "/physician/deletePatient/{patientId}")
     public ResponseEntity<Mono<Void>> deletePatient(@PathVariable Long patientId) {
         return ResponseEntity.ok(doctorService.deletePatient(patientId));
+    }
+
+    /**
+     * Sends a DELETE request to the prescription API to delete the prescription with the specified ID
+     * @param prescriptionId - the ID of the prescription
+     * @return - the DELETE request
+     */
+    @DeleteMapping(value = "/physician/deletePrescription/{prescriptionId}")
+    public ResponseEntity<Mono<Void>> deletePrescription(@PathVariable Long prescriptionId) {
+        return ResponseEntity.ok(doctorService.deletePrescription(prescriptionId));
+    }
+
+    /**
+     * Sends a DELETE request to the appointment API to delete the appointment with the specified ID
+     * @param appointmentId - the ID of the appointment
+     * @return - the DELETE request
+     */
+    @DeleteMapping(value = "/physician/deleteAppointment/{appointmentId}")
+    public ResponseEntity<Mono<Void>> deleteAppointment(@PathVariable Long appointmentId) {
+        return ResponseEntity.ok(doctorService.deleteAppointment(appointmentId));
     }
 }
