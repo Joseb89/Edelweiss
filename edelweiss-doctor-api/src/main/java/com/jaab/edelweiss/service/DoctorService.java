@@ -2,6 +2,9 @@ package com.jaab.edelweiss.service;
 
 import com.jaab.edelweiss.dao.DoctorRepository;
 import com.jaab.edelweiss.dto.*;
+import com.jaab.edelweiss.exception.AppointmentException;
+import com.jaab.edelweiss.exception.DoctorNotFoundException;
+import com.jaab.edelweiss.exception.PrescriptionException;
 import com.jaab.edelweiss.model.Doctor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +15,9 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.rmi.ServerException;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.Optional;
 
 @Service
 public class DoctorService {
@@ -49,6 +55,7 @@ public class DoctorService {
         UserDTO userData = sendUserData(userDTO);
         doctor.setId(userData.getId());
         doctorRepository.save(doctor);
+
         return userData;
     }
 
@@ -56,10 +63,25 @@ public class DoctorService {
      * Creates a new prescription and sends it to the prescription API
      * @param newPrescription - the PrescriptionDTO payload
      * @param physicianId - the ID of the doctor
+     * @throws PrescriptionException if prescription name is null or prescription dosage has invalid value
      * @return - the new prescription
      */
-    public Mono<PrescriptionDTO> createPrescription(PrescriptionDTO newPrescription, Long physicianId) {
-        String[] doctorName = setDoctorName(physicianId);
+    public Mono<PrescriptionDTO> createPrescription(PrescriptionDTO newPrescription, Long physicianId)
+            throws PrescriptionException {
+        String[] doctorName;
+
+        try {
+            doctorName = setDoctorName(physicianId);
+        } catch (DoctorNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+
+        if (newPrescription.getPrescriptionName().isEmpty())
+            throw new PrescriptionException("Please specify prescription name.");
+
+        if (newPrescription.getPrescriptionDosage() < 1)
+            throw new PrescriptionException("Prescription dosage must be between 1cc and 127cc.");
+
         newPrescription.setDoctorFirstName(doctorName[0]);
         newPrescription.setDoctorLastName(doctorName[1]);
 
@@ -76,18 +98,29 @@ public class DoctorService {
 
     /**
      * Creates a new appointment and sends it to the appointment API
-     * @param appointmentDTO - the AppointmentDTO payload
+     * @param newAppointment - the AppointmentDTO payload
      * @param physicianId - the ID of the doctor
      * @return - the new appointment
      */
-    public Mono<AppointmentDTO> createAppointment(AppointmentDTO appointmentDTO, Long physicianId) {
-        String[] doctorName = setDoctorName(physicianId);
-        appointmentDTO.setDoctorFirstName(doctorName[0]);
-        appointmentDTO.setDoctorLastName(doctorName[1]);
+    public Mono<AppointmentDTO> createAppointment(AppointmentDTO newAppointment, Long physicianId) {
+        String[] doctorName;
+
+        try {
+            doctorName = setDoctorName(physicianId);
+        } catch (DoctorNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+
+        if (newAppointment.getAppointmentDate().isBefore(LocalDate.now()) &&
+                newAppointment.getAppointmentTime().isBefore(LocalTime.now()))
+            throw new AppointmentException("Appointment date must be today or later date.");
+
+        newAppointment.setDoctorFirstName(doctorName[0]);
+        newAppointment.setDoctorLastName(doctorName[1]);
 
         return webClient.post()
                 .uri(APPOINTMENT_API_URL + "/newAppointment")
-                .body(Mono.just(appointmentDTO), AppointmentDTO.class)
+                .body(Mono.just(newAppointment), AppointmentDTO.class)
                 .retrieve()
                 .onStatus(HttpStatusCode::is4xxClientError,
                         response -> response.bodyToMono(String.class).map(Exception::new))
@@ -102,7 +135,6 @@ public class DoctorService {
      * @return - the patient's information from the patient API
      */
     public Mono<PatientDTO> getPatientById(Long patientId) {
-
         return webClient.get()
                 .uri(PATIENT_API_URL + "/getPatientById/" + patientId)
                 .retrieve()
@@ -162,7 +194,13 @@ public class DoctorService {
      * @return - the list of the prescriptions
      */
     public Flux<PrescriptionDTO> getPrescriptions(Long physicianId) {
-        String[] doctorName = setDoctorName(physicianId);
+        String[] doctorName;
+
+        try {
+            doctorName = setDoctorName(physicianId);
+        } catch (DoctorNotFoundException e) {
+            throw new RuntimeException(e);
+        }
 
         return webClient.get()
                 .uri(PRESCRIPTION_API_URL + "/myPrescriptions/" + doctorName[0] + "/" + doctorName[1])
@@ -180,7 +218,13 @@ public class DoctorService {
      * @return - the list of the appointments
      */
     public Flux<AppointmentDTO> getAppointments(Long physicianId) {
-        String[] doctorName = setDoctorName(physicianId);
+        String[] doctorName;
+
+        try {
+            doctorName = setDoctorName(physicianId);
+        } catch (DoctorNotFoundException e) {
+            throw new RuntimeException(e);
+        }
 
         return webClient.get()
                 .uri(APPOINTMENT_API_URL + "/myAppointments/" + doctorName[0] + "/" + doctorName[1])
@@ -219,9 +263,14 @@ public class DoctorService {
      * @return - the updated prescription
      */
     public Mono<UpdatePrescriptionDTO> updatePrescriptionInfo(UpdatePrescriptionDTO prescriptionDTO,
-                                                        Long prescriptionId) {
+                                                        Long prescriptionId) throws PrescriptionException {
         UpdatePrescriptionDTO updatedPrescription = new UpdatePrescriptionDTO();
         BeanUtils.copyProperties(prescriptionDTO, updatedPrescription);
+
+        if (updatedPrescription.getPrescriptionDosage() != null &&
+                updatedPrescription.getPrescriptionDosage() < 1)
+            throw new PrescriptionException("Prescription dosage must be between 1cc and 127cc.");
+
         updatedPrescription.setId(prescriptionId);
 
         return webClient.patch()
@@ -244,6 +293,11 @@ public class DoctorService {
     public Mono<AppointmentDTO> updateAppointmentInfo(AppointmentDTO appointmentDTO, Long appointmentId) {
         AppointmentDTO updatedAppointment = new AppointmentDTO();
         BeanUtils.copyProperties(appointmentDTO, updatedAppointment);
+
+        if (appointmentDTO.getAppointmentDate().isBefore(LocalDate.now()) &&
+                appointmentDTO.getAppointmentTime().isBefore(LocalTime.now()))
+            throw new AppointmentException("Appointment date must be today or later date.");
+
         updatedAppointment.setId(appointmentId);
 
         return webClient.patch()
@@ -300,19 +354,33 @@ public class DoctorService {
      * Deletes a doctor from the doctor database based on their ID
      * @param physicianId - the ID of the doctor
      */
-    private void deleteDoctor(Long physicianId){ doctorRepository.deleteById(physicianId); }
+    private void deleteDoctor(Long physicianId){
+        Optional<Doctor> doctor = doctorRepository.getDoctorById(physicianId);
+
+        if (doctor.isEmpty())
+            throw new DoctorNotFoundException("No doctor with specified ID found.");
+
+        doctorRepository.deleteById(physicianId); }
 
     /**
      * Retrieves a doctor from the doctor database based on the doctor's ID and sets the doctor's
      * first and last name to a String array
      * @param physicianId - the ID of the doctor
+     * @throws DoctorNotFoundException if doctor with ID is not found in database
      * @return - the String array containing the doctor's first and last name
      */
-    private String[] setDoctorName(Long physicianId) {
+    private String[] setDoctorName(Long physicianId) throws DoctorNotFoundException {
         String[] doctorName = new String[2];
-        Doctor doctor = doctorRepository.getReferenceById(physicianId);
+        Optional<Doctor> getDoctor = doctorRepository.getDoctorById(physicianId);
+
+        if (getDoctor.isEmpty())
+            throw new DoctorNotFoundException("No doctor with specified ID found.");
+
+        Doctor doctor = getDoctor.get();
+
         doctorName[0] = doctor.getFirstName();
         doctorName[1] = doctor.getLastName();
+
         return doctorName;
     }
 

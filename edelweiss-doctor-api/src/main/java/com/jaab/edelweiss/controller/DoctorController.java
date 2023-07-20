@@ -1,6 +1,7 @@
 package com.jaab.edelweiss.controller;
 
 import com.jaab.edelweiss.dto.*;
+import com.jaab.edelweiss.exception.PrescriptionException;
 import com.jaab.edelweiss.model.Doctor;
 import com.jaab.edelweiss.service.DoctorService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,13 +38,14 @@ public class DoctorController {
      * Sends a prescription payload to the prescription API
      * @param prescription - the PrescriptionDTO payload
      * @param physicianId - the ID of the doctor
+     * @throws PrescriptionException if prescription name is null or prescription dosage has invalid value
      * @return - HTTP status response with the prescription payload
      */
     @PostMapping(value = "/physician/{physicianId}/newPrescription", consumes = MediaType.APPLICATION_JSON_VALUE,
                 produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Mono<PrescriptionDTO>> createPrescription(
                                                    @RequestBody PrescriptionDTO prescription,
-                                                   @PathVariable Long physicianId) {
+                                                   @PathVariable Long physicianId) throws PrescriptionException {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(doctorService.createPrescription(prescription, physicianId));
     }
@@ -149,12 +151,14 @@ public class DoctorController {
      * Updates a prescription with the corresponding ID and sends it to the prescription API
      * @param prescriptionDTO - the UpdatePrescriptionDTO payload containing the updated information
      * @param prescriptionId - the ID of the prescription
+     * @throws PrescriptionException if prescription dosage has invalid value
      * @return - HTTP status response with the updated information
      */
     @PatchMapping(value = "/physician/updatePrescriptionInfo/{prescriptionId}",
                     consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Mono<UpdatePrescriptionDTO>> updatePrescriptionInfo(
-            @RequestBody UpdatePrescriptionDTO prescriptionDTO, @PathVariable Long prescriptionId) {
+            @RequestBody UpdatePrescriptionDTO prescriptionDTO, @PathVariable Long prescriptionId)
+            throws PrescriptionException {
         return ResponseEntity.ok(doctorService.updatePrescriptionInfo(prescriptionDTO, prescriptionId));
     }
 
