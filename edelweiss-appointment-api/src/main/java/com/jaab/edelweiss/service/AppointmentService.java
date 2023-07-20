@@ -2,12 +2,14 @@ package com.jaab.edelweiss.service;
 
 import com.jaab.edelweiss.dao.AppointmentRepository;
 import com.jaab.edelweiss.dto.AppointmentDTO;
+import com.jaab.edelweiss.exception.AppointmentNotFoundException;
 import com.jaab.edelweiss.model.Appointment;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -53,7 +55,7 @@ public class AppointmentService {
      * @return - the updated appointment
      */
     public AppointmentDTO updateAppointmentInfo(AppointmentDTO appointmentDTO, Long appointmentId) {
-        Appointment appointment = appointmentRepository.getReferenceById(appointmentId);
+        Appointment appointment = getAppointmentById(appointmentId);
         AppointmentDTO getAppointment = new AppointmentDTO();
         getAppointment.setId(appointmentId);
 
@@ -81,7 +83,24 @@ public class AppointmentService {
      * @param appointmentId - the ID of the appointment
      */
     public void deleteAppointment(Long appointmentId) {
-        appointmentRepository.deleteById(appointmentId);
+        Appointment appointment = getAppointmentById(appointmentId);
+
+        appointmentRepository.deleteById(appointment.getId());
+    }
+
+    /**
+     * Retrieves an appointment from the appointment database based on their ID and throws an exception if the
+     * specified appointment is not found
+     * @param appointmentId - the ID of the appointment
+     * @return - the appointment if available
+     */
+    private Appointment getAppointmentById(Long appointmentId) {
+        Optional<Appointment> appointment = appointmentRepository.getAppointmentById(appointmentId);
+
+        if (appointment.isEmpty())
+            throw new AppointmentNotFoundException("No appointment with the specified ID found.");
+
+        return appointment.get();
     }
 
     /**

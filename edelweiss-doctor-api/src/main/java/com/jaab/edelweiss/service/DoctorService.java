@@ -294,9 +294,11 @@ public class DoctorService {
         AppointmentDTO updatedAppointment = new AppointmentDTO();
         BeanUtils.copyProperties(appointmentDTO, updatedAppointment);
 
-        if (appointmentDTO.getAppointmentDate().isBefore(LocalDate.now()) &&
-                appointmentDTO.getAppointmentTime().isBefore(LocalTime.now()))
-            throw new AppointmentException("Appointment date must be today or later date.");
+        if (updatedAppointment.getAppointmentDate() != null &&
+                updatedAppointment.getAppointmentDate().isBefore(LocalDate.now()) &&
+                updatedAppointment.getAppointmentTime() != null &&
+                updatedAppointment.getAppointmentTime().isBefore(LocalTime.now()))
+                    throw new AppointmentException("Appointment date must be today or later date.");
 
         updatedAppointment.setId(appointmentId);
 
@@ -374,7 +376,7 @@ public class DoctorService {
         Optional<Doctor> getDoctor = doctorRepository.getDoctorById(physicianId);
 
         if (getDoctor.isEmpty())
-            throw new DoctorNotFoundException("No doctor with specified ID found.");
+            throw new DoctorNotFoundException("No doctor with the specified ID found.");
 
         Doctor doctor = getDoctor.get();
 

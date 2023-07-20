@@ -7,9 +7,13 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface AppointmentRepository extends JpaRepository<Appointment, Long> {
+
+    @Query("FROM Appointment a WHERE a.id = :id")
+    Optional<Appointment> getAppointmentById(@Param("id") Long id);
 
     @Query("FROM Appointment a WHERE a.doctorFirstName = :firstName AND a.doctorLastName = :lastName " +
             "order by a.appointmentDate")
