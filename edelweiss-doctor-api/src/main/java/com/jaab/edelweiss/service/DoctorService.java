@@ -63,18 +63,11 @@ public class DoctorService {
      * Creates a new prescription and sends it to the prescription API
      * @param newPrescription - the PrescriptionDTO payload
      * @param physicianId - the ID of the doctor
-     * @throws PrescriptionException if prescription name is null or prescription dosage has invalid value
      * @return - the new prescription
      */
-    public Mono<PrescriptionDTO> createPrescription(PrescriptionDTO newPrescription, Long physicianId)
-            throws PrescriptionException {
+    public Mono<PrescriptionDTO> createPrescription(PrescriptionDTO newPrescription, Long physicianId) {
         String[] doctorName;
-
-        try {
-            doctorName = setDoctorName(physicianId);
-        } catch (DoctorNotFoundException e) {
-            throw new RuntimeException(e);
-        }
+        doctorName = setDoctorName(physicianId);
 
         if (newPrescription.getPrescriptionName().isEmpty())
             throw new PrescriptionException("Please specify prescription name.");
@@ -104,12 +97,7 @@ public class DoctorService {
      */
     public Mono<AppointmentDTO> createAppointment(AppointmentDTO newAppointment, Long physicianId) {
         String[] doctorName;
-
-        try {
-            doctorName = setDoctorName(physicianId);
-        } catch (DoctorNotFoundException e) {
-            throw new RuntimeException(e);
-        }
+        doctorName = setDoctorName(physicianId);
 
         if (newAppointment.getAppointmentDate().isBefore(LocalDate.now()) &&
                 newAppointment.getAppointmentTime().isBefore(LocalTime.now()))
@@ -195,12 +183,7 @@ public class DoctorService {
      */
     public Flux<PrescriptionDTO> getPrescriptions(Long physicianId) {
         String[] doctorName;
-
-        try {
-            doctorName = setDoctorName(physicianId);
-        } catch (DoctorNotFoundException e) {
-            throw new RuntimeException(e);
-        }
+        doctorName = setDoctorName(physicianId);
 
         return webClient.get()
                 .uri(PRESCRIPTION_API_URL + "/myPrescriptions/" + doctorName[0] + "/" + doctorName[1])
@@ -219,12 +202,7 @@ public class DoctorService {
      */
     public Flux<AppointmentDTO> getAppointments(Long physicianId) {
         String[] doctorName;
-
-        try {
-            doctorName = setDoctorName(physicianId);
-        } catch (DoctorNotFoundException e) {
-            throw new RuntimeException(e);
-        }
+        doctorName = setDoctorName(physicianId);
 
         return webClient.get()
                 .uri(APPOINTMENT_API_URL + "/myAppointments/" + doctorName[0] + "/" + doctorName[1])
@@ -353,7 +331,8 @@ public class DoctorService {
     }
 
     /**
-     * Deletes a doctor from the doctor database based on their ID
+     * Deletes a doctor from the doctor database based on their ID and throws an exception if the specified
+     * doctor is not found
      * @param physicianId - the ID of the doctor
      */
     private void deleteDoctor(Long physicianId){
@@ -362,23 +341,17 @@ public class DoctorService {
         if (doctor.isEmpty())
             throw new DoctorNotFoundException("No doctor with specified ID found.");
 
-        doctorRepository.deleteById(physicianId); }
+        doctorRepository.deleteById(doctor.get().getId()); }
 
     /**
      * Retrieves a doctor from the doctor database based on the doctor's ID and sets the doctor's
      * first and last name to a String array
      * @param physicianId - the ID of the doctor
-     * @throws DoctorNotFoundException if doctor with ID is not found in database
      * @return - the String array containing the doctor's first and last name
      */
-    private String[] setDoctorName(Long physicianId) throws DoctorNotFoundException {
+    private String[] setDoctorName(Long physicianId) {
         String[] doctorName = new String[2];
-        Optional<Doctor> getDoctor = doctorRepository.getDoctorById(physicianId);
-
-        if (getDoctor.isEmpty())
-            throw new DoctorNotFoundException("No doctor with the specified ID found.");
-
-        Doctor doctor = getDoctor.get();
+        Doctor doctor = doctorRepository.getReferenceById(physicianId);
 
         doctorName[0] = doctor.getFirstName();
         doctorName[1] = doctor.getLastName();

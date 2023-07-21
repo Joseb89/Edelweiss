@@ -4,6 +4,7 @@ import com.jaab.edelweiss.dao.PharmacistRepository;
 import com.jaab.edelweiss.dto.PrescriptionDTO;
 import com.jaab.edelweiss.dto.PrescriptionStatusDTO;
 import com.jaab.edelweiss.dto.UserDTO;
+import com.jaab.edelweiss.exception.PharmacistNotFoundException;
 import com.jaab.edelweiss.model.Pharmacist;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.rmi.ServerException;
+import java.util.Optional;
 
 @Service
 public class PharmacistService {
@@ -126,11 +128,17 @@ public class PharmacistService {
     }
 
     /**
-     * Deletes a pharmacist from the pharmacist database based on their ID
+     * Deletes a pharmacist from the pharmacist database based on their ID throws an exception if the
+     * specified pharmacist is not found
      * @param pharmacistId - the ID of the pharmacist
      */
     private void deletePharmacist(Long pharmacistId) {
-        pharmacistRepository.deleteById(pharmacistId);
+        Optional<Pharmacist> pharmacist = pharmacistRepository.getPharmacistById(pharmacistId);
+
+        if (pharmacist.isEmpty())
+            throw new PharmacistNotFoundException("No pharmacist with the specified ID found.");
+
+        pharmacistRepository.deleteById(pharmacist.get().getId());
     }
 
     /**

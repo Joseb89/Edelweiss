@@ -4,6 +4,7 @@ import com.jaab.edelweiss.dao.PatientRepository;
 import com.jaab.edelweiss.dto.AddressDTO;
 import com.jaab.edelweiss.dto.PatientDTO;
 import com.jaab.edelweiss.dto.UserDTO;
+import com.jaab.edelweiss.exception.PatientNotFoundException;
 import com.jaab.edelweiss.model.Address;
 import com.jaab.edelweiss.model.Patient;
 import org.springframework.beans.BeanUtils;
@@ -15,6 +16,7 @@ import reactor.core.publisher.Mono;
 
 import java.rmi.ServerException;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -58,8 +60,8 @@ public class PatientService {
      * @return - the patient with the corresponding ID
      */
     public PatientDTO getPatientById(Long id) {
+        Patient patient = getPatientByPatientId(id);
         PatientDTO patientDTO = new PatientDTO();
-        Patient patient = patientRepository.getReferenceById(id);
         BeanUtils.copyProperties(patient, patientDTO);
         return patientDTO;
     }
@@ -109,7 +111,7 @@ public class PatientService {
      * @return - the AddressDTO object with the address information
      */
     public AddressDTO getAddress(Long patientId) {
-        Patient patient = patientRepository.getReferenceById(patientId);
+        Patient patient = getPatientByPatientId(patientId);
         Address address = patient.getAddress();
         AddressDTO addressDTO = new AddressDTO();
         BeanUtils.copyProperties(address, addressDTO);
@@ -123,8 +125,8 @@ public class PatientService {
      * @return - the AddressDTO object containing the updated address
      */
     public AddressDTO updateAddress(Address address, Long patientId) {
+        Patient patient = getPatientByPatientId(patientId);
         AddressDTO addressDTO = new AddressDTO();
-        Patient patient = patientRepository.getReferenceById(patientId);
         address.setId(patient.getId());
         BeanUtils.copyProperties(address, patient.getAddress());
         BeanUtils.copyProperties(patient.getAddress(), addressDTO);
@@ -172,11 +174,28 @@ public class PatientService {
     }
 
     /**
+     * Retrieves a patient from the patient database based on their ID and throws an exception if
+     * the specified patient is not found
+     * @param patientId - the ID of the patient
+     * @return - the patient if available
+     */
+    private Patient getPatientByPatientId(Long patientId) {
+        Optional<Patient> patient = patientRepository.getPatientById(patientId);
+
+        if (patient.isEmpty())
+            throw new PatientNotFoundException("No patient with the specified ID found.");
+
+        return patient.get();
+    }
+
+    /**
      * Deletes a patient from the patient database and their corresponding address based on the patient's ID
      * @param patientId - the ID of the patient
      */
     private void deletePatient(Long patientId) {
-        patientRepository.deleteById(patientId);
+        Patient patient = getPatientByPatientId(patientId);
+
+        patientRepository.deleteById(patient.getId());
     }
 
     /**
