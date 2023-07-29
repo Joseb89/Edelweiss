@@ -32,6 +32,7 @@ public class PatientController {
      */
     @PostMapping(value = "/newPatient", consumes = MediaType.APPLICATION_JSON_VALUE,
                 produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(value = HttpStatus.CREATED)
     public ResponseEntity<Long> createPatient(@RequestBody Patient patient) {
         UserDTO newPatient = patientService.createPatient(patient);
         return ResponseEntity.status(HttpStatus.CREATED).body(newPatient.getId());

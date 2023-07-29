@@ -3,6 +3,7 @@ package com.jaab.edelweiss.controller;
 import com.jaab.edelweiss.dto.UserDTO;
 import com.jaab.edelweiss.model.Role;
 import com.jaab.edelweiss.service.UserService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,6 +23,7 @@ public class UserController {
      */
     @PostMapping(value = "/newPatient", consumes = MediaType.APPLICATION_JSON_VALUE,
                     produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(value = HttpStatus.CREATED)
     public Long createPatient(@RequestBody UserDTO userDTO) {
         return userService.createUser(userDTO, Role.PATIENT);
     }

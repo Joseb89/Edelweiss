@@ -59,7 +59,7 @@ public class PatientService {
      * @param id - the ID of the patient
      * @return - the patient with the corresponding ID
      */
-    public PatientDTO getPatientById(Long id) {
+    public PatientDTO getPatientById(Long id) throws PatientNotFoundException {
         Patient patient = getPatientByPatientId(id);
         PatientDTO patientDTO = new PatientDTO();
         BeanUtils.copyProperties(patient, patientDTO);
@@ -179,7 +179,7 @@ public class PatientService {
      * @param patientId - the ID of the patient
      * @return - the patient if available
      */
-    private Patient getPatientByPatientId(Long patientId) {
+    private Patient getPatientByPatientId(Long patientId) throws PatientNotFoundException {
         Optional<Patient> patient = patientRepository.getPatientById(patientId);
 
         if (patient.isEmpty())

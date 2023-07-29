@@ -1,13 +1,17 @@
 package com.jaab.edelweiss.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
 @Table(name = "address")
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Address {
 
     @Id
@@ -30,4 +34,5 @@ public class Address {
 
     @Column(name = "zipcode", nullable = false)
     private Integer zipcode;
+
 }
