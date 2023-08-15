@@ -3,6 +3,7 @@ package com.jaab.edelweiss.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jaab.edelweiss.dto.UserDTO;
 import com.jaab.edelweiss.service.UserService;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +13,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(UserController.class)
@@ -31,7 +31,8 @@ public class UserControllerTest {
 
     @BeforeEach
     public void init() {
-        assertThat(userService).isNotNull();
+        Assertions.assertNotNull(userService);
+
         userDTO = new UserDTO(1L, "Squall", "Leonheart", "finalfantasy8@gmail.com",
                 "gunblade");
     }
@@ -72,7 +73,6 @@ public class UserControllerTest {
                         .accept(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updatedData)))
                 .andExpect(status().isOk());
-
     }
 
     @Test

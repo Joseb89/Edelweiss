@@ -8,6 +8,8 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.function.Consumer;
+
 @Service
 public class UserService {
 
@@ -19,7 +21,7 @@ public class UserService {
     }
 
     /**
-     * Copies UserDTO payload from external API into new User entity and saves it to the user database
+     * Copies a UserDTO payload from external API into a new User object and saves it to the user database
      * @param userDTO - the UserDTO payload from the external API
      * @param role - the user's role
      * @return - the user ID
@@ -33,7 +35,7 @@ public class UserService {
     }
 
     /**
-     * Updates user information based on UserDTO payload from external API and merges it to the user database
+     * Updates user information based on the UserDTO payload from external API and merges it to the user database
      * @param userDTO - the UserDTO payload from the external API
      * @return - the UserDTO object containing the updated information
      */
@@ -41,14 +43,11 @@ public class UserService {
         User user = userRepository.getReferenceById(userDTO.getId());
         UserDTO returnUser = new UserDTO();
 
-        if (userDTO.getLastName() != null)
-            user.setLastName(userDTO.getLastName());
+        updateIfUserIsNotNull(user::setLastName, userDTO.getLastName());
 
-        if (userDTO.getEmail() != null)
-            user.setEmail(userDTO.getEmail());
+        updateIfUserIsNotNull(user::setEmail, userDTO.getEmail());
 
-        if (userDTO.getPassword() != null)
-            user.setPassword(userDTO.getPassword());
+        updateIfUserIsNotNull(user::setPassword, userDTO.getPassword());
 
         BeanUtils.copyProperties(user, returnUser);
 
@@ -63,5 +62,17 @@ public class UserService {
      */
     public void deleteUser(Long userId) {
         userRepository.deleteById(userId);
+    }
+
+    /**
+     * Checks if an entity attribute is not null and sets the attribute of the User entity to the
+     * checked attribute if so
+     * @param user - the User entity to update
+     * @param attribute - the attribute to check and set if it's not null
+     * @param <T> - the type of the attribute to check
+     */
+    private <T> void updateIfUserIsNotNull(Consumer<T> user, T attribute) {
+        if (attribute != null)
+            user.accept(attribute);
     }
 }

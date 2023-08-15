@@ -9,13 +9,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.BeanUtils;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class UserServiceTest {
@@ -38,7 +39,7 @@ public class UserServiceTest {
         assertNotNull(userRepository);
         assertNotNull(userService);
 
-        lace = new UserDTO(1L, "Lace", "Harding",
+        lace = new UserDTO(null, "Lace", "Harding",
                 "inquisitionscout@gmail.com", "bowandarrow");
     }
 
@@ -46,7 +47,7 @@ public class UserServiceTest {
     public void createUserTest() {
         User user = new User();
         BeanUtils.copyProperties(lace, user);
-        Mockito.when(userRepository.save(Mockito.any())).thenReturn(user);
+        when(userRepository.save(any())).thenReturn(user);
         Long id = userService.createUser(lace, Role.PATIENT);
         assertEquals(id, user.getId());
     }
@@ -57,17 +58,18 @@ public class UserServiceTest {
                 "inquisitionscout@gmail.com", "mathias");
         User user = new User();
         BeanUtils.copyProperties(lace, user);
-        Mockito.when(userRepository.getReferenceById(Mockito.any())).thenReturn(user);
+        when(userRepository.getReferenceById(any())).thenReturn(user);
         assertEquals("Harding", user.getLastName());
+        assertEquals("bowandarrow", user.getPassword());
         userService.updateUserInfo(updatedData);
         assertEquals("Trevelyan", user.getLastName());
+        assertEquals("mathias", user.getPassword());
     }
 
     @Test
     public void deleteUserTest() {
-        User user = new User();
-        BeanUtils.copyProperties(lace, user);
-        userService.deleteUser(1L);
-        Mockito.verify(userRepository, Mockito.times(1)).deleteById(1L);
+        Long patientId = 1L;
+        userService.deleteUser(patientId);
+        verify(userRepository, times(1)).deleteById(patientId);
     }
 }

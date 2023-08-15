@@ -3,15 +3,18 @@ package com.jaab.edelweiss.controller;
 import com.jaab.edelweiss.dto.UserDTO;
 import com.jaab.edelweiss.model.Role;
 import com.jaab.edelweiss.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Mono;
 
 @RestController
 public class UserController {
 
     private final UserService userService;
 
+    @Autowired
     public UserController(UserService userService) {
         this.userService = userService;
     }
@@ -24,8 +27,8 @@ public class UserController {
     @PostMapping(value = "/newPatient", consumes = MediaType.APPLICATION_JSON_VALUE,
                     produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(value = HttpStatus.CREATED)
-    public Long createPatient(@RequestBody UserDTO userDTO) {
-        return userService.createUser(userDTO, Role.PATIENT);
+    public Mono<Long> createPatient(@RequestBody UserDTO userDTO) {
+        return Mono.just(userService.createUser(userDTO, Role.PATIENT));
     }
 
     /**
@@ -35,8 +38,8 @@ public class UserController {
      */
     @PostMapping(value = "/newPhysician", consumes = MediaType.APPLICATION_JSON_VALUE,
                     produces = MediaType.APPLICATION_JSON_VALUE)
-    public Long createPhysician(@RequestBody UserDTO userDTO) {
-        return userService.createUser(userDTO, Role.PHYSICIAN);
+    public Mono<Long> createPhysician(@RequestBody UserDTO userDTO) {
+        return Mono.just(userService.createUser(userDTO, Role.PHYSICIAN));
     }
 
     /**
@@ -46,8 +49,8 @@ public class UserController {
      */
     @PostMapping(value = "/newPharmacist", consumes = MediaType.APPLICATION_JSON_VALUE,
                     produces = MediaType.APPLICATION_JSON_VALUE)
-    public Long createPharmacist(@RequestBody UserDTO userDTO) {
-        return userService.createUser(userDTO, Role.PHARMACIST);
+    public Mono<Long> createPharmacist(@RequestBody UserDTO userDTO) {
+        return Mono.just(userService.createUser(userDTO, Role.PHARMACIST));
     }
 
     /**
