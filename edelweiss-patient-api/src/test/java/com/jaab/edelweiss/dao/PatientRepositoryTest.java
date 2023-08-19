@@ -2,7 +2,6 @@ package com.jaab.edelweiss.dao;
 
 import com.jaab.edelweiss.model.Address;
 import com.jaab.edelweiss.model.Patient;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,16 +13,17 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 public class PatientRepositoryTest {
 
     @Autowired
-    TestEntityManager entityManager;
+    PatientRepository patientRepository;
 
     @Autowired
-    PatientRepository patientRepository;
+    TestEntityManager entityManager;
 
     Patient james, bethany, carver;
 
@@ -31,8 +31,8 @@ public class PatientRepositoryTest {
 
     @BeforeEach
     public void init() {
-        Assertions.assertNotNull(entityManager);
-        Assertions.assertNotNull(patientRepository);
+        assertNotNull(patientRepository);
+        assertNotNull(entityManager);
 
         james = new Patient(1L, "James", "Hawke", "championofkirkwall@gmail.com",
                 "magerebellion", jamesAddress, 7130042356L,

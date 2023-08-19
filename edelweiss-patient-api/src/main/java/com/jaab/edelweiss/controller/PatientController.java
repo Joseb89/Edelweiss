@@ -11,9 +11,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
-import java.util.List;
 
 @RestController
 public class PatientController {
@@ -33,9 +32,9 @@ public class PatientController {
     @PostMapping(value = "/newPatient", consumes = MediaType.APPLICATION_JSON_VALUE,
                 produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(value = HttpStatus.CREATED)
-    public ResponseEntity<Long> createPatient(@RequestBody Patient patient) {
+    public ResponseEntity<Mono<Long>> createPatient(@RequestBody Patient patient) {
         UserDTO newPatient = patientService.createPatient(patient);
-        return ResponseEntity.status(HttpStatus.CREATED).body(newPatient.getId());
+        return ResponseEntity.status(HttpStatus.CREATED).body(Mono.just(newPatient.getId()));
     }
 
     /**
@@ -44,8 +43,8 @@ public class PatientController {
      * @return - the patient with the specified ID
      */
     @GetMapping(value = "/physician/getPatientById/{patientId}")
-    public PatientDTO getPatientById(@PathVariable Long patientId) {
-        return patientService.getPatientById(patientId);
+    public Mono<PatientDTO> getPatientById(@PathVariable Long patientId) {
+        return Mono.just(patientService.getPatientById(patientId));
     }
 
     /**
@@ -54,8 +53,8 @@ public class PatientController {
      * @return - List of patients matching the criteria
      */
     @GetMapping(value = "/physician/getPatientsByFirstName/{firstName}")
-    public List<PatientDTO> getPatientsByFirstName(@PathVariable String firstName) {
-        return patientService.getPatientsByFirstName(firstName);
+    public Flux<PatientDTO> getPatientsByFirstName(@PathVariable String firstName) {
+        return Flux.fromIterable(patientService.getPatientsByFirstName(firstName));
     }
 
     /**
@@ -64,8 +63,8 @@ public class PatientController {
      * @return - List of patients matching the criteria
      */
     @GetMapping(value = "/physician/getPatientsByLastName/{lastName}")
-    public List<PatientDTO> getPatientsByLastName(@PathVariable String lastName) {
-        return patientService.getPatientsByLastName(lastName);
+    public Flux<PatientDTO> getPatientsByLastName(@PathVariable String lastName) {
+        return Flux.fromIterable(patientService.getPatientsByLastName(lastName));
     }
 
     /**
@@ -74,8 +73,8 @@ public class PatientController {
      * @return - List of patients matching the criteria
      */
     @GetMapping(value = "/physician/getPatientsByBloodType/{bloodType}")
-    public List<PatientDTO> getPatientsByBloodType(@PathVariable String bloodType) {
-        return patientService.getPatientsByBloodType(bloodType);
+    public Flux<PatientDTO> getPatientsByBloodType(@PathVariable String bloodType) {
+        return Flux.fromIterable(patientService.getPatientsByBloodType(bloodType));
     }
 
     /**
@@ -84,8 +83,8 @@ public class PatientController {
      * @return - the AddressDTO object containing the patient's address
      */
     @GetMapping(value = "/physician/getPatientAddress/{patientId}")
-    public AddressDTO getAddress(@PathVariable Long patientId) {
-        return patientService.getAddress(patientId);
+    public Mono<AddressDTO> getAddress(@PathVariable Long patientId) {
+        return Mono.just(patientService.getAddress(patientId));
     }
 
     /**

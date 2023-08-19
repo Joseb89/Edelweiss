@@ -1,66 +1,51 @@
 package com.jaab.edelweiss.service;
 
-import com.jaab.edelweiss.dao.PatientRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jaab.edelweiss.dto.AddressDTO;
 import com.jaab.edelweiss.dto.PatientDTO;
 import com.jaab.edelweiss.dto.UserDTO;
 import com.jaab.edelweiss.exception.PatientNotFoundException;
 import com.jaab.edelweiss.model.Address;
 import com.jaab.edelweiss.model.Patient;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
+import jakarta.persistence.EntityManager;
+import jakarta.transaction.Transactional;
+import mockwebserver3.MockResponse;
+import mockwebserver3.MockWebServer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.BeanUtils;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
 
-import java.util.ArrayList;
+import java.io.IOException;
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-@ExtendWith(MockitoExtension.class)
+@SpringBootTest
+@Transactional
 public class PatientServiceTest {
 
-    @Mock
+    @Autowired
     private PatientService patientService;
 
-    @Mock
-    private PatientRepository patientRepository;
+    @Autowired
+    private ObjectMapper objectMapper;
 
-    @Mock
-    private WebClient webClient;
+    @Autowired
+    private EntityManager manager;
 
-    @Mock
-    AutoCloseable closeable;
+    private MockWebServer mockWebServer;
 
     private Patient james, bethany, carver;
 
     private Address jamesAddress, bethanyAddress, carverAddress;
 
-    @BeforeAll
-    public static void setup() {
-
-    }
+    private static final int USER_API_PORT = 8081;
 
     @BeforeEach
     public void init() {
-        closeable = MockitoAnnotations.openMocks(this);
-
-        Assertions.assertNotNull(patientService);
-        Assertions.assertNotNull(webClient);
-        Assertions.assertNotNull(patientRepository);
-
         james = new Patient(1L, "James", "Hawke", "championofkirkwall@gmail.com",
                 "magerebellion", jamesAddress, 7130042356L,
                 "Varric Tethras", "O+");
@@ -84,185 +69,199 @@ public class PatientServiceTest {
     }
 
     @Test
-    public void  createPatientTest() {
-        UserDTO userDTO = new UserDTO();
-        BeanUtils.copyProperties(james, userDTO);
-        when(patientService.createPatient(james)).thenReturn(userDTO);
-        UserDTO userData = patientService.createPatient(james);
-        assertThat(userData.getEmail()).isEqualTo("championofkirkwall@gmail.com");
+    public void createPatientTest() throws IOException {
+        mockWebServer = new MockWebServer();
+        mockWebServer.start(USER_API_PORT);
+
+        mockWebServer.enqueue(new MockResponse()
+                .addHeader("Content-Type", "application/json")
+                .setBody(objectMapper.writeValueAsString(james)));
+
+        james.setAddress(jamesAddress);
+        UserDTO userDTO = patientService.createPatient(james);
+
+        assertEquals(1L, userDTO.getId());
+        assertEquals("James", userDTO.getFirstName());
+
+        mockWebServer.shutdown();
     }
 
     @Test
     public void getPatientByIdTest() {
-        PatientDTO patientDTO = new PatientDTO();
-        BeanUtils.copyProperties(james, patientDTO);
-        when(patientService.getPatientById(Mockito.any(Long.class))).thenReturn(patientDTO);
-        PatientDTO getPatient = patientService.getPatientById(james.getId());
-        assertThat(getPatient.getFirstName()).isEqualTo("James");
+        james.setAddress(jamesAddress);
+        manager.persist(james);
+
+        PatientDTO patientDTO = patientService.getPatientById(james.getId());
+
+        assertEquals("James", patientDTO.getFirstName());
+        assertEquals("championofkirkwall@gmail.com", patientDTO.getEmail());
     }
 
     @Test
     public void getPatientByIdExceptionTest() {
-        Long patientId = 4L;
+        james.setAddress(jamesAddress);
+        manager.persist(james);
 
-        when(patientService.getPatientById(patientId)).thenThrow(PatientNotFoundException.class);
-        assertThrows(PatientNotFoundException.class, ()-> patientService.getPatientById(patientId));
+        assertThrows(PatientNotFoundException.class, () -> patientService.getPatientById(bethany.getId()));
     }
 
     @Test
     public void getPatientsByFirstNameTest() {
-        List<PatientDTO> patients = setupPatientDTO();
-        String testParameter = "Carver";
+        james.setAddress(jamesAddress);
+        bethany.setAddress(bethanyAddress);
+        carver.setAddress(carverAddress);
 
-        when(patientService.getPatientsByFirstName(testParameter)).thenReturn(patients.stream()
-                .filter(n -> Objects.equals(n.getFirstName(), testParameter))
-                .collect(Collectors.toList()));
+        manager.persist(james);
+        manager.persist(bethany);
+        manager.persist(carver);
 
-        List<PatientDTO> getPatients = patientService.getPatientsByFirstName(testParameter);
-
-        assertThat(getPatients.size()).isEqualTo(1);
+        List<PatientDTO> patients = patientService.getPatientsByFirstName("Bethany");
+        assertEquals(1, patients.size());
     }
 
     @Test
-    public void getPatientsByFirstNameEmptyListTest() {
-        List<PatientDTO> patients = setupPatientDTO();
-        String testParameter = "Fenris";
+    public void getPatientsByFirstNameExceptionTest() {
+        james.setAddress(jamesAddress);
+        bethany.setAddress(bethanyAddress);
+        carver.setAddress(carverAddress);
 
-        when(patientService.getPatientsByFirstName(testParameter)).thenReturn(patients.stream()
-                .filter(n -> Objects.equals(n.getFirstName(), testParameter))
-                .collect(Collectors.toList()));
+        manager.persist(james);
+        manager.persist(bethany);
+        manager.persist(carver);
 
-        List<PatientDTO> getPatients = patientService.getPatientsByFirstName(testParameter);
-
-        assertThat(getPatients.size()).isEqualTo(0);
+        assertThrows(PatientNotFoundException.class, () -> patientService.getPatientsByFirstName("Fenris"));
     }
 
     @Test
     public void getPatientsByLastNameTest() {
-        List<PatientDTO> patients = setupPatientDTO();
-        String testParameter = "Hawke";
+        james.setAddress(jamesAddress);
+        bethany.setAddress(bethanyAddress);
+        carver.setAddress(carverAddress);
 
-        when(patientService.getPatientsByLastName(testParameter)).thenReturn(patients.stream()
-                .filter(n -> Objects.equals(n.getLastName(), testParameter))
-                .collect(Collectors.toList()));
+        manager.persist(james);
+        manager.persist(bethany);
+        manager.persist(carver);
 
-        List<PatientDTO> getPatients = patientService.getPatientsByLastName(testParameter);
-
-        assertThat(getPatients.size()).isEqualTo(3);
+        List<PatientDTO> patients = patientService.getPatientsByLastName("Hawke");
+        assertEquals(3, patients.size());
     }
 
     @Test
-    public void getPatientsByLastNameEmptyListTest() {
-        List<PatientDTO> patients = setupPatientDTO();
-        String testParameter = "Vallen";
+    public void getPatientsByLastNameExceptionTest() {
+        james.setAddress(jamesAddress);
+        bethany.setAddress(bethanyAddress);
+        carver.setAddress(carverAddress);
 
-        when(patientService.getPatientsByLastName(testParameter)).thenReturn(patients.stream()
-                .filter(n -> Objects.equals(n.getLastName(), testParameter))
-                .collect(Collectors.toList()));
+        manager.persist(james);
+        manager.persist(bethany);
+        manager.persist(carver);
 
-        List<PatientDTO> getPatients = patientService.getPatientsByLastName(testParameter);
-
-        assertThat(getPatients.size()).isEqualTo(0);
+        assertThrows(PatientNotFoundException.class, () -> patientService.getPatientsByLastName("Vallen"));
     }
 
     @Test
     public void getPatientsByBloodTypeTest() {
-        List<PatientDTO> patients = setupPatientDTO();
-        String testParameter = "O-";
+        james.setAddress(jamesAddress);
+        bethany.setAddress(bethanyAddress);
+        carver.setAddress(carverAddress);
 
-        when(patientService.getPatientsByBloodType(testParameter)).thenReturn(patients.stream()
-                .filter(n -> Objects.equals(n.getBloodType(), testParameter))
-                .collect(Collectors.toList()));
+        manager.persist(james);
+        manager.persist(bethany);
+        manager.persist(carver);
 
-        List<PatientDTO> getPatients = patientService.getPatientsByBloodType(testParameter);
-
-        assertThat(getPatients.size()).isEqualTo(2);
+        List<PatientDTO> patients = patientService.getPatientsByBloodType("O-");
+        assertEquals(2, patients.size());
     }
 
     @Test
-    public void getPatientsByBloodTypeEmptyListTest() {
-        List<PatientDTO> patients = setupPatientDTO();
-        String testParameter = "A+";
+    public void getPatientsByBloodTypeExceptionTest() {
+        james.setAddress(jamesAddress);
+        bethany.setAddress(bethanyAddress);
+        carver.setAddress(carverAddress);
 
-        when(patientService.getPatientsByBloodType(testParameter)).thenReturn(patients.stream()
-                .filter(n -> Objects.equals(n.getBloodType(), testParameter))
-                .collect(Collectors.toList()));
+        manager.persist(james);
+        manager.persist(bethany);
+        manager.persist(carver);
 
-        List<PatientDTO> getPatients = patientService.getPatientsByBloodType(testParameter);
-
-        assertThat(getPatients.size()).isEqualTo(0);
+        assertThrows(PatientNotFoundException.class, () -> patientService.getPatientsByBloodType("B+"));
     }
 
     @Test
     public void getAddressTest() {
-        AddressDTO addressDTO = new AddressDTO();
-        BeanUtils.copyProperties(bethanyAddress, addressDTO);
-        when(patientService.getAddress(2L)).thenReturn(addressDTO);
-        AddressDTO getAddress = patientService.getAddress(2L);
-        assertThat(getAddress.getStreetAddress()).isEqualTo("59 Gallows St");
-    }
+        bethany.setAddress(bethanyAddress);
+        manager.persist(bethany);
 
-    @Test
-    public void getAddressExceptionTest() {
-        Long patientId = 4L;
+        AddressDTO addressDTO = patientService.getAddress(bethany.getId());
 
-        when(patientService.getAddress(patientId)).thenThrow(PatientNotFoundException.class);
-        assertThrows(PatientNotFoundException.class, ()-> patientService.getAddress(patientId));
+        assertEquals("59 Gallows St", addressDTO.getStreetAddress());
+        assertEquals("San Antonio", addressDTO.getCity());
     }
 
     @Test
     public void updateAddressTest() {
-        Address updatedAddress = new Address(carver.getId(), carver, "654 Adamant Ave", "Boise",
-                "ID", 96521);
         carver.setAddress(carverAddress);
-        assertThat(carver.getAddress().getCity()).isEqualTo("San Antonio");
-        AddressDTO addressDTO = new AddressDTO();
-        BeanUtils.copyProperties(updatedAddress, addressDTO);
-        when(patientService.updateAddress(updatedAddress, carverAddress.getId())).thenReturn(addressDTO);
-        AddressDTO newAddress = patientService.updateAddress(updatedAddress, carverAddress.getId());
-        assertThat(newAddress.getCity()).isEqualTo("Boise");
+        manager.persist(carver);
+
+        assertEquals("San Antonio", carver.getAddress().getCity());
+        assertEquals("TX", carver.getAddress().getState());
+
+        Address updatedAddress = new Address(carver.getId(), carver, "515 Weisshaupt Ct",
+                "Boise", "ID", 33247);
+
+        patientService.updateAddress(updatedAddress, carver.getId());
+
+        assertEquals("Boise", carver.getAddress().getCity());
+        assertEquals("ID", carver.getAddress().getState());
     }
 
     @Test
-    public void updateUserInfoTest() {
-        Patient updatedPatient = new Patient(2L, null, "Amell", null,
-                "circlemage", bethanyAddress, null, null, null);
+    public void updatePatientInfoTest() throws IOException {
+        bethany.setAddress(bethanyAddress);
+        manager.persist(bethany);
 
-        UserDTO userDTO = new UserDTO();
-        BeanUtils.copyProperties(bethany, userDTO);
-        assertThat(userDTO.getPassword()).isEqualTo("daughterofamell");
-        userDTO.setLastName(updatedPatient.getLastName());
-        userDTO.setPassword(updatedPatient.getPassword());
-        Mono<UserDTO> updatedData = Mono.just(userDTO);
-        when(patientService.updateUserInfo(updatedPatient, bethany.getId())).thenReturn(updatedData);
-        Mono<UserDTO> userData = patientService.updateUserInfo(updatedPatient, bethany.getId());
-        assertThat(Objects.requireNonNull(userData.block()).getPassword()).isEqualTo("circlemage");
+        assertEquals("circlemage@gmail.com", bethany.getEmail());
+        assertEquals("daughterofamell", bethany.getPassword());
+
+        Patient updatedpatient = new Patient(bethany.getId(), null, null,
+                "sisterofthechampion@yahoo.com", "malcomsheir", null,
+                null, null, null);
+
+        mockWebServer = new MockWebServer();
+        mockWebServer.start(USER_API_PORT);
+
+        mockWebServer.enqueue(new MockResponse()
+                .addHeader("Content-Type", "application/json")
+                .setBody(objectMapper.writeValueAsString(updatedpatient)));
+
+        Mono<UserDTO> patientInfo = patientService.updateUserInfo(updatedpatient, bethany.getId());
+
+        StepVerifier.create(patientInfo)
+                .expectNextMatches(userDTO -> userDTO.getEmail().equals("sisterofthechampion@yahoo.com"))
+                .verifyComplete();
+
+        assertEquals("sisterofthechampion@yahoo.com", bethany.getEmail());
+        assertEquals("malcomsheir", bethany.getPassword());
+
+        mockWebServer.shutdown();
     }
 
     @Test
-    public void deleteUserTest() {
-        Patient patient = new Patient();
-        BeanUtils.copyProperties(james, patient);
+    public void deleteUserTest() throws IOException {
+        james.setAddress(jamesAddress);
+        manager.persist(james);
+
+        assertNotNull(james);
+
+        mockWebServer = new MockWebServer();
+        mockWebServer.start(USER_API_PORT);
+
+        mockWebServer.enqueue(new MockResponse().setResponseCode(200));
+
         Mono<Void> deletePatient = patientService.deleteUser(james.getId());
-        assertThat(deletePatient).isNull();
-        verify(patientService, times(1)).deleteUser(james.getId());
-    }
 
-    private List<PatientDTO> setupPatientDTO() {
-        PatientDTO jamesDTO = new PatientDTO();
-        PatientDTO bethanyDTO = new PatientDTO();
-        PatientDTO carverDTO = new PatientDTO();
+        StepVerifier.create(deletePatient)
+                .verifyComplete();
 
-        BeanUtils.copyProperties(james, jamesDTO);
-        BeanUtils.copyProperties(bethany, bethanyDTO);
-        BeanUtils.copyProperties(carver, carverDTO);
-
-        List<PatientDTO> patients = new ArrayList<>();
-
-        patients.add(jamesDTO);
-        patients.add(bethanyDTO);
-        patients.add(carverDTO);
-
-        return patients;
+        mockWebServer.shutdown();
     }
 }

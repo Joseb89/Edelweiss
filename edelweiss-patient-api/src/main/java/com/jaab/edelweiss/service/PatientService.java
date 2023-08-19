@@ -17,6 +17,7 @@ import reactor.core.publisher.Mono;
 import java.rmi.ServerException;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 @Service
@@ -69,10 +70,14 @@ public class PatientService {
     /**
      * Retrieves a list of patients from the patient database based on the patient's first name
      * @param firstName - the first name of the patient
+     * @throws PatientNotFoundException if any patients with the specified first name are not found
      * @return - the list of the patients matching the criteria
      */
-    public List<PatientDTO> getPatientsByFirstName(String firstName) {
+    public List<PatientDTO> getPatientsByFirstName(String firstName) throws PatientNotFoundException {
         List<Patient> patients = patientRepository.getPatientsByFirstName(firstName);
+
+        if (patients.isEmpty())
+            throw new PatientNotFoundException("No patient with the specified first name found.");
 
         return patients.stream()
                 .map(this::copyToDTO)
@@ -82,10 +87,14 @@ public class PatientService {
     /**
      * Retrieves a list of patients from the patient database based on the patient's last name
      * @param lastName - the last name of the patient
+     * @throws PatientNotFoundException if any patients with the specified last name are not found
      * @return - the list of the patients matching the criteria
      */
-    public List<PatientDTO> getPatientsByLastName(String lastName) {
+    public List<PatientDTO> getPatientsByLastName(String lastName) throws PatientNotFoundException {
         List<Patient> patients = patientRepository.getPatientsByLastName(lastName);
+
+        if (patients.isEmpty())
+            throw new PatientNotFoundException("No patient with the specified last name found.");
 
         return patients.stream()
                 .map(this::copyToDTO)
@@ -95,10 +104,14 @@ public class PatientService {
     /**
      * Retrieves a list of patients from the patient database based on the patient's blood type
      * @param bloodType - the blood type of the patient
+     * @throws PatientNotFoundException if any patients with the specified blood type are not found
      * @return - the list of the patients matching the criteria
      */
-    public List<PatientDTO> getPatientsByBloodType(String bloodType) {
+    public List<PatientDTO> getPatientsByBloodType(String bloodType) throws PatientNotFoundException {
         List<Patient> patients = patientRepository.getPatientsByBloodType(bloodType);
+
+        if (patients.isEmpty())
+            throw new PatientNotFoundException("No patient with the specified blood type found.");
 
         return patients.stream()
                 .map(this::copyToDTO)
@@ -135,17 +148,24 @@ public class PatientService {
     }
 
     /**
-     * Sends the updated patient information to the user API
+     * Updates the patient information via the Patient payload and sends it to the user API if the UserDTO
+     * object containing the updated information is not null
      * @param patient - the Patient payload
      * @param patientId - the ID of the patient
      * @return - the UserDTO object containing the updated information
      */
     public Mono<UserDTO> updateUserInfo(Patient patient, Long patientId) {
-        UserDTO userDTO = updatePatientInfo(patient, patientId);
+        UserDTO updatedUser = updatePatientInfo(patient, patientId);
+
+        if (updatedUser == null) {
+            UserDTO userDTO = new UserDTO();
+            BeanUtils.copyProperties(patient, userDTO);
+            return Mono.just(userDTO);
+        }
 
         return webClient.patch()
                 .uri("/updateUserInfo")
-                .body(Mono.just(userDTO), UserDTO.class)
+                .body(Mono.just(updatedUser), UserDTO.class)
                 .retrieve()
                 .onStatus(HttpStatusCode::is4xxClientError,
                         response -> response.bodyToMono(String.class).map(Exception::new))
@@ -177,6 +197,7 @@ public class PatientService {
      * Retrieves a patient from the patient database based on their ID and throws an exception if
      * the specified patient is not found
      * @param patientId - the ID of the patient
+     * @throws PatientNotFoundException if the patient with the specified ID is not found
      * @return - the patient if available
      */
     private Patient getPatientByPatientId(Long patientId) throws PatientNotFoundException {
@@ -220,30 +241,37 @@ public class PatientService {
         Patient getPatient = patientRepository.getReferenceById(patientId);
         UserDTO userDTO = new UserDTO(patientId);
 
-        if (patient.getLastName() != null) {
-            getPatient.setLastName(patient.getLastName());
-            userDTO.setLastName(getPatient.getLastName());
-        }
+        updatePatientIfNotNull(getPatient::setLastName, patient.getLastName());
+        updatePatientIfNotNull(userDTO::setLastName, patient.getLastName());
 
-        if (patient.getEmail() != null) {
-            getPatient.setEmail(patient.getEmail());
-            userDTO.setEmail(getPatient.getEmail());
-        }
+        updatePatientIfNotNull(getPatient::setEmail, patient.getEmail());
+        updatePatientIfNotNull(userDTO::setEmail, patient.getEmail());
 
-        if (patient.getPassword() != null) {
-            getPatient.setPassword(patient.getPassword());
-            userDTO.setPassword(getPatient.getPassword());
-        }
+        updatePatientIfNotNull(getPatient::setPassword, patient.getPassword());
+        updatePatientIfNotNull(userDTO::setPassword, patient.getPassword());
 
-        if (patient.getPhoneNumber() != null)
-            getPatient.setPhoneNumber(patient.getPhoneNumber());
+        updatePatientIfNotNull(getPatient::setPhoneNumber, patient.getPhoneNumber());
 
-        if (patient.getPrimaryDoctor() != null)
-            getPatient.setPrimaryDoctor(patient.getPrimaryDoctor());
+        updatePatientIfNotNull(getPatient::setPrimaryDoctor, patient.getPrimaryDoctor());
 
         patientRepository.save(getPatient);
 
+        if (userDTO.getLastName() == null && userDTO.getEmail() == null && userDTO.getPassword() == null)
+            return null;
+
         return userDTO;
+    }
+
+    /**
+     * Checks if an entity attribute is not null and sets the attribute of the entity to the
+     * checked attribute if so
+     * @param entity - the entity to update
+     * @param attribute - the attribute to check and set if it's not null
+     * @param <T> - the type of the attribute to check
+     */
+    private <T> void updatePatientIfNotNull(Consumer<T> entity, T attribute) {
+        if (attribute != null)
+            entity.accept(attribute);
     }
 
     /**

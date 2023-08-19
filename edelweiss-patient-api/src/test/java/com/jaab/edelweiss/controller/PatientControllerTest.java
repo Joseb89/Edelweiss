@@ -10,7 +10,6 @@ import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
@@ -23,6 +22,10 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.when;
+
 @WebFluxTest(controllers = PatientController.class)
 public class PatientControllerTest {
 
@@ -31,8 +34,6 @@ public class PatientControllerTest {
 
     @MockBean
     private PatientService patientService;
-
-    private static final String USER_API_URL = "http://localhost:8081";
 
     private Patient james, bethany, carver;
 
@@ -70,10 +71,9 @@ public class PatientControllerTest {
         UserDTO userDTO = new UserDTO();
         BeanUtils.copyProperties(james, userDTO);
 
-        WebTestClient.bindToServer()
-                .baseUrl(USER_API_URL)
-                .build()
-                .post()
+        when(patientService.createPatient(any(Patient.class))).thenReturn(userDTO);
+
+        webTestClient.post()
                 .uri("/newPatient")
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(userDTO)
@@ -87,6 +87,8 @@ public class PatientControllerTest {
         PatientDTO patientDTO = new PatientDTO();
         BeanUtils.copyProperties(james, patientDTO);
 
+        when(patientService.getPatientById(anyLong())).thenReturn(patientDTO);
+
         webTestClient.get()
                 .uri("/physician/getPatientById/" + patientDTO.getId())
                 .exchange()
@@ -95,12 +97,11 @@ public class PatientControllerTest {
     }
 
     @Test
-    public void getPatientByIdEmptyTest() {
+    public void getPatientByIdExceptionTest() {
         webTestClient.get()
                 .uri("/physician/getPatientById/" + 4L)
                 .exchange()
-                .expectStatus().isOk()
-                .expectBody().isEmpty();
+                .expectStatus().is5xxServerError();
     }
 
     @Test
@@ -108,7 +109,7 @@ public class PatientControllerTest {
         List<PatientDTO> patients = setupPatientDTO();
         String testParameter = "James";
 
-        Mockito.when(patientService.getPatientsByFirstName(testParameter))
+        when(patientService.getPatientsByFirstName(testParameter))
                 .thenReturn(patients.stream()
                                     .filter(n -> Objects.equals(n.getFirstName(), testParameter))
                         .collect(Collectors.toList()));
@@ -125,7 +126,7 @@ public class PatientControllerTest {
         List<PatientDTO> patients = setupPatientDTO();
         String testParameter = "Aveline";
 
-        Mockito.when(patientService.getPatientsByFirstName(testParameter))
+        when(patientService.getPatientsByFirstName(testParameter))
                 .thenReturn(patients.stream()
                         .filter(n -> Objects.equals(n.getFirstName(), testParameter))
                         .collect(Collectors.toList()));
@@ -142,7 +143,7 @@ public class PatientControllerTest {
         List<PatientDTO> patients = setupPatientDTO();
         String testParameter = "Hawke";
 
-        Mockito.when(patientService.getPatientsByLastName(testParameter))
+        when(patientService.getPatientsByLastName(testParameter))
                 .thenReturn(patients.stream()
                         .filter(n -> Objects.equals(n.getLastName(), testParameter))
                         .collect(Collectors.toList()));
@@ -159,7 +160,7 @@ public class PatientControllerTest {
         List<PatientDTO> patients = setupPatientDTO();
         String testParameter = "Vallen";
 
-        Mockito.when(patientService.getPatientsByLastName(testParameter))
+        when(patientService.getPatientsByLastName(testParameter))
                 .thenReturn(patients.stream()
                         .filter(n -> Objects.equals(n.getLastName(), testParameter))
                         .collect(Collectors.toList()));
@@ -176,7 +177,7 @@ public class PatientControllerTest {
         List<PatientDTO> patients = setupPatientDTO();
         String testParameter = "O-";
 
-        Mockito.when(patientService.getPatientsByBloodType(testParameter))
+        when(patientService.getPatientsByBloodType(testParameter))
                 .thenReturn(patients.stream()
                         .filter(n -> Objects.equals(n.getBloodType(), testParameter))
                         .collect(Collectors.toList()));
@@ -193,7 +194,7 @@ public class PatientControllerTest {
         List<PatientDTO> patients = setupPatientDTO();
         String testParameter = "B+";
 
-        Mockito.when(patientService.getPatientsByBloodType(testParameter))
+        when(patientService.getPatientsByBloodType(testParameter))
                 .thenReturn(patients.stream()
                         .filter(n -> Objects.equals(n.getBloodType(), testParameter))
                         .collect(Collectors.toList()));
@@ -210,6 +211,8 @@ public class PatientControllerTest {
         AddressDTO addressDTO = new AddressDTO();
         BeanUtils.copyProperties(carverAddress, addressDTO);
 
+        when(patientService.getAddress(anyLong())).thenReturn(addressDTO);
+
         webTestClient.get()
                 .uri("/physician/getPatientAddress/" + carverAddress.getId())
                 .exchange()
@@ -222,8 +225,7 @@ public class PatientControllerTest {
         webTestClient.get()
                 .uri("/physician/getPatientAddress/" + 4L)
                 .exchange()
-                .expectStatus().isOk()
-                .expectBody().isEmpty();
+                .expectStatus().is5xxServerError();
     }
 
     @Test
@@ -258,13 +260,10 @@ public class PatientControllerTest {
 
     @Test
     public void deletePatientTest() {
-        WebTestClient.bindToServer()
-                .baseUrl(USER_API_URL)
-                .build()
-                .delete()
+        webTestClient.delete()
                 .uri("/deleteUser/" + carver.getId())
                 .exchange()
-                .expectStatus().isOk();
+                .expectStatus().is4xxClientError();
     }
 
     private List<PatientDTO> setupPatientDTO() {

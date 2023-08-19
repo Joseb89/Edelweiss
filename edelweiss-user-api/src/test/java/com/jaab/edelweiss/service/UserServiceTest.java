@@ -47,7 +47,7 @@ public class UserServiceTest {
     public void createUserTest() {
         User user = new User();
         BeanUtils.copyProperties(lace, user);
-        when(userRepository.save(any())).thenReturn(user);
+        when(userRepository.save(any(User.class))).thenReturn(user);
         Long id = userService.createUser(lace, Role.PATIENT);
         assertEquals(id, user.getId());
     }
@@ -58,7 +58,7 @@ public class UserServiceTest {
                 "inquisitionscout@gmail.com", "mathias");
         User user = new User();
         BeanUtils.copyProperties(lace, user);
-        when(userRepository.getReferenceById(any())).thenReturn(user);
+        when(userRepository.getReferenceById(anyLong())).thenReturn(user);
         assertEquals("Harding", user.getLastName());
         assertEquals("bowandarrow", user.getPassword());
         userService.updateUserInfo(updatedData);
