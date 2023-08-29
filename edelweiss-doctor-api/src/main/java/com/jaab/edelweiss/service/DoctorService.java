@@ -17,8 +17,15 @@ import reactor.core.publisher.Mono;
 import java.rmi.ServerException;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Arrays;
 import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
 
+/**
+ * This class serves as a service for creating and maintaining physician
+ */
 @Service
 public class DoctorService {
 
@@ -66,14 +73,13 @@ public class DoctorService {
      * @return - the new prescription
      */
     public Mono<PrescriptionDTO> createPrescription(PrescriptionDTO newPrescription, Long physicianId) {
-        String[] doctorName;
-        doctorName = setDoctorName(physicianId);
-
         if (newPrescription.getPrescriptionName().isEmpty())
             throw new PrescriptionException("Please specify prescription name.");
 
         if (newPrescription.getPrescriptionDosage() < 1)
             throw new PrescriptionException("Prescription dosage must be between 1cc and 127cc.");
+
+        String[] doctorName = setDoctorName(physicianId);
 
         newPrescription.setDoctorFirstName(doctorName[0]);
         newPrescription.setDoctorLastName(doctorName[1]);
@@ -96,12 +102,11 @@ public class DoctorService {
      * @return - the new appointment
      */
     public Mono<AppointmentDTO> createAppointment(AppointmentDTO newAppointment, Long physicianId) {
-        String[] doctorName;
-        doctorName = setDoctorName(physicianId);
-
         if (newAppointment.getAppointmentDate().isBefore(LocalDate.now()) &&
                 newAppointment.getAppointmentTime().isBefore(LocalTime.now()))
             throw new AppointmentException("Appointment date must be today or later date.");
+
+        String[] doctorName = setDoctorName(physicianId);
 
         newAppointment.setDoctorFirstName(doctorName[0]);
         newAppointment.setDoctorLastName(doctorName[1]);
@@ -118,72 +123,12 @@ public class DoctorService {
     }
 
     /**
-     * Retrieves a patient from the patient API based on the patient's ID
-     * @param patientId - the ID of the patient
-     * @return - the patient's information from the patient API
-     */
-    public Mono<PatientDTO> getPatientById(Long patientId) {
-        return webClient.get()
-                .uri(PATIENT_API_URL + "/getPatientById/" + patientId)
-                .retrieve()
-                .onStatus(HttpStatusCode::is4xxClientError,
-                        response -> response.bodyToMono(String.class).map(Exception::new))
-                .onStatus(HttpStatusCode::is5xxServerError,
-                        response -> response.bodyToMono(String.class).map(ServerException::new))
-                .bodyToMono(PatientDTO.class);
-    }
-
-    /**
-     * Retrieves a list of patients from the patient API based on their first name
-     * @param firstName - the first name of the patient
-     * @return - the PatientDTO List from the patient API
-     */
-    public Flux<PatientDTO> getPatientsByFirstName(String firstName) {
-        return getPatientRequest("/getPatientsByFirstName/", firstName);
-    }
-
-    /**
-     * Retrieves a list of patients from the patient API based on their last name
-     * @param lastName - the last name of the patient
-     * @return - the PatientDTO List from the patient API
-     */
-    public Flux<PatientDTO> getPatientsByLastName(String lastName) {
-        return getPatientRequest("/getPatientsByLastName/", lastName);
-    }
-
-    /**
-     * Retrieves a list of patients from the patient API based on their blood type
-     * @param bloodType - the blood type of the patient
-     * @return - the PatientDTO List from the patient API
-     */
-    public Flux<PatientDTO> getPatientsByBloodType(String bloodType) {
-        return getPatientRequest("/getPatientsByBloodType/", bloodType);
-    }
-
-    /**
-     * Retrieves the address of the patient with the corresponding ID from the patient API
-     * @param patientId - the ID of the patient
-     * @return - the patient's address
-     */
-    public Mono<AddressDTO> getPatientAddress(Long patientId) {
-        return webClient.get()
-                .uri(PATIENT_API_URL + "/getPatientAddress/" + patientId)
-                .retrieve()
-                .onStatus(HttpStatusCode::is4xxClientError,
-                        response -> response.bodyToMono(String.class).map(Exception::new))
-                .onStatus(HttpStatusCode::is5xxServerError,
-                        response -> response.bodyToMono(String.class).map(ServerException::new))
-                .bodyToMono(AddressDTO.class);
-    }
-
-    /**
      * Retrieves the prescriptions from the prescription API for the doctor with the specified ID
      * @param physicianId - the ID of the doctor
      * @return - the list of the prescriptions
      */
     public Flux<PrescriptionDTO> getPrescriptions(Long physicianId) {
-        String[] doctorName;
-        doctorName = setDoctorName(physicianId);
+        String[] doctorName = setDoctorName(physicianId);
 
         return webClient.get()
                 .uri(PRESCRIPTION_API_URL + "/myPrescriptions/" + doctorName[0] + "/" + doctorName[1])
@@ -201,8 +146,7 @@ public class DoctorService {
      * @return - the list of the appointments
      */
     public Flux<AppointmentDTO> getAppointments(Long physicianId) {
-        String[] doctorName;
-        doctorName = setDoctorName(physicianId);
+        String[] doctorName = setDoctorName(physicianId);
 
         return webClient.get()
                 .uri(APPOINTMENT_API_URL + "/myAppointments/" + doctorName[0] + "/" + doctorName[1])
@@ -221,11 +165,17 @@ public class DoctorService {
      * @return - the UserDTO object containing the updated information
      */
     public Mono<UserDTO> updateUserInfo(Doctor doctor, Long physicianId) {
-        UserDTO userDTO = updateDoctorInfo(doctor, physicianId);
+        UserDTO updatedUser = updateDoctorInfo(doctor, physicianId);
+
+        if (updatedUser == null) {
+            UserDTO userDTO = new UserDTO();
+            BeanUtils.copyProperties(doctor, userDTO);
+            return Mono.just(userDTO);
+        }
 
         return webClient.patch()
                 .uri(USER_API_URL + "/updateUserInfo")
-                .body(Mono.just(userDTO), UserDTO.class)
+                .body(Mono.just(updatedUser), UserDTO.class)
                 .retrieve()
                 .onStatus(HttpStatusCode::is4xxClientError,
                         response -> response.bodyToMono(String.class).map(Exception::new))
@@ -242,12 +192,16 @@ public class DoctorService {
      */
     public Mono<UpdatePrescriptionDTO> updatePrescriptionInfo(UpdatePrescriptionDTO prescriptionDTO,
                                                         Long prescriptionId) throws PrescriptionException {
+        if (prescriptionDTO.getPrescriptionName() != null &&
+                prescriptionDTO.getPrescriptionName().isEmpty())
+            throw new PrescriptionException("Please specify prescription name.");
+
+        if (prescriptionDTO.getPrescriptionDosage() != null &&
+                prescriptionDTO.getPrescriptionDosage() < 1)
+            throw new PrescriptionException("Prescription dosage must be between 1cc and 127cc.");
+
         UpdatePrescriptionDTO updatedPrescription = new UpdatePrescriptionDTO();
         BeanUtils.copyProperties(prescriptionDTO, updatedPrescription);
-
-        if (updatedPrescription.getPrescriptionDosage() != null &&
-                updatedPrescription.getPrescriptionDosage() < 1)
-            throw new PrescriptionException("Prescription dosage must be between 1cc and 127cc.");
 
         updatedPrescription.setId(prescriptionId);
 
@@ -271,12 +225,6 @@ public class DoctorService {
     public Mono<AppointmentDTO> updateAppointmentInfo(AppointmentDTO appointmentDTO, Long appointmentId) {
         AppointmentDTO updatedAppointment = new AppointmentDTO();
         BeanUtils.copyProperties(appointmentDTO, updatedAppointment);
-
-        if (updatedAppointment.getAppointmentDate() != null &&
-                updatedAppointment.getAppointmentDate().isBefore(LocalDate.now()) &&
-                updatedAppointment.getAppointmentTime() != null &&
-                updatedAppointment.getAppointmentTime().isBefore(LocalTime.now()))
-                    throw new AppointmentException("Appointment date must be today or later date.");
 
         updatedAppointment.setId(appointmentId);
 
@@ -370,44 +318,50 @@ public class DoctorService {
         Doctor getDoctor = doctorRepository.getReferenceById(physicianId);
         UserDTO userDTO = new UserDTO(physicianId);
 
-        if (doctor.getLastName() != null) {
-            getDoctor.setLastName(doctor.getLastName());
-            userDTO.setLastName(doctor.getLastName());
-        }
+        updateDoctorIfNotNull(doctor.getLastName(), getDoctor::getLastName,
+                getDoctor::setLastName, userDTO::setLastName);
 
-        if (doctor.getEmail() != null) {
-            getDoctor.setEmail(doctor.getEmail());
-            userDTO.setEmail(doctor.getEmail());
-        }
+        updateDoctorIfNotNull(doctor.getEmail(), getDoctor::getEmail,
+                getDoctor::setEmail, userDTO::setEmail);
 
-        if (doctor.getPassword() != null) {
-            getDoctor.setPassword(doctor.getPassword());
-            userDTO.setPassword(doctor.getPassword());
-        }
+        updateDoctorIfNotNull(doctor.getPassword(), getDoctor::getPassword,
+                getDoctor::setPassword, userDTO::setPassword);
 
-        if (doctor.getPhoneNumber() != null)
-            getDoctor.setPhoneNumber(doctor.getPhoneNumber());
+        updateDoctorIfNotNull(doctor.getPhoneNumber(), getDoctor::getPhoneNumber, getDoctor::setPhoneNumber);
 
         doctorRepository.save(getDoctor);
+
+        if (userDTOIsNull(userDTO))
+            return null;
 
         return userDTO;
     }
 
     /**
-     * Creates a GET request to send to the patient API
-     * @param uri - the specified URI at the patient API
-     * @param parameter - the search parameter for retrieving the specified data
-     * @return - the GET request
+     * Checks if an entity attribute is not null and does not equal the current entity value.
+     * If so, it sets the attribute of the entity to the checked attribute
+     * @param attribute - the attribute to check and set if it's not null
+     * @param supplier - the value of the entity to check if it's equal to the new value
+     * @param entity - the entity(s) to update
+     * @param <T> - the type of the attribute to check
      */
-    private Flux<PatientDTO> getPatientRequest(String uri, String parameter) {
-        return webClient.get()
-                .uri(PATIENT_API_URL + uri + parameter)
-                .retrieve()
-                .onStatus(HttpStatusCode::is4xxClientError,
-                        response -> response.bodyToMono(String.class).map(Exception::new))
-                .onStatus(HttpStatusCode::is5xxServerError,
-                        response -> response.bodyToMono(String.class).map(ServerException::new))
-                .bodyToFlux(PatientDTO.class);
+    @SafeVarargs
+    private <T> void updateDoctorIfNotNull(T attribute, Supplier<T> supplier, Consumer<T>... entity) {
+        Predicate<T> predicate = input -> !input.equals(attribute);
+
+        if (attribute != null && predicate.test(supplier.get()))
+            Arrays.stream(entity).forEach(c -> c.accept(attribute));
+    }
+
+    /**
+     * Checks to see if the values of the UserDTO object are null
+     * @param userDTO - the UserDTO object to check
+     * @return - true if specified values are null
+     */
+    private boolean userDTOIsNull(UserDTO userDTO){
+        return userDTO.getLastName() == null &&
+                userDTO.getEmail() == null &&
+                userDTO.getPassword() == null;
     }
 
     /**
@@ -434,7 +388,7 @@ public class DoctorService {
      */
     private UserDTO sendUserData(UserDTO userDTO) {
         return webClient.post()
-                .uri("http://localhost:8081/newPhysician")
+                .uri(USER_API_URL + "/newPhysician")
                 .body(Mono.just(userDTO), UserDTO.class)
                 .retrieve()
                 .onStatus(HttpStatusCode::is4xxClientError,

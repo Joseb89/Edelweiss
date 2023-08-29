@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.jaab</groupId>
 	<artifactId>edelweiss-doctor-api</artifactId>
-	<version>1.1.7-SNAPSHOT</version>
+	<version>1.1.8-SNAPSHOT</version>
 	<name>edelweiss-doctor-api</name>
 	<description>edelweiss-doctor-api</description>
 	<properties>
@@ -50,11 +50,11 @@
 			<artifactId>spring-cloud-gcp-starter</artifactId>
 		</dependency>
 
-		<!--		<dependency>-->
-		<!--			<groupId>io.micrometer</groupId>-->
-		<!--			<artifactId>micrometer-registry-datadog</artifactId>-->
-		<!--			<scope>runtime</scope>-->
-		<!--		</dependency>-->
+<!--		<dependency>-->
+<!--			<groupId>io.micrometer</groupId>-->
+<!--			<artifactId>micrometer-registry-datadog</artifactId>-->
+<!--			<scope>runtime</scope>-->
+<!--		</dependency>-->
 		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
@@ -79,6 +79,25 @@
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-test</artifactId>
 			<scope>test</scope>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/com.squareup.okhttp3/okhttp -->
+		<dependency>
+			<groupId>com.squareup.okhttp3</groupId>
+			<artifactId>okhttp</artifactId>
+			<version>5.0.0-alpha.11</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/com.squareup.okhttp3/mockwebserver -->
+		<dependency>
+			<groupId>com.squareup.okhttp3</groupId>
+			<artifactId>mockwebserver</artifactId>
+			<version>5.0.0-alpha.11</version>
+			<scope>test</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>junit</groupId>
+					<artifactId>junit</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 	</dependencies>
 	<dependencyManagement>

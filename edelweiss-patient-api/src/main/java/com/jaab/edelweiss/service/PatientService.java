@@ -15,9 +15,12 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 import java.rmi.ServerException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 @Service
@@ -125,9 +128,8 @@ public class PatientService {
      */
     public AddressDTO getAddress(Long patientId) {
         Patient patient = getPatientByPatientId(patientId);
-        Address address = patient.getAddress();
         AddressDTO addressDTO = new AddressDTO();
-        BeanUtils.copyProperties(address, addressDTO);
+        BeanUtils.copyProperties(patient.getAddress(), addressDTO);
         return addressDTO;
     }
 
@@ -241,37 +243,54 @@ public class PatientService {
         Patient getPatient = patientRepository.getReferenceById(patientId);
         UserDTO userDTO = new UserDTO(patientId);
 
-        updatePatientIfNotNull(getPatient::setLastName, patient.getLastName());
-        updatePatientIfNotNull(userDTO::setLastName, patient.getLastName());
+        updatePatientIfNotNull(patient.getLastName(), getPatient::getLastName,
+                getPatient::setLastName, userDTO::setLastName);
 
-        updatePatientIfNotNull(getPatient::setEmail, patient.getEmail());
-        updatePatientIfNotNull(userDTO::setEmail, patient.getEmail());
+        updatePatientIfNotNull(patient.getEmail(), getPatient::getEmail,
+                getPatient::setEmail, userDTO::setEmail);
 
-        updatePatientIfNotNull(getPatient::setPassword, patient.getPassword());
-        updatePatientIfNotNull(userDTO::setPassword, patient.getPassword());
+        updatePatientIfNotNull(patient.getPassword(), getPatient::getPassword,
+                getPatient::setPassword, userDTO::setPassword);
 
-        updatePatientIfNotNull(getPatient::setPhoneNumber, patient.getPhoneNumber());
+        updatePatientIfNotNull(patient.getPhoneNumber(), getPatient::getPhoneNumber,
+                getPatient::setPhoneNumber);
 
-        updatePatientIfNotNull(getPatient::setPrimaryDoctor, patient.getPrimaryDoctor());
+        updatePatientIfNotNull(patient.getPrimaryDoctor(), getPatient::getPrimaryDoctor,
+                getPatient::setPrimaryDoctor);
 
         patientRepository.save(getPatient);
 
-        if (userDTO.getLastName() == null && userDTO.getEmail() == null && userDTO.getPassword() == null)
+        if (userDTOIsNull(userDTO))
             return null;
 
         return userDTO;
     }
 
     /**
-     * Checks if an entity attribute is not null and sets the attribute of the entity to the
-     * checked attribute if so
-     * @param entity - the entity to update
+     * Checks if an entity attribute is not null and does not equal the current entity value.
+     * If so, it sets the attribute of the entity to the checked attribute
      * @param attribute - the attribute to check and set if it's not null
+     * @param supplier - the value of the entity to check if it's equal to the new value
+     * @param entity - the entity(s) to update
      * @param <T> - the type of the attribute to check
      */
-    private <T> void updatePatientIfNotNull(Consumer<T> entity, T attribute) {
-        if (attribute != null)
-            entity.accept(attribute);
+    @SafeVarargs
+    private <T> void updatePatientIfNotNull(T attribute, Supplier<T> supplier, Consumer<T>... entity) {
+        Predicate<T> predicate = input -> !input.equals(attribute);
+
+        if (attribute != null && predicate.test(supplier.get()))
+            Arrays.stream(entity).forEach(c -> c.accept(attribute));
+    }
+
+    /**
+     * Checks to see if the values of the UserDTO object are null
+     * @param userDTO - the UserDTO object to check
+     * @return - true if specified values are null
+     */
+    private boolean userDTOIsNull(UserDTO userDTO) {
+        return userDTO.getLastName() == null &&
+                userDTO.getEmail() == null &&
+                userDTO.getPassword() == null;
     }
 
     /**

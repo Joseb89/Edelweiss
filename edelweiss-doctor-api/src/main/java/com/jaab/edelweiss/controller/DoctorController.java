@@ -27,7 +27,7 @@ public class DoctorController {
      * @return - HTTP status response with the ID of the doctor
      */
     @PostMapping(value = "/newPhysician", consumes = MediaType.APPLICATION_JSON_VALUE,
-                produces = MediaType.APPLICATION_JSON_VALUE)
+            produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Long> createPhysician(@RequestBody Doctor doctor) {
         UserDTO newDoctor = doctorService.createDoctor(doctor);
         return ResponseEntity.status(HttpStatus.CREATED).body(newDoctor.getId());
@@ -63,46 +63,6 @@ public class DoctorController {
     }
 
     /**
-     * Retrieves a patient from the patient API based on the patient's ID
-     * @param patientId - the ID of the patient
-     * @return - HTTP status response with the patient data
-     */
-    @GetMapping(value = "/physician/getPatientById/{patientId}")
-    public ResponseEntity<Mono<PatientDTO>> getPatientById(@PathVariable Long patientId) {
-        return ResponseEntity.ok(doctorService.getPatientById(patientId));
-    }
-
-    /**
-     * Retrieves a list of patients from the patient API based on the patient's first name
-     * @param firstName - the first name of the patient
-     * @return - HTTP status response with the list of patients
-     */
-    @GetMapping(value = "/physician/getPatientsByFirstName/{firstName}")
-    public ResponseEntity<Flux<PatientDTO>> getPatientsByFirstName(@PathVariable String firstName) {
-        return ResponseEntity.ok(doctorService.getPatientsByFirstName(firstName));
-    }
-
-    /**
-     * Retrieves a list of patients from the patient API based on the patient's last name
-     * @param lastName - the last name of the patient
-     * @return - HTTP status response with the list of patients
-     */
-    @GetMapping(value = "/physician/getPatientsByLastName/{lastName}")
-    public ResponseEntity<Flux<PatientDTO>> getPatientsByLastName(@PathVariable String lastName) {
-        return ResponseEntity.ok(doctorService.getPatientsByLastName(lastName));
-    }
-
-    /**
-     * Retrieves a list of patients from the patient API based on the patient's blood type
-     * @param bloodType - the blood type of the patient
-     * @return - HTTP status response with the list of patients
-     */
-    @GetMapping(value = "/physician/getPatientsByBloodType/{bloodType}")
-    public ResponseEntity<Flux<PatientDTO>> getPatientsByBloodType(@PathVariable String bloodType) {
-        return ResponseEntity.ok(doctorService.getPatientsByBloodType(bloodType));
-    }
-
-    /**
      * Retrieves the specified doctor's prescriptions from the prescription API
      * @param physicianId - the ID of the doctor
      * @return - HTTP status response with the list of the doctor's prescriptions
@@ -120,16 +80,6 @@ public class DoctorController {
     @GetMapping(value = "/physician/{physicianId}/myAppointments")
     public ResponseEntity<Flux<AppointmentDTO>> getAppointments(@PathVariable Long physicianId) {
         return ResponseEntity.ok(doctorService.getAppointments(physicianId));
-    }
-
-    /**
-     * Retrieves the address of a patient with the corresponding ID from the patient API
-     * @param patientId - the ID of the patient
-     * @return - HTTP status response with the patient's address
-     */
-    @GetMapping(value = "/physician/getPatientAddress/{patientId}")
-    public ResponseEntity<Mono<AddressDTO>> getPatientAddress(@PathVariable Long patientId) {
-        return ResponseEntity.ok(doctorService.getPatientAddress(patientId));
     }
 
     /**
