@@ -11,6 +11,11 @@ import reactor.core.publisher.Mono;
 
 import java.rmi.ServerException;
 
+/**
+ * This class serves as a service for retrieving patient information from the patient API
+ *
+ * @author Joseph Barr
+ */
 @Service
 public class DoctorPatientService {
 
@@ -78,6 +83,22 @@ public class DoctorPatientService {
                 .onStatus(HttpStatusCode::is5xxServerError,
                         response -> response.bodyToMono(String.class).map(ServerException::new))
                 .bodyToMono(AddressDTO.class);
+    }
+
+    /**
+     * Sends a DELETE request to the patient API to delete the patient with the specified ID
+     * @param patientId - the ID of the patient
+     * @return - the DELETE request
+     */
+    public Mono<Void> deletePatient(Long patientId) {
+        return webClient.delete()
+                .uri("/deletePatient/" + patientId)
+                .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError,
+                        response -> response.bodyToMono(String.class).map(Exception::new))
+                .onStatus(HttpStatusCode::is5xxServerError,
+                        response -> response.bodyToMono(String.class).map(ServerException::new))
+                .bodyToMono(Void.class);
     }
 
     /**

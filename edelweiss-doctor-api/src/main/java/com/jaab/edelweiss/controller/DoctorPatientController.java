@@ -5,13 +5,16 @@ import com.jaab.edelweiss.dto.PatientDTO;
 import com.jaab.edelweiss.service.DoctorPatientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+/**
+ * This class is a controller for the endpoints for the retrieval of patient information from the
+ * patient API
+ *
+ * @author Joseph Barr
+ */
 @RestController
 @RequestMapping(value = "/physician")
 public class DoctorPatientController {
@@ -71,5 +74,15 @@ public class DoctorPatientController {
     @GetMapping(value = "/getPatientAddress/{patientId}")
     public ResponseEntity<Mono<AddressDTO>> getPatientAddress(@PathVariable Long patientId) {
         return ResponseEntity.ok(doctorPatientService.getPatientAddress(patientId));
+    }
+
+    /**
+     * Sends a DELETE request to the patient API to delete the patient with the specified ID
+     * @param patientId - the ID of the patient
+     * @return - the DELETE request
+     */
+    @DeleteMapping(value = "/deletePatient/{patientId}")
+    public ResponseEntity<Mono<Void>> deletePatient(@PathVariable Long patientId) {
+        return ResponseEntity.ok(doctorPatientService.deletePatient(patientId));
     }
 }

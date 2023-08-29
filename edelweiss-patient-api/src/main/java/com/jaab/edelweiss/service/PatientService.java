@@ -159,11 +159,8 @@ public class PatientService {
     public Mono<UserDTO> updateUserInfo(Patient patient, Long patientId) {
         UserDTO updatedUser = updatePatientInfo(patient, patientId);
 
-        if (updatedUser == null) {
-            UserDTO userDTO = new UserDTO();
-            BeanUtils.copyProperties(patient, userDTO);
-            return Mono.just(userDTO);
-        }
+        if (updatedUser == null)
+            return Mono.just(new UserDTO());
 
         return webClient.patch()
                 .uri("/updateUserInfo")
