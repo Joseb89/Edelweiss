@@ -1,9 +1,7 @@
 package com.jaab.edelweiss.service;
 
 import com.jaab.edelweiss.dao.DoctorRepository;
-import com.jaab.edelweiss.dto.AppointmentDTO;
 import com.jaab.edelweiss.dto.UserDTO;
-import com.jaab.edelweiss.exception.AppointmentException;
 import com.jaab.edelweiss.exception.DoctorNotFoundException;
 import com.jaab.edelweiss.model.Doctor;
 import org.springframework.beans.BeanUtils;
@@ -11,12 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.rmi.ServerException;
-import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -31,17 +26,13 @@ import java.util.function.Supplier;
 @Service
 public class DoctorService {
 
-    public final WebClient webClient;
+    private final WebClient webClient;
 
     private DoctorRepository doctorRepository;
 
-    private static final String USER_API_URL = "http://localhost:8081";
-
-    private static final String APPOINTMENT_API_URL = "http://localhost:8086/physician";
-
     @Autowired
     public DoctorService(WebClient.Builder builder) {
-        this.webClient = builder.build();
+        this.webClient = builder.baseUrl("http://localhost:8081").build();
     }
 
     @Autowired
@@ -65,51 +56,6 @@ public class DoctorService {
     }
 
     /**
-     * Creates a new appointment and sends it to the appointment API
-     * @param newAppointment - the AppointmentDTO payload
-     * @param physicianId - the ID of the doctor
-     * @return - the new appointment
-     */
-    public Mono<AppointmentDTO> createAppointment(AppointmentDTO newAppointment, Long physicianId) {
-        if (newAppointment.getAppointmentDate().isBefore(LocalDate.now()) &&
-                newAppointment.getAppointmentTime().isBefore(LocalTime.now()))
-            throw new AppointmentException("Appointment date must be today or later date.");
-
-        String[] doctorName = setDoctorName(physicianId);
-
-        newAppointment.setDoctorFirstName(doctorName[0]);
-        newAppointment.setDoctorLastName(doctorName[1]);
-
-        return webClient.post()
-                .uri(APPOINTMENT_API_URL + "/newAppointment")
-                .body(Mono.just(newAppointment), AppointmentDTO.class)
-                .retrieve()
-                .onStatus(HttpStatusCode::is4xxClientError,
-                        response -> response.bodyToMono(String.class).map(Exception::new))
-                .onStatus(HttpStatusCode::is5xxServerError,
-                        response -> response.bodyToMono(String.class).map(ServerException::new))
-                .bodyToMono(AppointmentDTO.class);
-    }
-
-    /**
-     * Retrieves the appointments from the appointment API for the doctor with the specified ID
-     * @param physicianId - the ID of the doctor
-     * @return - the list of the appointments
-     */
-    public Flux<AppointmentDTO> getAppointments(Long physicianId) {
-        String[] doctorName = setDoctorName(physicianId);
-
-        return webClient.get()
-                .uri(APPOINTMENT_API_URL + "/myAppointments/" + doctorName[0] + "/" + doctorName[1])
-                .retrieve()
-                .onStatus(HttpStatusCode::is4xxClientError,
-                        response -> response.bodyToMono(String.class).map(Exception::new))
-                .onStatus(HttpStatusCode::is5xxServerError,
-                        response -> response.bodyToMono(String.class).map(ServerException::new))
-                .bodyToFlux(AppointmentDTO.class);
-    }
-
-    /**
      * Sends the updated doctor information to the user API
      * @param doctor - the Doctor payload
      * @param physicianId - the ID of the doctor
@@ -118,14 +64,11 @@ public class DoctorService {
     public Mono<UserDTO> updateUserInfo(Doctor doctor, Long physicianId) {
         UserDTO updatedUser = updateDoctorInfo(doctor, physicianId);
 
-        if (updatedUser == null) {
-            UserDTO userDTO = new UserDTO();
-            BeanUtils.copyProperties(doctor, userDTO);
-            return Mono.just(userDTO);
-        }
+        if (updatedUser == null)
+            return Mono.just(new UserDTO());
 
         return webClient.patch()
-                .uri(USER_API_URL + "/updateUserInfo")
+                .uri("/updateUserInfo")
                 .body(Mono.just(updatedUser), UserDTO.class)
                 .retrieve()
                 .onStatus(HttpStatusCode::is4xxClientError,
@@ -133,29 +76,6 @@ public class DoctorService {
                 .onStatus(HttpStatusCode::is5xxServerError,
                         response -> response.bodyToMono(String.class).map(ServerException::new))
                 .bodyToMono(UserDTO.class);
-    }
-
-    /**
-     * Updates an appointment with the corresponding ID and sends it to the appointment API
-     * @param appointmentDTO - the AppointmentDTO payload containing the updated information
-     * @param appointmentId - the ID of the appointment
-     * @return - the updated appointment
-     */
-    public Mono<AppointmentDTO> updateAppointmentInfo(AppointmentDTO appointmentDTO, Long appointmentId) {
-        AppointmentDTO updatedAppointment = new AppointmentDTO();
-        BeanUtils.copyProperties(appointmentDTO, updatedAppointment);
-
-        updatedAppointment.setId(appointmentId);
-
-        return webClient.patch()
-                .uri(APPOINTMENT_API_URL + "/updateAppointmentInfo/" + appointmentId)
-                .body(Mono.just(updatedAppointment), AppointmentDTO.class)
-                .retrieve()
-                .onStatus(HttpStatusCode::is4xxClientError,
-                        response -> response.bodyToMono(String.class).map(Exception::new))
-                .onStatus(HttpStatusCode::is5xxServerError,
-                        response -> response.bodyToMono(String.class).map(ServerException::new))
-                .bodyToMono(AppointmentDTO.class);
     }
 
     /**
@@ -167,45 +87,32 @@ public class DoctorService {
     public Mono<Void> deleteUser(Long physicianId) {
         deleteDoctor(physicianId);
 
-        return deleteRequest(USER_API_URL + "/deleteUser/", physicianId);
+        return webClient.delete()
+                .uri("/deleteUser/" + physicianId)
+                .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError,
+                        response -> response.bodyToMono(String.class).map(Exception::new))
+                .onStatus(HttpStatusCode::is5xxServerError,
+                        response -> response.bodyToMono(String.class).map(ServerException::new))
+                .bodyToMono(Void.class);
     }
 
     /**
-     * Sends a DELETE request to the appointment API to delete the appointment with the specified ID
-     * @param appointmentId - the ID of the appointment
-     * @return - the DELETE request
+     * Sends a UserDTO payload to the user API and returns the user ID
+     * @param userDTO - the userDTO object
+     * @return - the userDTO payload
      */
-    public Mono<Void> deleteAppointment(Long appointmentId) {
-        return deleteRequest(APPOINTMENT_API_URL + "/deleteAppointment/", appointmentId);
-    }
-
-    /**
-     * Deletes a doctor from the doctor database based on their ID and throws an exception if the specified
-     * doctor is not found
-     * @param physicianId - the ID of the doctor
-     */
-    private void deleteDoctor(Long physicianId){
-        Optional<Doctor> doctor = doctorRepository.getDoctorById(physicianId);
-
-        if (doctor.isEmpty())
-            throw new DoctorNotFoundException("No doctor with specified ID found.");
-
-        doctorRepository.deleteById(doctor.get().getId()); }
-
-    /**
-     * Retrieves a doctor from the doctor database based on the doctor's ID and sets the doctor's
-     * first and last name to a String array
-     * @param physicianId - the ID of the doctor
-     * @return - the String array containing the doctor's first and last name
-     */
-    private String[] setDoctorName(Long physicianId) {
-        String[] doctorName = new String[2];
-        Doctor doctor = doctorRepository.getReferenceById(physicianId);
-
-        doctorName[0] = doctor.getFirstName();
-        doctorName[1] = doctor.getLastName();
-
-        return doctorName;
+    private UserDTO sendUserData(UserDTO userDTO) {
+        return webClient.post()
+                .uri("/newPhysician")
+                .body(Mono.just(userDTO), UserDTO.class)
+                .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError,
+                        response -> response.bodyToMono(String.class).map(Exception::new))
+                .onStatus(HttpStatusCode::is5xxServerError,
+                        response -> response.bodyToMono(String.class).map(ServerException::new))
+                .bodyToMono(UserDTO.class)
+                .block();
     }
 
     /**
@@ -266,37 +173,16 @@ public class DoctorService {
     }
 
     /**
-     * Returns the DELETE request of the corresponding endpoint
-     * @param uri - the endpoint URI
-     * @param id - the ID of the resource to delete
-     * @return - the DELETE request
+     * Deletes a doctor from the doctor database based on their ID and throws an exception if the specified
+     * doctor is not found
+     * @param physicianId - the ID of the doctor
      */
-    private Mono<Void> deleteRequest(String uri, Long id) {
-        return webClient.delete()
-                .uri(uri + id)
-                .retrieve()
-                .onStatus(HttpStatusCode::is4xxClientError,
-                        response -> response.bodyToMono(String.class).map(Exception::new))
-                .onStatus(HttpStatusCode::is5xxServerError,
-                        response -> response.bodyToMono(String.class).map(ServerException::new))
-                .bodyToMono(Void.class);
-    }
+    private void deleteDoctor(Long physicianId){
+        Optional<Doctor> doctor = doctorRepository.getDoctorById(physicianId);
 
-    /**
-     * Sends a UserDTO payload to the user API and returns the user ID
-     * @param userDTO - the userDTO object
-     * @return - the userDTO payload
-     */
-    private UserDTO sendUserData(UserDTO userDTO) {
-        return webClient.post()
-                .uri(USER_API_URL + "/newPhysician")
-                .body(Mono.just(userDTO), UserDTO.class)
-                .retrieve()
-                .onStatus(HttpStatusCode::is4xxClientError,
-                        response -> response.bodyToMono(String.class).map(Exception::new))
-                .onStatus(HttpStatusCode::is5xxServerError,
-                        response -> response.bodyToMono(String.class).map(ServerException::new))
-                .bodyToMono(UserDTO.class)
-                .block();
+        if (doctor.isEmpty())
+            throw new DoctorNotFoundException("No doctor with specified ID found.");
+
+        doctorRepository.deleteById(doctor.get().getId());
     }
 }

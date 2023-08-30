@@ -23,7 +23,7 @@ import java.rmi.ServerException;
 @Service
 public class DoctorPrescriptionService {
 
-    public final WebClient webClient;
+    private final WebClient webClient;
 
     private DoctorRepository doctorRepository;
 
@@ -139,8 +139,8 @@ public class DoctorPrescriptionService {
      * @return - the String array containing the doctor's first and last name
      */
     private String[] setDoctorName(Long physicianId) {
-        String[] doctorName = new String[2];
         Doctor doctor = doctorRepository.getReferenceById(physicianId);
+        String[] doctorName = new String[2];
 
         doctorName[0] = doctor.getFirstName();
         doctorName[1] = doctor.getLastName();

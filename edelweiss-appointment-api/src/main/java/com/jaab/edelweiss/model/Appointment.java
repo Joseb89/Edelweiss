@@ -15,7 +15,7 @@ public class Appointment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "appointment_id", nullable = false)
+    @Column(name = "appointment_id", nullable = false, updatable = false, unique = true)
     private Long id;
 
     @Column(name = "doctor_first_name", nullable = false, length = 20)

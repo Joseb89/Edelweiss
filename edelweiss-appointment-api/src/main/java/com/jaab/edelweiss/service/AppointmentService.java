@@ -2,14 +2,20 @@ package com.jaab.edelweiss.service;
 
 import com.jaab.edelweiss.dao.AppointmentRepository;
 import com.jaab.edelweiss.dto.AppointmentDTO;
+import com.jaab.edelweiss.exception.AppointmentException;
 import com.jaab.edelweiss.exception.AppointmentNotFoundException;
 import com.jaab.edelweiss.model.Appointment;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 @Service
@@ -56,24 +62,29 @@ public class AppointmentService {
      */
     public AppointmentDTO updateAppointmentInfo(AppointmentDTO appointmentDTO, Long appointmentId) {
         Appointment appointment = getAppointmentById(appointmentId);
-        AppointmentDTO getAppointment = new AppointmentDTO();
-        getAppointment.setId(appointmentId);
 
-        if (appointmentDTO.getPatientFirstName() != null)
-            appointment.setPatientFirstName(appointmentDTO.getPatientFirstName());
+        updateAppointmentIfNotNull(appointmentDTO.getPatientFirstName(), appointment::getPatientFirstName,
+                appointment::setPatientFirstName);
 
-        if (appointmentDTO.getPatientLastName() != null)
-            appointment.setPatientLastName(appointmentDTO.getPatientLastName());
+        updateAppointmentIfNotNull(appointmentDTO.getPatientLastName(), appointment::getPatientLastName,
+                appointment::setPatientLastName);
 
-        if (appointmentDTO.getAppointmentDate() != null)
-            appointment.setAppointmentDate(appointmentDTO.getAppointmentDate());
+        updateAppointmentIfNotNull(appointmentDTO.getAppointmentDate(), appointment::getAppointmentDate,
+                appointment::setAppointmentDate);
 
-        if (appointmentDTO.getAppointmentTime() != null)
-            appointment.setAppointmentTime(appointmentDTO.getAppointmentTime());
+        updateAppointmentIfNotNull(appointmentDTO.getAppointmentTime(), appointment::getAppointmentTime,
+                appointment::setAppointmentTime);
+
+        if (appointment.getAppointmentDate().isBefore(LocalDate.now()) &&
+                appointment.getAppointmentTime().isBefore(LocalTime.now()))
+            throw new AppointmentException("Appointment date must be today or later date.");
 
         appointmentRepository.save(appointment);
 
+        AppointmentDTO getAppointment = new AppointmentDTO();
+
         BeanUtils.copyProperties(appointment, getAppointment);
+        getAppointment.setId(appointmentId);
 
         return getAppointment;
     }
@@ -86,6 +97,13 @@ public class AppointmentService {
         Appointment appointment = getAppointmentById(appointmentId);
 
         appointmentRepository.deleteById(appointment.getId());
+    }
+
+    private <T> void updateAppointmentIfNotNull(T attribute, Supplier<T> supplier, Consumer<T> entity) {
+        Predicate<T> predicate = input -> !input.equals(attribute);
+
+        if (attribute != null && predicate.test(supplier.get()))
+            entity.accept(attribute);
     }
 
     /**

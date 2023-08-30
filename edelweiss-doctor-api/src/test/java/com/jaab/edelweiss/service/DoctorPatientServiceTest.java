@@ -145,6 +145,16 @@ public class DoctorPatientServiceTest {
                 .verifyComplete();
     }
 
+    @Test
+    public void deletePatientTest() {
+        mockWebServer.enqueue(new MockResponse().setResponseCode(200));
+
+        Mono<Void> deletePatient = doctorPatientService.deletePatient(1L);
+
+        StepVerifier.create(deletePatient)
+                .verifyComplete();
+    }
+
     private List<PatientDTO> createPatients() {
         PatientDTO james = new PatientDTO(1L, "James", "Hawke",
                 "championofkirkwall@gmail.com", 7130042356L,

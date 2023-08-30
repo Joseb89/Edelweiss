@@ -161,6 +161,16 @@ public class DoctorPrescriptionServiceTest {
                         .updatePrescriptionInfo(updatedPrescription, updatedPrescription.getId()).block());
     }
 
+    @Test
+    public void deletePrescriptionTest() {
+        mockWebServer.enqueue(new MockResponse().setResponseCode(200));
+
+        Mono<Void> deletePrescription = doctorPrescriptionService.deletePrescription(1L);
+
+        StepVerifier.create(deletePrescription)
+                .verifyComplete();
+    }
+
     private List<PrescriptionDTO> createPrescriptions() {
         PrescriptionDTO felandris = new PrescriptionDTO(1L, "Wynne", "Langrene",
                 "Felandris", (byte) 50, Status.PENDING);

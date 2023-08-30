@@ -18,7 +18,7 @@ import lombok.Setter;
 public class Doctor {
 
     @Id
-    @Column(name = "doctor_id", nullable = false, unique = true, updatable = false)
+    @Column(name = "doctor_id", nullable = false, updatable = false, unique = true)
     private Long id;
 
     @Column(name = "first_name", nullable = false, updatable = false, length = 20)

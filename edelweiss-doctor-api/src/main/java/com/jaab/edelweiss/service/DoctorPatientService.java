@@ -19,7 +19,7 @@ import java.rmi.ServerException;
 @Service
 public class DoctorPatientService {
 
-    public final WebClient webClient;
+    private final WebClient webClient;
 
     @Autowired
     public DoctorPatientService(WebClient.Builder builder) {
