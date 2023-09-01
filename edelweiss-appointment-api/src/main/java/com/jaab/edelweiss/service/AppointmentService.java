@@ -37,6 +37,7 @@ public class AppointmentService {
         Appointment appointment = new Appointment();
         BeanUtils.copyProperties(appointmentDTO, appointment);
         appointmentRepository.save(appointment);
+
         return appointment;
     }
 

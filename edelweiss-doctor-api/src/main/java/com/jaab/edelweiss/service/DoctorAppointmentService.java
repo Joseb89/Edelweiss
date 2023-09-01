@@ -13,7 +13,6 @@ import reactor.core.publisher.Mono;
 
 import java.rmi.ServerException;
 import java.time.LocalDate;
-import java.time.LocalTime;
 
 /**
  * This class serves as a service for creating and maintaining appointment data
@@ -44,8 +43,7 @@ public class DoctorAppointmentService {
      * @return - the new appointment
      */
     public Mono<AppointmentDTO> createAppointment(AppointmentDTO newAppointment, Long physicianId) {
-        if (newAppointment.getAppointmentDate().isBefore(LocalDate.now()) &&
-                newAppointment.getAppointmentTime().isBefore(LocalTime.now()))
+        if (newAppointment.getAppointmentDate().isBefore(LocalDate.now()))
             throw new AppointmentException("Appointment date must be today or later date.");
 
         String[] doctorName = setDoctorName(physicianId);

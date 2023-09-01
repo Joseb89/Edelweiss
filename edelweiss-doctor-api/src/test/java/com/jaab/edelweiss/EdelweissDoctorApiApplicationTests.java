@@ -1,9 +1,6 @@
 package com.jaab.edelweiss;
 
-import com.jaab.edelweiss.controller.DoctorAppointmentController;
-import com.jaab.edelweiss.controller.DoctorController;
-import com.jaab.edelweiss.controller.DoctorPatientController;
-import com.jaab.edelweiss.controller.DoctorPrescriptionController;
+import com.jaab.edelweiss.controller.*;
 import com.jaab.edelweiss.service.DoctorAppointmentService;
 import com.jaab.edelweiss.service.DoctorPatientService;
 import com.jaab.edelweiss.service.DoctorPrescriptionService;

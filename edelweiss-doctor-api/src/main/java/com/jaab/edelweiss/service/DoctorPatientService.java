@@ -117,5 +117,4 @@ public class DoctorPatientService {
                         response -> response.bodyToMono(String.class).map(ServerException::new))
                 .bodyToFlux(PatientDTO.class);
     }
-
 }

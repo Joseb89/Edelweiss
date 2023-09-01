@@ -20,6 +20,7 @@ import reactor.test.StepVerifier;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -243,6 +244,23 @@ public class PatientServiceTest {
         assertEquals("malcomsheir", bethany.getPassword());
 
         mockWebServer.shutdown();
+    }
+
+    @Test
+    public void updateUserInfoUserDTONullTest() {
+        bethany.setAddress(bethanyAddress);
+        manager.persist(bethany);
+
+        assertEquals(7130042357L, bethany.getPhoneNumber());
+
+        Patient updatedPatient = new Patient(bethany.getId(), null, null, null, null,
+                null, 5569034478L, null, null);
+
+        Mono<UserDTO> patientInfo = patientService.updateUserInfo(updatedPatient, bethany.getId());
+
+        StepVerifier.create(patientInfo)
+                .expectNextMatches(p -> Objects.equals(p.getPassword(), null))
+                .verifyComplete();
     }
 
     @Test

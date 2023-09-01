@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jaab.edelweiss.dto.UserDTO;
 import com.jaab.edelweiss.exception.DoctorNotFoundException;
 import com.jaab.edelweiss.model.Doctor;
+import com.jaab.edelweiss.utils.TestUtils;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import mockwebserver3.MockResponse;
@@ -37,14 +38,13 @@ public class DoctorServiceTest {
 
     private static MockWebServer mockWebServer;
 
-    private static Doctor wynne;
+    private static Doctor doctor;
 
     private static final int USER_API_PORT = 8081;
 
     @BeforeAll
     public static void init() throws IOException {
-        wynne = new Doctor(1L, "Wynne", "Langrene", "seniorenchanter@aol.com",
-                "spiritoffaith", 6687412012L, "Hematology");
+        doctor = TestUtils.createDoctor();
 
         mockWebServer = new MockWebServer();
         mockWebServer.start(USER_API_PORT);
@@ -59,9 +59,9 @@ public class DoctorServiceTest {
     public void createDoctorTest() throws JsonProcessingException {
         mockWebServer.enqueue(new MockResponse()
                 .addHeader("Content-Type", "application/json")
-                .setBody(objectMapper.writeValueAsString(wynne)));
+                .setBody(objectMapper.writeValueAsString(doctor)));
 
-        UserDTO userDTO = doctorService.createDoctor(wynne);
+        UserDTO userDTO = doctorService.createDoctor(doctor);
 
         assertEquals(1L, userDTO.getId());
         assertEquals("Wynne", userDTO.getFirstName());
@@ -69,38 +69,38 @@ public class DoctorServiceTest {
 
     @Test
     public void updateUserInfoTest() throws JsonProcessingException {
-        manager.persist(wynne);
+        manager.persist(doctor);
 
-        assertEquals("Langrene", wynne.getLastName());
-        assertEquals("spiritoffaith", wynne.getPassword());
+        assertEquals("Langrene", doctor.getLastName());
+        assertEquals("spiritoffaith", doctor.getPassword());
 
-        Doctor updatedDoctor = new Doctor(wynne.getId(), null, "Gregoir", null,
+        Doctor updatedDoctor = new Doctor(doctor.getId(), null, "Gregoir", null,
                 "aneirin", null, null);
 
         mockWebServer.enqueue(new MockResponse()
                 .addHeader("Content-Type", "application/json")
                 .setBody(objectMapper.writeValueAsString(updatedDoctor)));
 
-        Mono<UserDTO> doctorInfo = doctorService.updateUserInfo(updatedDoctor, wynne.getId());
+        Mono<UserDTO> doctorInfo = doctorService.updateUserInfo(updatedDoctor, doctor.getId());
 
         StepVerifier.create(doctorInfo)
                         .expectNextMatches(userDTO -> Objects.equals(userDTO.getLastName(), "Gregoir"))
                                 .verifyComplete();
 
-        assertEquals("Gregoir", wynne.getLastName());
-        assertEquals("aneirin", wynne.getPassword());
+        assertEquals("Gregoir", doctor.getLastName());
+        assertEquals("aneirin", doctor.getPassword());
     }
 
     @Test
     public void updateUserInfoUserDTONullTest() {
-        manager.persist(wynne);
+        manager.persist(doctor);
 
-        assertEquals(6687412012L, wynne.getPhoneNumber());
+        assertEquals(6687412012L, doctor.getPhoneNumber());
 
-        Doctor updatedDoctor = new Doctor(wynne.getId(), null, null, null,
+        Doctor updatedDoctor = new Doctor(doctor.getId(), null, null, null,
                 null, 5541263307L, null);
 
-        Mono<UserDTO> doctorInfo = doctorService.updateUserInfo(updatedDoctor, wynne.getId());
+        Mono<UserDTO> doctorInfo = doctorService.updateUserInfo(updatedDoctor, doctor.getId());
 
         StepVerifier.create(doctorInfo)
                 .expectNextMatches(userDTO -> Objects.equals(userDTO.getPassword(), null))
@@ -109,13 +109,13 @@ public class DoctorServiceTest {
 
     @Test
     public void deleteUserTest() {
-        manager.persist(wynne);
+        manager.persist(doctor);
 
-        assertNotNull(wynne);
+        assertNotNull(doctor);
 
         mockWebServer.enqueue(new MockResponse().setResponseCode(200));
 
-        Mono<Void> deleteDoctor = doctorService.deleteUser(wynne.getId());
+        Mono<Void> deleteDoctor = doctorService.deleteUser(doctor.getId());
 
         StepVerifier.create(deleteDoctor)
                 .verifyComplete();

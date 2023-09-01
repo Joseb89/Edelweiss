@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jaab.edelweiss.dto.AddressDTO;
 import com.jaab.edelweiss.dto.PatientDTO;
+import com.jaab.edelweiss.utils.TestUtils;
 import jakarta.transaction.Transactional;
 import mockwebserver3.MockResponse;
 import mockwebserver3.MockWebServer;
@@ -17,10 +18,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 @SpringBootTest
 @Transactional
@@ -67,19 +65,13 @@ public class DoctorPatientServiceTest {
 
     @Test
     public void getPatientsByFirstNameTest() throws JsonProcessingException {
-        String testParameter = "James";
-
-        List<PatientDTO> patients = createPatients();
-
-        List<PatientDTO> filteredPatients = patients.stream()
-                .filter(p -> Objects.equals(p.getFirstName(), testParameter))
-                .collect(Collectors.toList());
+        List<PatientDTO> patients = TestUtils.getPatientsByFirstName();
 
         mockWebServer.enqueue(new MockResponse()
                 .addHeader("Content-Type", "application/json")
-                .setBody(objectMapper.writeValueAsString(filteredPatients)));
+                .setBody(objectMapper.writeValueAsString(patients)));
 
-        Flux<PatientDTO> getPatients = doctorPatientService.getPatientsByFirstName(testParameter);
+        Flux<PatientDTO> getPatients = doctorPatientService.getPatientsByFirstName(TestUtils.firstNameTestParameter);
 
         StepVerifier.create(getPatients)
                 .expectNextCount(1)
@@ -88,19 +80,13 @@ public class DoctorPatientServiceTest {
 
     @Test
     public void getPatientsByLastNameTest() throws JsonProcessingException {
-        String testParameter = "Hawke";
-
-        List<PatientDTO> patients = createPatients();
-
-        List<PatientDTO> filteredPatients = patients.stream()
-                .filter(p -> Objects.equals(p.getLastName(), testParameter))
-                .collect(Collectors.toList());
+        List<PatientDTO> patients = TestUtils.getPatientsByLastName();
 
         mockWebServer.enqueue(new MockResponse()
                 .addHeader("Content-Type", "application/json")
-                .setBody(objectMapper.writeValueAsString(filteredPatients)));
+                .setBody(objectMapper.writeValueAsString(patients)));
 
-        Flux<PatientDTO> getPatients = doctorPatientService.getPatientsByLastName(testParameter);
+        Flux<PatientDTO> getPatients = doctorPatientService.getPatientsByLastName(TestUtils.lastNameTestParameter);
 
         StepVerifier.create(getPatients)
                 .expectNextCount(3)
@@ -109,19 +95,13 @@ public class DoctorPatientServiceTest {
 
     @Test
     public void getPatientsByBloodTypeTest() throws JsonProcessingException {
-        String testParameter = "AB-";
-
-        List<PatientDTO> patients = createPatients();
-
-        List<PatientDTO> filteredPatients = patients.stream()
-                .filter(p -> Objects.equals(p.getBloodType(), testParameter))
-                .collect(Collectors.toList());
+        List<PatientDTO> patients = TestUtils.getPatientsByBloodType();
 
         mockWebServer.enqueue(new MockResponse()
                 .addHeader("Content-Type", "application/json")
-                .setBody(objectMapper.writeValueAsString(filteredPatients)));
+                .setBody(objectMapper.writeValueAsString(patients)));
 
-        Flux<PatientDTO> getPatients = doctorPatientService.getPatientsByBloodType(testParameter);
+        Flux<PatientDTO> getPatients = doctorPatientService.getPatientsByBloodType(TestUtils.bloodTypeTestParameter);
 
         StepVerifier.create(getPatients)
                 .expectNextCount(2)
@@ -153,27 +133,5 @@ public class DoctorPatientServiceTest {
 
         StepVerifier.create(deletePatient)
                 .verifyComplete();
-    }
-
-    private List<PatientDTO> createPatients() {
-        PatientDTO james = new PatientDTO(1L, "James", "Hawke",
-                "championofkirkwall@gmail.com", 7130042356L,
-                "Varric Tethras", "AB+");
-
-        PatientDTO bethany = new PatientDTO(2L, "Bethany", "Hawke",
-                "circlemage@yahoo.com", 7130042357L,
-                "Varric Tethras", "AB-");
-
-        PatientDTO carver = new PatientDTO(3L, "Carver", "Hawke",
-                "templarknight@aol.com", 7130042357L,
-                "Varric Tethras", "AB-");
-
-        List<PatientDTO> patients = new ArrayList<>();
-
-        patients.add(james);
-        patients.add(bethany);
-        patients.add(carver);
-
-        return patients;
     }
 }

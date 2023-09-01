@@ -7,7 +7,6 @@ import com.jaab.edelweiss.model.Address;
 import com.jaab.edelweiss.model.Patient;
 import com.jaab.edelweiss.service.PatientService;
 import org.hamcrest.Matchers;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.BeanUtils;
@@ -22,6 +21,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
@@ -41,8 +41,8 @@ public class PatientControllerTest {
 
     @BeforeEach
     public void init() {
-        Assertions.assertNotNull(webTestClient);
-        Assertions.assertNotNull(patientService);
+        assertNotNull(webTestClient);
+        assertNotNull(patientService);
 
         james = new Patient(1L, "James", "Hawke", "championofkirkwall@gmail.com",
                 "magerebellion", jamesAddress, 7130042356L,
@@ -261,9 +261,9 @@ public class PatientControllerTest {
     @Test
     public void deletePatientTest() {
         webTestClient.delete()
-                .uri("/deleteUser/" + carver.getId())
+                .uri("/physician/deletePatient/" + carver.getId())
                 .exchange()
-                .expectStatus().is4xxClientError();
+                .expectStatus().isOk();
     }
 
     private List<PatientDTO> setupPatientDTO() {
