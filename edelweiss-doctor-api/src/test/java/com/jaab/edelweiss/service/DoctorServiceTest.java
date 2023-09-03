@@ -1,128 +1,79 @@
 package com.jaab.edelweiss.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jaab.edelweiss.dto.UserDTO;
+import com.jaab.edelweiss.dao.DoctorRepository;
 import com.jaab.edelweiss.exception.DoctorNotFoundException;
 import com.jaab.edelweiss.model.Doctor;
 import com.jaab.edelweiss.utils.TestUtils;
-import jakarta.persistence.EntityManager;
-import jakarta.transaction.Transactional;
-import mockwebserver3.MockResponse;
-import mockwebserver3.MockWebServer;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import reactor.core.publisher.Mono;
-import reactor.test.StepVerifier;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.io.IOException;
-import java.util.Objects;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.*;
 
-@SpringBootTest
-@Transactional
+@ExtendWith(MockitoExtension.class)
 public class DoctorServiceTest {
 
-    @Autowired
+    @InjectMocks
     private DoctorService doctorService;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    @Mock
+    private DoctorRepository  doctorRepository;
 
-    @Autowired
-    private EntityManager manager;
+    private Doctor doctor;
 
-    private static MockWebServer mockWebServer;
+    @BeforeEach
+    public void init() {
+        assertNotNull(doctorService);
+        assertNotNull(doctorRepository);
 
-    private static Doctor doctor;
-
-    private static final int USER_API_PORT = 8081;
-
-    @BeforeAll
-    public static void init() throws IOException {
         doctor = TestUtils.createDoctor();
-
-        mockWebServer = new MockWebServer();
-        mockWebServer.start(USER_API_PORT);
-    }
-
-    @AfterAll
-    public static void cleanup() throws IOException {
-        mockWebServer.shutdown();
     }
 
     @Test
-    public void createDoctorTest() throws JsonProcessingException {
-        mockWebServer.enqueue(new MockResponse()
-                .addHeader("Content-Type", "application/json")
-                .setBody(objectMapper.writeValueAsString(doctor)));
+    public void createDoctorTest() {
+        when(doctorRepository.save(any(Doctor.class))).thenReturn(doctor);
+        Doctor newDoctor = doctorService.createDoctor(doctor);
 
-        UserDTO userDTO = doctorService.createDoctor(doctor);
-
-        assertEquals(1L, userDTO.getId());
-        assertEquals("Wynne", userDTO.getFirstName());
+        assertEquals(1L, newDoctor.getId());
+        assertEquals("Wynne", newDoctor.getFirstName());
     }
 
     @Test
-    public void updateUserInfoTest() throws JsonProcessingException {
-        manager.persist(doctor);
+    public void updateDoctorInfoTest() {
+        Map<String, Object> updatedInfo = new HashMap<>();
+        updatedInfo.put("email", "archmage@aol.com");
+        updatedInfo.put("password", "aneirin");
 
-        assertEquals("Langrene", doctor.getLastName());
-        assertEquals("spiritoffaith", doctor.getPassword());
+        when(doctorRepository.findById(anyLong())).thenReturn(Optional.of(doctor));
 
-        Doctor updatedDoctor = new Doctor(doctor.getId(), null, "Gregoir", null,
-                "aneirin", null, null);
+        doctorService.updateDoctorInfo(doctor.getId(), updatedInfo);
 
-        mockWebServer.enqueue(new MockResponse()
-                .addHeader("Content-Type", "application/json")
-                .setBody(objectMapper.writeValueAsString(updatedDoctor)));
-
-        Mono<UserDTO> doctorInfo = doctorService.updateUserInfo(updatedDoctor, doctor.getId());
-
-        StepVerifier.create(doctorInfo)
-                        .expectNextMatches(userDTO -> Objects.equals(userDTO.getLastName(), "Gregoir"))
-                                .verifyComplete();
-
-        assertEquals("Gregoir", doctor.getLastName());
+        assertEquals("archmage@aol.com", doctor.getEmail());
         assertEquals("aneirin", doctor.getPassword());
     }
 
     @Test
-    public void updateUserInfoUserDTONullTest() {
-        manager.persist(doctor);
-
-        assertEquals(6687412012L, doctor.getPhoneNumber());
-
-        Doctor updatedDoctor = new Doctor(doctor.getId(), null, null, null,
-                null, 5541263307L, null);
-
-        Mono<UserDTO> doctorInfo = doctorService.updateUserInfo(updatedDoctor, doctor.getId());
-
-        StepVerifier.create(doctorInfo)
-                .expectNextMatches(userDTO -> Objects.equals(userDTO.getPassword(), null))
-                .verifyComplete();
-    }
-
-    @Test
     public void deleteUserTest() {
-        manager.persist(doctor);
-
         assertNotNull(doctor);
 
-        mockWebServer.enqueue(new MockResponse().setResponseCode(200));
+        when(doctorRepository.findById(anyLong())).thenReturn(Optional.of(doctor));
+        doctorService.deleteDoctor(doctor.getId());
 
-        Mono<Void> deleteDoctor = doctorService.deleteUser(doctor.getId());
-
-        StepVerifier.create(deleteDoctor)
-                .verifyComplete();
+        verify(doctorRepository, times(1)).deleteById(doctor.getId());
     }
 
     @Test
     public void deleteUserExceptionTest() {
-        assertThrows(DoctorNotFoundException.class, ()->doctorService.deleteUser(1L).block());
+        assertThrows(DoctorNotFoundException.class, ()-> doctorService.deleteDoctor(1L));
     }
 }

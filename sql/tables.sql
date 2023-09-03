@@ -1,10 +1,12 @@
-create table if not exists users (
-    user_id serial primary key,
+create table if not exists doctors (
+    doctor_id serial primary key,
     first_name VARCHAR(20) not null,
     last_name VARCHAR(30) not null,
-    user_email VARCHAR(30) not null,
-    user_password VARCHAR(100) not null,
-    user_role VARCHAR(11) not null
+    doctor_email VARCHAR(30) not null,
+    doctor_password VARCHAR(100) not null,
+    phone_number BIGINT not null,
+    practice VARCHAR(25) not null,
+    role VARCHAR(9) not null
 );
 
 create table if not exists patients (
@@ -27,16 +29,6 @@ create table if not exists address (
     CONSTRAINT fk_patient
         FOREIGN KEY(patient_id)
             REFERENCES patients(patient_id)
-);
-
-create table if not exists doctors (
-    doctor_id BIGINT primary key,
-    first_name VARCHAR(20) not null,
-    last_name VARCHAR(30) not null,
-    doctor_email VARCHAR(30) not null,
-    doctor_password VARCHAR(100) not null,
-    phone_number BIGINT not null,
-    practice VARCHAR(25) not null
 );
 
 create table if not exists pharmacists (

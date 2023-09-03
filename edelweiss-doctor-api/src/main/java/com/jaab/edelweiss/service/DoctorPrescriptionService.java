@@ -1,10 +1,9 @@
 package com.jaab.edelweiss.service;
 
-import com.jaab.edelweiss.dao.DoctorRepository;
 import com.jaab.edelweiss.dto.PrescriptionDTO;
 import com.jaab.edelweiss.dto.UpdatePrescriptionDTO;
 import com.jaab.edelweiss.exception.PrescriptionException;
-import com.jaab.edelweiss.model.Doctor;
+import com.jaab.edelweiss.utils.DoctorUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatusCode;
@@ -23,18 +22,14 @@ import java.rmi.ServerException;
 @Service
 public class DoctorPrescriptionService {
 
+    private final DoctorUtils doctorUtils;
+
     private final WebClient webClient;
 
-    private DoctorRepository doctorRepository;
-
     @Autowired
-    public DoctorPrescriptionService(WebClient.Builder builder) {
+    public DoctorPrescriptionService(DoctorUtils doctorUtils, WebClient.Builder builder) {
+        this.doctorUtils = doctorUtils;
         this.webClient = builder.baseUrl("http://localhost:8085/physician").build();
-    }
-
-    @Autowired
-    public void setDoctorRepository(DoctorRepository doctorRepository) {
-        this.doctorRepository = doctorRepository;
     }
 
     /**
@@ -44,13 +39,13 @@ public class DoctorPrescriptionService {
      * @return - the new prescription
      */
     public Mono<PrescriptionDTO> createPrescription(PrescriptionDTO newPrescription, Long physicianId) {
-        if (newPrescription.getPrescriptionName().isEmpty())
+        if (doctorUtils.prescriptionNameIsNotValid(newPrescription))
             throw new PrescriptionException("Please specify prescription name.");
 
-        if (newPrescription.getPrescriptionDosage() < 1)
+        if (doctorUtils.prescriptionDosageIsNotValid(newPrescription))
             throw new PrescriptionException("Prescription dosage must be between 1cc and 127cc.");
 
-        String[] doctorName = setDoctorName(physicianId);
+        String[] doctorName = doctorUtils.setDoctorName(physicianId);
 
         newPrescription.setDoctorFirstName(doctorName[0]);
         newPrescription.setDoctorLastName(doctorName[1]);
@@ -72,7 +67,7 @@ public class DoctorPrescriptionService {
      * @return - the list of the prescriptions
      */
     public Flux<PrescriptionDTO> getPrescriptions(Long physicianId) {
-        String[] doctorName = setDoctorName(physicianId);
+        String[] doctorName = doctorUtils.setDoctorName(physicianId);
 
         return webClient.get()
                 .uri("/myPrescriptions/" + doctorName[0] + "/" + doctorName[1])
@@ -93,11 +88,11 @@ public class DoctorPrescriptionService {
     public Mono<UpdatePrescriptionDTO> updatePrescriptionInfo(UpdatePrescriptionDTO prescriptionDTO,
                                                               Long prescriptionId) throws PrescriptionException {
         if (prescriptionDTO.getPrescriptionName() != null &&
-                prescriptionDTO.getPrescriptionName().isEmpty())
+                doctorUtils.prescriptionNameIsNotValid(prescriptionDTO))
             throw new PrescriptionException("Please specify prescription name.");
 
         if (prescriptionDTO.getPrescriptionDosage() != null &&
-                prescriptionDTO.getPrescriptionDosage() < 1)
+                doctorUtils.prescriptionDosageIsNotValid(prescriptionDTO))
             throw new PrescriptionException("Prescription dosage must be between 1cc and 127cc.");
 
         UpdatePrescriptionDTO updatedPrescription = new UpdatePrescriptionDTO();
@@ -130,21 +125,5 @@ public class DoctorPrescriptionService {
                 .onStatus(HttpStatusCode::is5xxServerError,
                         response -> response.bodyToMono(String.class).map(ServerException::new))
                 .bodyToMono(Void.class);
-    }
-
-    /**
-     * Retrieves a doctor from the doctor database based on the doctor's ID and sets the doctor's
-     * first and last name to a String array
-     * @param physicianId - the ID of the doctor
-     * @return - the String array containing the doctor's first and last name
-     */
-    private String[] setDoctorName(Long physicianId) {
-        Doctor doctor = doctorRepository.getReferenceById(physicianId);
-        String[] doctorName = new String[2];
-
-        doctorName[0] = doctor.getFirstName();
-        doctorName[1] = doctor.getLastName();
-
-        return doctorName;
     }
 }

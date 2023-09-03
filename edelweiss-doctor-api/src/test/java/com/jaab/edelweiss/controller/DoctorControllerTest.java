@@ -1,13 +1,11 @@
 package com.jaab.edelweiss.controller;
 
-import com.jaab.edelweiss.dto.UserDTO;
 import com.jaab.edelweiss.model.Doctor;
 import com.jaab.edelweiss.service.DoctorService;
 import com.jaab.edelweiss.utils.TestUtils;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -39,30 +37,26 @@ public class DoctorControllerTest {
 
     @Test
     public void createPhysicianTest() {
-        UserDTO userDTO = new UserDTO();
-        BeanUtils.copyProperties(doctor, userDTO);
-
-        when(doctorService.createDoctor(any(Doctor.class))).thenReturn(userDTO);
+        when(doctorService.createDoctor(any(Doctor.class))).thenReturn(doctor);
 
         webTestClient.post()
                 .uri("/newPhysician")
                 .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(userDTO)
+                .bodyValue(doctor)
                 .exchange()
                 .expectStatus().isCreated()
-                .expectBody(Long.class).isEqualTo(1L);
+                .expectBody().jsonPath("$.id", Matchers.is(1L));
     }
 
     @Test
     public void updateDoctorInfoTest() {
         Doctor updatedInfo = new Doctor(doctor.getId(), null, null, "archmage@aol.com",
-                null, null, null);
+                null, null, null, null);
 
         webTestClient.patch()
                 .uri("/physician/" + doctor.getId() + "/updatePhysicianInfo")
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(updatedInfo)
-                .accept(MediaType.APPLICATION_JSON)
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody().jsonPath("$.email", Matchers.is("archmage@aol.com"));

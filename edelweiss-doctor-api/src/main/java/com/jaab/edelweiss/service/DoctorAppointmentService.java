@@ -1,9 +1,8 @@
 package com.jaab.edelweiss.service;
 
-import com.jaab.edelweiss.dao.DoctorRepository;
 import com.jaab.edelweiss.dto.AppointmentDTO;
 import com.jaab.edelweiss.exception.AppointmentException;
-import com.jaab.edelweiss.model.Doctor;
+import com.jaab.edelweiss.utils.DoctorUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
@@ -12,7 +11,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.rmi.ServerException;
-import java.time.LocalDate;
 
 /**
  * This class serves as a service for creating and maintaining appointment data
@@ -22,18 +20,14 @@ import java.time.LocalDate;
 @Service
 public class DoctorAppointmentService {
 
+    private final DoctorUtils doctorUtils;
+
     private final WebClient webClient;
 
-    private DoctorRepository doctorRepository;
-
     @Autowired
-    public DoctorAppointmentService(WebClient.Builder builder) {
+    public DoctorAppointmentService(DoctorUtils doctorUtils, WebClient.Builder builder) {
+        this.doctorUtils = doctorUtils;
         this.webClient = builder.baseUrl("http://localhost:8086/physician").build();
-    }
-
-    @Autowired
-    public void setDoctorRepository(DoctorRepository doctorRepository) {
-        this.doctorRepository = doctorRepository;
     }
 
     /**
@@ -43,10 +37,10 @@ public class DoctorAppointmentService {
      * @return - the new appointment
      */
     public Mono<AppointmentDTO> createAppointment(AppointmentDTO newAppointment, Long physicianId) {
-        if (newAppointment.getAppointmentDate().isBefore(LocalDate.now()))
+        if (doctorUtils.appointmentDateIsNotValid(newAppointment))
             throw new AppointmentException("Appointment date must be today or later date.");
 
-        String[] doctorName = setDoctorName(physicianId);
+        String[] doctorName = doctorUtils.setDoctorName(physicianId);
 
         newAppointment.setDoctorFirstName(doctorName[0]);
         newAppointment.setDoctorLastName(doctorName[1]);
@@ -68,7 +62,7 @@ public class DoctorAppointmentService {
      * @return - the list of the appointments
      */
     public Flux<AppointmentDTO> getAppointments(Long physicianId) {
-        String[] doctorName = setDoctorName(physicianId);
+        String[] doctorName = doctorUtils.setDoctorName(physicianId);
 
         return webClient.get()
                 .uri("/myAppointments/" + doctorName[0] + "/" + doctorName[1])
@@ -87,8 +81,7 @@ public class DoctorAppointmentService {
      * @return - the updated appointment
      */
     public Mono<AppointmentDTO> updateAppointmentInfo(AppointmentDTO appointmentDTO, Long appointmentId) {
-        if (appointmentDTO.getAppointmentDate() != null &&
-                appointmentDTO.getAppointmentDate().isBefore(LocalDate.now()))
+        if (appointmentDTO.getAppointmentDate() != null && doctorUtils.appointmentDateIsNotValid(appointmentDTO))
             throw new AppointmentException("Appointment date must be today or later date.");
 
         appointmentDTO.setId(appointmentId);
@@ -118,21 +111,5 @@ public class DoctorAppointmentService {
                 .onStatus(HttpStatusCode::is5xxServerError,
                         response -> response.bodyToMono(String.class).map(ServerException::new))
                 .bodyToMono(Void.class);
-    }
-
-    /**
-     * Retrieves a doctor from the doctor database based on the doctor's ID and sets the doctor's
-     * first and last name to a String array
-     * @param physicianId - the ID of the doctor
-     * @return - the String array containing the doctor's first and last name
-     */
-    private String[] setDoctorName(Long physicianId) {
-        Doctor doctor = doctorRepository.getReferenceById(physicianId);
-        String[] doctorName = new String[2];
-
-        doctorName[0] = doctor.getFirstName();
-        doctorName[1] = doctor.getLastName();
-
-        return doctorName;
     }
 }

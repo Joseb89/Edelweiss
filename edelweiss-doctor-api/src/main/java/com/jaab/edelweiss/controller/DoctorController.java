@@ -1,14 +1,13 @@
 package com.jaab.edelweiss.controller;
 
-import com.jaab.edelweiss.dto.UserDTO;
 import com.jaab.edelweiss.model.Doctor;
 import com.jaab.edelweiss.service.DoctorService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import reactor.core.publisher.Mono;
+
+import java.util.Map;
 
 /**
  * This class is a controller for the endpoints for creating and maintaining physician data
@@ -20,44 +19,41 @@ public class DoctorController {
 
     private final DoctorService doctorService;
 
-    @Autowired
     public DoctorController(DoctorService doctorService) {
         this.doctorService = doctorService;
     }
 
     /**
-     * Saves a new doctor to the doctor database and sends the data to the user API
+     * Saves a new doctor to the doctor database
      * @param doctor - the Doctor payload
-     * @return - HTTP status response with the ID of the doctor
+     * @return - HTTP status response with the new doctor's info
      */
     @PostMapping(value = "/newPhysician", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Long> createPhysician(@RequestBody Doctor doctor) {
-        UserDTO newDoctor = doctorService.createDoctor(doctor);
-        return ResponseEntity.status(HttpStatus.CREATED).body(newDoctor.getId());
+    public ResponseEntity<Doctor> createPhysician(@RequestBody Doctor doctor) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(doctorService.createDoctor(doctor));
     }
 
     /**
      * Updates the doctor's information and merges it to the doctor database
-     * @param doctor - the Doctor payload containing the updated information
      * @param physicianId - the ID of the doctor
+     * @param fields - the Doctor payload containing the updated information
      * @return - HTTP status response with the updated information
      */
-    @PatchMapping(value = "/physician/{physicianId}/updatePhysicianInfo",
-                    consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Mono<UserDTO>> updateDoctorInfo(@RequestBody Doctor doctor,
-                                                          @PathVariable Long physicianId) {
-        return ResponseEntity.ok((doctorService.updateUserInfo(doctor, physicianId)));
+    @PatchMapping(value = "/physician/{physicianId}/updatePhysicianInfo")
+    public ResponseEntity<String> updateDoctorInfo(@PathVariable Long physicianId,
+                                                         @RequestBody Map<String, Object> fields) {
+        doctorService.updateDoctorInfo(physicianId, fields);
+        return ResponseEntity.ok("User information updated successfully.");
     }
 
     /**
-     * Deletes a doctor from the doctor database and sends a DELETE request to the user API to delete the user
-     * with the corresponding ID
+     * Deletes a doctor from the doctor database based on their id
      * @param physicianId - the ID of the doctor
-     * @return - the DELETE request
      */
     @DeleteMapping(value = "/physician/deleteDoctor/{physicianId}")
-    public ResponseEntity<Mono<Void>> deleteDoctor(@PathVariable Long physicianId) {
-        return ResponseEntity.ok(doctorService.deleteUser(physicianId));
+    public ResponseEntity<String> deleteDoctor(@PathVariable Long physicianId) {
+        doctorService.deleteDoctor(physicianId);
+        return ResponseEntity.ok("Doctor successfully deleted.");
     }
 }

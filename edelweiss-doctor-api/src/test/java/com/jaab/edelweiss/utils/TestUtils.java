@@ -4,6 +4,7 @@ import com.jaab.edelweiss.dto.AppointmentDTO;
 import com.jaab.edelweiss.dto.PatientDTO;
 import com.jaab.edelweiss.dto.PrescriptionDTO;
 import com.jaab.edelweiss.model.Doctor;
+import com.jaab.edelweiss.model.Role;
 import com.jaab.edelweiss.model.Status;
 
 import java.time.LocalDate;
@@ -32,7 +33,7 @@ public abstract class TestUtils {
 
     public static Doctor createDoctor() {
         return new Doctor(1L, "Wynne", "Langrene", "seniorenchanter@aol.com",
-                "spiritoffaith", 6687412012L, "Hematology");
+                "spiritoffaith", 6687412012L, "Hematology", Role.PHYSICIAN);
     }
 
     public static List<PatientDTO> getPatientsByFirstName() {
