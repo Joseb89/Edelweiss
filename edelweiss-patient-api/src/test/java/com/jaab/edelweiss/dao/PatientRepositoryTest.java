@@ -2,6 +2,7 @@ package com.jaab.edelweiss.dao;
 
 import com.jaab.edelweiss.model.Address;
 import com.jaab.edelweiss.model.Patient;
+import com.jaab.edelweiss.model.Role;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +11,6 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 
 import java.util.List;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -34,17 +34,17 @@ public class PatientRepositoryTest {
         assertNotNull(patientRepository);
         assertNotNull(entityManager);
 
-        james = new Patient(1L, "James", "Hawke", "championofkirkwall@gmail.com",
+        james = new Patient(null, "James", "Hawke", "championofkirkwall@gmail.com",
                 "magerebellion", jamesAddress, 7130042356L,
-                "Varric Tethras", "O+");
+                "Varric Tethras", "O+", Role.PATIENT);
 
-        bethany = new Patient(2L, "Bethany", "Hawke", "circlemage@gmail.com",
+        bethany = new Patient(null, "Bethany", "Hawke", "circlemage@gmail.com",
                 "daughterofamell", bethanyAddress, 7130042357L,
-                "Varric Tethras", "O-");
+                "Varric Tethras", "O-", Role.PATIENT);
 
-        carver = new Patient(3L, "Carver", "Hawke", "templarknight@gmail.com",
+        carver = new Patient(null, "Carver", "Hawke", "templarknight@gmail.com",
                 "sonofamell", carverAddress, 7130042357L,
-                "Varric Tethras", "O-");
+                "Varric Tethras", "O-", Role.PATIENT);
 
         jamesAddress = new Address(james.getId(), james, "58 Hightown Court",
                 "San Antonio", "TX", 78615);
@@ -61,19 +61,6 @@ public class PatientRepositoryTest {
         entityManager.persist(bethanyAddress);
         entityManager.persist(carver);
         entityManager.persist(carverAddress);
-    }
-
-    @Test
-    public void getPatientByIdTest() {
-        Optional<Patient> getPatient = patientRepository.getPatientById(1L);
-        assertThat(getPatient).isNotEmpty();
-        assertThat(getPatient.get().getFirstName()).isEqualTo("James");
-    }
-
-    @Test
-    public void getPatientByIdEmptyTest() {
-        Optional<Patient> getPatient = patientRepository.getPatientById(4L);
-        assertThat(getPatient).isEmpty();
     }
 
     @Test

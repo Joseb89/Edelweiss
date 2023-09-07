@@ -2,7 +2,6 @@ package com.jaab.edelweiss.service;
 
 import com.jaab.edelweiss.dto.AddressDTO;
 import com.jaab.edelweiss.dto.PatientDTO;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -21,7 +20,6 @@ public class DoctorPatientService {
 
     private final WebClient webClient;
 
-    @Autowired
     public DoctorPatientService(WebClient.Builder builder) {
         this.webClient = builder.baseUrl("http://localhost:8082/physician").build();
     }

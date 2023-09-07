@@ -63,7 +63,7 @@ public class DoctorServiceTest {
     }
 
     @Test
-    public void deleteUserTest() {
+    public void deleteDoctorTest() {
         assertNotNull(doctor);
 
         when(doctorRepository.findById(anyLong())).thenReturn(Optional.of(doctor));
@@ -73,7 +73,7 @@ public class DoctorServiceTest {
     }
 
     @Test
-    public void deleteUserExceptionTest() {
+    public void deleteDoctorExceptionTest() {
         assertThrows(DoctorNotFoundException.class, ()-> doctorService.deleteDoctor(1L));
     }
 }

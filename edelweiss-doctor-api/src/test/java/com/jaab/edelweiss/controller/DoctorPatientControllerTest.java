@@ -44,7 +44,7 @@ public class DoctorPatientControllerTest {
         when(doctorPatientService.getPatientById(anyLong())).thenReturn(Mono.just(patientDTO));
 
         webTestClient.get()
-                .uri("/physician/getPatientById/" + patientDTO.getId())
+                .uri("/physician/getPatientById/" + patientDTO.id())
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody().jsonPath("$.lastName", Matchers.is("Leonheart"));

@@ -10,14 +10,15 @@ create table if not exists doctors (
 );
 
 create table if not exists patients (
-    patient_id BIGINT primary key,
+    patient_id serial primary key,
     first_name VARCHAR(20) not null,
     last_name VARCHAR(30) not null,
     patient_email VARCHAR(30) not null,
     patient_password VARCHAR(100) not null,
     phone_number BIGINT not null,
     primary_doctor VARCHAR(50),
-    blood_type VARCHAR(3) not null
+    blood_type VARCHAR(3) not null,
+    role VARCHAR(7) not null
 );
 
 create table if not exists address (

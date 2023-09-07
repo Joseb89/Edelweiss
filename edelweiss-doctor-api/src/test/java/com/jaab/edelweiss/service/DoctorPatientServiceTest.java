@@ -55,11 +55,11 @@ public class DoctorPatientServiceTest {
                 .addHeader("Content-Type", "application/json")
                 .setBody(objectMapper.writeValueAsString(patientDTO)));
 
-        Mono<PatientDTO> getPatient = doctorPatientService.getPatientById(patientDTO.getId());
+        Mono<PatientDTO> getPatient = doctorPatientService.getPatientById(patientDTO.id());
 
         StepVerifier.create(getPatient)
-                .expectNextMatches(p -> p.getFirstName().equals("Dane") &&
-                        p.getLastName().equals("Cousland"))
+                .expectNextMatches(p -> p.firstName().equals("Dane") &&
+                        p.lastName().equals("Cousland"))
                 .verifyComplete();
     }
 
@@ -120,8 +120,8 @@ public class DoctorPatientServiceTest {
         Mono<AddressDTO> patientAddress = doctorPatientService.getPatientAddress(1L);
 
         StepVerifier.create(patientAddress)
-                .expectNextMatches(a -> a.getCity().equals("Cleveland") &&
-                        a.getState().equals("OH"))
+                .expectNextMatches(a -> a.city().equals("Cleveland") &&
+                        a.state().equals("OH"))
                 .verifyComplete();
     }
 

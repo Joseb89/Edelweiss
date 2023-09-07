@@ -3,7 +3,6 @@ package com.jaab.edelweiss.controller;
 import com.jaab.edelweiss.dto.AddressDTO;
 import com.jaab.edelweiss.dto.PatientDTO;
 import com.jaab.edelweiss.service.DoctorPatientService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
@@ -21,7 +20,6 @@ public class DoctorPatientController {
 
     private final DoctorPatientService doctorPatientService;
 
-    @Autowired
     public DoctorPatientController(DoctorPatientService doctorPatientService) {
         this.doctorPatientService = doctorPatientService;
     }

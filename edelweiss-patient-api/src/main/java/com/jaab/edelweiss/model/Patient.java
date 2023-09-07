@@ -15,7 +15,8 @@ import lombok.Setter;
 public class Patient {
 
     @Id
-    @Column(name = "patient_id", nullable = false, unique = true, updatable = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "patient_id", nullable = false, updatable = false, unique = true)
     private Long id;
 
     @Column(name = "first_name", nullable = false, updatable = false, length = 20)
@@ -42,4 +43,8 @@ public class Patient {
 
     @Column(name = "blood_type", nullable = false, updatable = false, length = 3)
     private String bloodType;
+
+    @Column(name = "role", nullable = false, updatable = false, length = 7)
+    @Enumerated(EnumType.STRING)
+    private Role role;
 }

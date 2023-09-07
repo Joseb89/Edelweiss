@@ -15,7 +15,7 @@ import lombok.Setter;
 public class Address {
 
     @Id
-    @Column(name = "patient_id", nullable = false, unique = true, updatable = false)
+    @Column(name = "patient_id", nullable = false, updatable = false, unique = true)
     private Long id;
 
     @OneToOne(cascade = CascadeType.ALL, optional = false)
@@ -34,5 +34,4 @@ public class Address {
 
     @Column(name = "zipcode", nullable = false)
     private Integer zipcode;
-
 }

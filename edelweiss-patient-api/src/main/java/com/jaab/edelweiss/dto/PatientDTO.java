@@ -1,17 +1,12 @@
 package com.jaab.edelweiss.dto;
 
-import lombok.Getter;
-import lombok.Setter;
+import com.jaab.edelweiss.model.Patient;
 
-@Getter
-@Setter
-public class PatientDTO {
+public record PatientDTO(Long id, String firstName, String lastName, String email,
+                         Long phoneNumber, String primaryDoctor, String bloodType) {
 
-    private Long id;
-    private String firstName;
-    private String lastName;
-    private String email;
-    private Long phoneNumber;
-    private String primaryDoctor;
-    private String bloodType;
+    public PatientDTO(Patient patient) {
+     this(patient.getId(), patient.getFirstName(), patient.getLastName(), patient.getEmail(), patient.getPhoneNumber(),
+             patient.getPrimaryDoctor(), patient.getBloodType());
+    }
 }

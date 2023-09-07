@@ -38,8 +38,8 @@ public class DoctorService {
 
     /**
      * Updates the information of the doctor via a Doctor payload and merges it to the doctor database
-     * @param fields - the Doctor payload
      * @param physicianId - the ID of the doctor
+     * @param fields - the Doctor payload
      */
     public void updateDoctorInfo(Long physicianId, Map<String, Object> fields) {
         Optional<Doctor> doctor = doctorRepository.findById(physicianId);

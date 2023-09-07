@@ -1,285 +1,164 @@
 package com.jaab.edelweiss.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jaab.edelweiss.dao.PatientRepository;
 import com.jaab.edelweiss.dto.AddressDTO;
 import com.jaab.edelweiss.dto.PatientDTO;
-import com.jaab.edelweiss.dto.UserDTO;
 import com.jaab.edelweiss.exception.PatientNotFoundException;
-import com.jaab.edelweiss.model.Address;
 import com.jaab.edelweiss.model.Patient;
-import jakarta.persistence.EntityManager;
-import jakarta.transaction.Transactional;
-import mockwebserver3.MockResponse;
-import mockwebserver3.MockWebServer;
+import com.jaab.edelweiss.utils.PatientUtils;
+import com.jaab.edelweiss.utils.TestUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import reactor.core.publisher.Mono;
-import reactor.test.StepVerifier;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
+import java.util.Map;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
-@SpringBootTest
-@Transactional
+@ExtendWith(MockitoExtension.class)
 public class PatientServiceTest {
 
-    @Autowired
+    @InjectMocks
     private PatientService patientService;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    @Mock
+    private PatientRepository patientRepository;
 
-    @Autowired
-    private EntityManager manager;
-
-    private MockWebServer mockWebServer;
+    @Mock
+    private PatientUtils patientUtils;
 
     private Patient james, bethany, carver;
 
-    private Address jamesAddress, bethanyAddress, carverAddress;
-
-    private static final int USER_API_PORT = 8081;
-
     @BeforeEach
     public void init() {
-        james = new Patient(1L, "James", "Hawke", "championofkirkwall@gmail.com",
-                "magerebellion", jamesAddress, 7130042356L,
-                "Varric Tethras", "O+");
+        james = TestUtils.james;
+        james.setAddress(TestUtils.jamesAddress);
 
-        bethany = new Patient(2L, "Bethany", "Hawke", "circlemage@gmail.com",
-                "daughterofamell", bethanyAddress, 7130042357L,
-                "Varric Tethras", "O-");
+        bethany = TestUtils.bethany;
+        bethany.setAddress(TestUtils.bethanyAddress);
 
-        carver = new Patient(3L, "Carver", "Hawke", "templarknight@gmail.com",
-                "sonofamell", carverAddress, 7130042357L,
-                "Varric Tethras", "O-");
-
-        jamesAddress = new Address(james.getId(), james, "58 Hightown Court",
-                "San Antonio", "TX", 78615);
-
-        bethanyAddress = new Address(bethany.getId(), bethany, "59 Gallows St",
-                "San Antonio", "TX", 78615);
-
-        carverAddress = new Address(carver.getId(), carver, "59 Gallows St",
-                "San Antonio", "TX", 78615);
+        carver = TestUtils.carver;
+        carver.setAddress(TestUtils.carverAddress);
     }
 
     @Test
-    public void createPatientTest() throws IOException {
-        mockWebServer = new MockWebServer();
-        mockWebServer.start(USER_API_PORT);
+    public void createPatientTest() {
+        when(patientRepository.save(any(Patient.class))).thenReturn(james);
+        PatientDTO patientDTO = patientService.createPatient(james);
 
-        mockWebServer.enqueue(new MockResponse()
-                .addHeader("Content-Type", "application/json")
-                .setBody(objectMapper.writeValueAsString(james)));
-
-        james.setAddress(jamesAddress);
-        UserDTO userDTO = patientService.createPatient(james);
-
-        assertEquals(1L, userDTO.getId());
-        assertEquals("James", userDTO.getFirstName());
-
-        mockWebServer.shutdown();
+        assertEquals(1L, patientDTO.id());
+        assertEquals("Varric Tethras", patientDTO.primaryDoctor());
     }
 
     @Test
     public void getPatientByIdTest() {
-        james.setAddress(jamesAddress);
-        manager.persist(james);
-
+        when(patientUtils.getPatientById(anyLong())).thenReturn(james);
         PatientDTO patientDTO = patientService.getPatientById(james.getId());
 
-        assertEquals("James", patientDTO.getFirstName());
-        assertEquals("championofkirkwall@gmail.com", patientDTO.getEmail());
+        assertEquals("James", patientDTO.firstName());
+        assertEquals("championofkirkwall@gmail.com", patientDTO.email());
     }
 
     @Test
     public void getPatientByIdExceptionTest() {
-        james.setAddress(jamesAddress);
-        manager.persist(james);
-
-        assertThrows(PatientNotFoundException.class, () -> patientService.getPatientById(bethany.getId()));
+        when(patientUtils.getPatientById(anyLong())).thenThrow(PatientNotFoundException.class);
+        assertThrows(PatientNotFoundException.class, () -> patientService.getPatientById(4L));
     }
 
     @Test
     public void getPatientsByFirstNameTest() {
-        james.setAddress(jamesAddress);
-        bethany.setAddress(bethanyAddress);
-        carver.setAddress(carverAddress);
-
-        manager.persist(james);
-        manager.persist(bethany);
-        manager.persist(carver);
-
-        List<PatientDTO> patients = patientService.getPatientsByFirstName("Bethany");
+        when(patientRepository.getPatientsByFirstName(anyString())).thenReturn(TestUtils.getPatientsByFirstName());
+        List<PatientDTO> patients = patientService.getPatientsByFirstName(TestUtils.firstNameTestParameter);
         assertEquals(1, patients.size());
     }
 
     @Test
     public void getPatientsByFirstNameExceptionTest() {
-        james.setAddress(jamesAddress);
-        bethany.setAddress(bethanyAddress);
-        carver.setAddress(carverAddress);
-
-        manager.persist(james);
-        manager.persist(bethany);
-        manager.persist(carver);
-
         assertThrows(PatientNotFoundException.class, () -> patientService.getPatientsByFirstName("Fenris"));
     }
 
     @Test
     public void getPatientsByLastNameTest() {
-        james.setAddress(jamesAddress);
-        bethany.setAddress(bethanyAddress);
-        carver.setAddress(carverAddress);
-
-        manager.persist(james);
-        manager.persist(bethany);
-        manager.persist(carver);
-
-        List<PatientDTO> patients = patientService.getPatientsByLastName("Hawke");
+        when(patientRepository.getPatientsByLastName(anyString())).thenReturn(TestUtils.getPatientsByLastName());
+        List<PatientDTO> patients = patientService.getPatientsByLastName(TestUtils.lastNameTestParameter);
         assertEquals(3, patients.size());
     }
 
     @Test
     public void getPatientsByLastNameExceptionTest() {
-        james.setAddress(jamesAddress);
-        bethany.setAddress(bethanyAddress);
-        carver.setAddress(carverAddress);
-
-        manager.persist(james);
-        manager.persist(bethany);
-        manager.persist(carver);
-
         assertThrows(PatientNotFoundException.class, () -> patientService.getPatientsByLastName("Vallen"));
     }
 
     @Test
     public void getPatientsByBloodTypeTest() {
-        james.setAddress(jamesAddress);
-        bethany.setAddress(bethanyAddress);
-        carver.setAddress(carverAddress);
-
-        manager.persist(james);
-        manager.persist(bethany);
-        manager.persist(carver);
-
-        List<PatientDTO> patients = patientService.getPatientsByBloodType("O-");
+        when(patientRepository.getPatientsByBloodType(anyString())).thenReturn(TestUtils.getPatientsByBloodType());
+        List<PatientDTO> patients = patientService.getPatientsByBloodType(TestUtils.bloodTypeTestParameter);
         assertEquals(2, patients.size());
     }
 
     @Test
     public void getPatientsByBloodTypeExceptionTest() {
-        james.setAddress(jamesAddress);
-        bethany.setAddress(bethanyAddress);
-        carver.setAddress(carverAddress);
-
-        manager.persist(james);
-        manager.persist(bethany);
-        manager.persist(carver);
-
         assertThrows(PatientNotFoundException.class, () -> patientService.getPatientsByBloodType("B+"));
     }
 
     @Test
     public void getAddressTest() {
-        bethany.setAddress(bethanyAddress);
-        manager.persist(bethany);
-
+        when(patientUtils.getPatientById(anyLong())).thenReturn(bethany);
         AddressDTO addressDTO = patientService.getAddress(bethany.getId());
 
-        assertEquals("59 Gallows St", addressDTO.getStreetAddress());
-        assertEquals("San Antonio", addressDTO.getCity());
+        assertEquals("59 Gallows St", addressDTO.streetAddress());
+        assertEquals("San Antonio", addressDTO.city());
     }
 
     @Test
     public void updateAddressTest() {
-        carver.setAddress(carverAddress);
-        manager.persist(carver);
-
         assertEquals("San Antonio", carver.getAddress().getCity());
         assertEquals("TX", carver.getAddress().getState());
 
-        Address updatedAddress = new Address(carver.getId(), carver, "515 Weisshaupt Ct",
-                "Boise", "ID", 33247);
+        Map<String, Object> updatedAddress = new HashMap<>();
+        updatedAddress.put("StreetAddress", "515 Weisshaupt Ct");
+        updatedAddress.put("city", "Boise");
+        updatedAddress.put("state", "ID");
+        updatedAddress.put("zipcode", 33247);
 
-        patientService.updateAddress(updatedAddress, carver.getId());
+        when(patientRepository.findById(anyLong())).thenReturn(Optional.of(carver));
+        patientService.updateAddress(carver.getId(), updatedAddress);
 
         assertEquals("Boise", carver.getAddress().getCity());
         assertEquals("ID", carver.getAddress().getState());
     }
 
     @Test
-    public void updatePatientInfoTest() throws IOException {
-        bethany.setAddress(bethanyAddress);
-        manager.persist(bethany);
-
+    public void updatePatientInfoTest() {
         assertEquals("circlemage@gmail.com", bethany.getEmail());
         assertEquals("daughterofamell", bethany.getPassword());
 
-        Patient updatedpatient = new Patient(bethany.getId(), null, null,
-                "sisterofthechampion@yahoo.com", "malcomsheir", null,
-                null, null, null);
+        Map<String, Object> updatedPatient = new HashMap<>();
+        updatedPatient.put("email", "sisterofthechampion@yahoo.com");
+        updatedPatient.put("password", "malcomsheir");
 
-        mockWebServer = new MockWebServer();
-        mockWebServer.start(USER_API_PORT);
-
-        mockWebServer.enqueue(new MockResponse()
-                .addHeader("Content-Type", "application/json")
-                .setBody(objectMapper.writeValueAsString(updatedpatient)));
-
-        Mono<UserDTO> patientInfo = patientService.updateUserInfo(updatedpatient, bethany.getId());
-
-        StepVerifier.create(patientInfo)
-                .expectNextMatches(userDTO -> userDTO.getEmail().equals("sisterofthechampion@yahoo.com"))
-                .verifyComplete();
+        when(patientRepository.findById(anyLong())).thenReturn(Optional.of(bethany));
+        patientService.updatePatientInfo(bethany.getId(), updatedPatient);
 
         assertEquals("sisterofthechampion@yahoo.com", bethany.getEmail());
         assertEquals("malcomsheir", bethany.getPassword());
-
-        mockWebServer.shutdown();
     }
 
     @Test
-    public void updateUserInfoUserDTONullTest() {
-        bethany.setAddress(bethanyAddress);
-        manager.persist(bethany);
-
-        assertEquals(7130042357L, bethany.getPhoneNumber());
-
-        Patient updatedPatient = new Patient(bethany.getId(), null, null, null, null,
-                null, 5569034478L, null, null);
-
-        Mono<UserDTO> patientInfo = patientService.updateUserInfo(updatedPatient, bethany.getId());
-
-        StepVerifier.create(patientInfo)
-                .expectNextMatches(p -> Objects.equals(p.getPassword(), null))
-                .verifyComplete();
-    }
-
-    @Test
-    public void deleteUserTest() throws IOException {
-        james.setAddress(jamesAddress);
-        manager.persist(james);
-
+    public void deletePatientTest() {
         assertNotNull(james);
 
-        mockWebServer = new MockWebServer();
-        mockWebServer.start(USER_API_PORT);
+        when(patientUtils.getPatientById(anyLong())).thenReturn(james);
+        patientService.deletePatient(james.getId());
 
-        mockWebServer.enqueue(new MockResponse().setResponseCode(200));
-
-        Mono<Void> deletePatient = patientService.deleteUser(james.getId());
-
-        StepVerifier.create(deletePatient)
-                .verifyComplete();
-
-        mockWebServer.shutdown();
+        verify(patientRepository, times(1)).deleteById(james.getId());
     }
 }

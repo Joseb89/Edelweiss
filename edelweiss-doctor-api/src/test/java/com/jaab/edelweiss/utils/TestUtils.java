@@ -38,19 +38,19 @@ public abstract class TestUtils {
 
     public static List<PatientDTO> getPatientsByFirstName() {
         return PATIENTS.stream()
-                .filter(p -> Objects.equals(p.getFirstName(), TestUtils.firstNameTestParameter))
+                .filter(p -> Objects.equals(p.firstName(), TestUtils.firstNameTestParameter))
                 .toList();
     }
 
     public static List<PatientDTO> getPatientsByLastName() {
         return PATIENTS.stream()
-                .filter(p -> Objects.equals(p.getLastName(), TestUtils.lastNameTestParameter))
+                .filter(p -> Objects.equals(p.lastName(), TestUtils.lastNameTestParameter))
                 .toList();
     }
 
     public static List<PatientDTO> getPatientsByBloodType() {
         return PATIENTS.stream()
-                .filter(p -> Objects.equals(p.getBloodType(), TestUtils.bloodTypeTestParameter))
+                .filter(p -> Objects.equals(p.bloodType(), TestUtils.bloodTypeTestParameter))
                 .toList();
     }
 

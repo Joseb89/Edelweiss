@@ -1,14 +1,10 @@
 package com.jaab.edelweiss.dto;
 
-import lombok.Getter;
-import lombok.Setter;
+import com.jaab.edelweiss.model.Address;
 
-@Getter
-@Setter
-public class AddressDTO {
+public record AddressDTO(String streetAddress, String city, String state, Integer zipcode) {
 
-    private String streetAddress;
-    private String city;
-    private String state;
-    private Integer zipcode;
+    public AddressDTO(Address address) {
+        this(address.getStreetAddress(), address.getCity(), address.getState(), address.getZipcode());
+    }
 }
