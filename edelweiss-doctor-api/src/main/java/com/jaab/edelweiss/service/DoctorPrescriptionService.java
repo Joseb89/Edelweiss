@@ -4,8 +4,6 @@ import com.jaab.edelweiss.dto.PrescriptionDTO;
 import com.jaab.edelweiss.dto.UpdatePrescriptionDTO;
 import com.jaab.edelweiss.exception.PrescriptionException;
 import com.jaab.edelweiss.utils.DoctorUtils;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -13,6 +11,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.rmi.ServerException;
+import java.util.Objects;
 
 /**
  * This class serves as a service for creating new prescriptions and maintaining their information
@@ -26,10 +25,9 @@ public class DoctorPrescriptionService {
 
     private final WebClient webClient;
 
-    @Autowired
     public DoctorPrescriptionService(DoctorUtils doctorUtils, WebClient.Builder builder) {
         this.doctorUtils = doctorUtils;
-        this.webClient = builder.baseUrl("http://localhost:8085/physician").build();
+        this.webClient = builder.baseUrl("http://localhost:8084/physician").build();
     }
 
     /**
@@ -87,22 +85,17 @@ public class DoctorPrescriptionService {
      */
     public Mono<UpdatePrescriptionDTO> updatePrescriptionInfo(UpdatePrescriptionDTO prescriptionDTO,
                                                               Long prescriptionId) throws PrescriptionException {
-        if (prescriptionDTO.getPrescriptionName() != null &&
+        if (Objects.nonNull(prescriptionDTO.getPrescriptionName()) &&
                 doctorUtils.prescriptionNameIsNotValid(prescriptionDTO))
             throw new PrescriptionException("Please specify prescription name.");
 
-        if (prescriptionDTO.getPrescriptionDosage() != null &&
+        if (Objects.nonNull(prescriptionDTO.getPrescriptionDosage()) &&
                 doctorUtils.prescriptionDosageIsNotValid(prescriptionDTO))
             throw new PrescriptionException("Prescription dosage must be between 1cc and 127cc.");
 
-        UpdatePrescriptionDTO updatedPrescription = new UpdatePrescriptionDTO();
-        BeanUtils.copyProperties(prescriptionDTO, updatedPrescription);
-
-        updatedPrescription.setId(prescriptionId);
-
         return webClient.patch()
                 .uri("/updatePrescriptionInfo/" + prescriptionId)
-                .body(Mono.just(updatedPrescription), UpdatePrescriptionDTO.class)
+                .body(Mono.just(prescriptionDTO), UpdatePrescriptionDTO.class)
                 .retrieve()
                 .onStatus(HttpStatusCode::is4xxClientError,
                         response -> response.bodyToMono(String.class).map(Exception::new))

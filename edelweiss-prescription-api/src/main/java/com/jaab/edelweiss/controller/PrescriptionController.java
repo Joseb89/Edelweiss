@@ -3,21 +3,18 @@ package com.jaab.edelweiss.controller;
 import com.jaab.edelweiss.dto.PrescriptionDTO;
 import com.jaab.edelweiss.dto.PrescriptionStatusDTO;
 import com.jaab.edelweiss.dto.UpdatePrescriptionDTO;
-import com.jaab.edelweiss.model.Prescription;
 import com.jaab.edelweiss.model.Status;
 import com.jaab.edelweiss.service.PrescriptionService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 @RestController
 public class PrescriptionController {
 
     private final PrescriptionService prescriptionService;
 
-    @Autowired
     public PrescriptionController(PrescriptionService prescriptionService) {
         this.prescriptionService = prescriptionService;
     }
@@ -29,8 +26,8 @@ public class PrescriptionController {
      */
     @PostMapping(value = "/physician/newPrescription", consumes = MediaType.APPLICATION_JSON_VALUE,
                     produces = MediaType.APPLICATION_JSON_VALUE)
-    public Prescription createPrescription(@RequestBody PrescriptionDTO prescriptionDTO) {
-        return prescriptionService.createPrescription(prescriptionDTO);
+    public Mono<PrescriptionDTO> createPrescription(@RequestBody PrescriptionDTO prescriptionDTO) {
+        return Mono.just(prescriptionService.createPrescription(prescriptionDTO));
     }
 
     /**
@@ -41,9 +38,9 @@ public class PrescriptionController {
      * @return - the list of the doctor's prescriptions
      */
     @GetMapping(value = "/physician/myPrescriptions/{firstName}/{lastName}")
-    public List<PrescriptionDTO> getPrescriptionsByDoctorName(@PathVariable String firstName,
+    public Flux<PrescriptionDTO> getPrescriptionsByDoctorName(@PathVariable String firstName,
                                                               @PathVariable String lastName) {
-        return prescriptionService.getPrescriptionsByDoctorName(firstName, lastName);
+        return Flux.fromIterable(prescriptionService.getPrescriptionsByDoctorName(firstName, lastName));
     }
 
     /**
@@ -51,8 +48,8 @@ public class PrescriptionController {
      * @return - the list of PENDING prescriptions
      */
     @GetMapping(value = "/pharmacy/getPendingPrescriptions")
-    public List<PrescriptionDTO> getPendingPrescriptions() {
-        return prescriptionService.getPrescriptionsByPrescriptionStatus(Status.PENDING);
+    public Flux<PrescriptionDTO> getPendingPrescriptions() {
+        return Flux.fromIterable(prescriptionService.getPrescriptionsByPrescriptionStatus(Status.PENDING));
     }
 
     /**
@@ -63,9 +60,9 @@ public class PrescriptionController {
      */
     @PatchMapping(value = "/physician/updatePrescriptionInfo/{prescriptionId}",
                     consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public PrescriptionDTO updatePrescriptionInfo(@RequestBody UpdatePrescriptionDTO prescriptionDTO,
+    public Mono<PrescriptionDTO> updatePrescriptionInfo(@RequestBody UpdatePrescriptionDTO prescriptionDTO,
                                                         @PathVariable Long prescriptionId) {
-        return prescriptionService.updatePrescriptionInfo(prescriptionDTO, prescriptionId);
+        return Mono.just(prescriptionService.updatePrescriptionInfo(prescriptionDTO, prescriptionId));
     }
 
     /**
@@ -77,9 +74,9 @@ public class PrescriptionController {
      */
     @PatchMapping(value = "/pharmacy/approvePrescription/{prescriptionId}",
             consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public PrescriptionDTO approvePrescription(@RequestBody PrescriptionStatusDTO status,
+    public Mono<PrescriptionDTO> approvePrescription(@RequestBody PrescriptionStatusDTO status,
                                                                @PathVariable Long prescriptionId) {
-        return prescriptionService.approvePrescription(status, prescriptionId);
+        return Mono.just(prescriptionService.approvePrescription(status, prescriptionId));
     }
 
     /**

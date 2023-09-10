@@ -8,20 +8,18 @@ import com.jaab.edelweiss.exception.PrescriptionNotFoundException;
 import com.jaab.edelweiss.model.Prescription;
 import com.jaab.edelweiss.model.Status;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class PrescriptionService {
 
-    private PrescriptionRepository prescriptionRepository;
+    private final PrescriptionRepository prescriptionRepository;
 
-    @Autowired
-    public void setPrescriptionRepository(PrescriptionRepository prescriptionRepository) {
+    public PrescriptionService(PrescriptionRepository prescriptionRepository) {
         this.prescriptionRepository = prescriptionRepository;
     }
 
@@ -30,12 +28,14 @@ public class PrescriptionService {
      * @param prescriptionDTO - the PrescriptionDTO object from the doctor API
      * @return - the prescription data
      */
-    public Prescription createPrescription(PrescriptionDTO prescriptionDTO) {
+    public PrescriptionDTO createPrescription(PrescriptionDTO prescriptionDTO) {
         Prescription prescription = new Prescription();
         BeanUtils.copyProperties(prescriptionDTO, prescription);
         prescription.setPrescriptionStatus(Status.PENDING);
+
         prescriptionRepository.save(prescription);
-        return prescription;
+
+        return new PrescriptionDTO(prescription);
     }
 
     /**
@@ -48,8 +48,8 @@ public class PrescriptionService {
         List<Prescription> prescriptions = prescriptionRepository.getPrescriptionsByDoctorName(firstName, lastName);
 
         return prescriptions.stream()
-                .map(this::copyToDTO)
-                .collect(Collectors.toList());
+                .map(PrescriptionDTO::new)
+                .toList();
     }
 
     /**
@@ -61,33 +61,29 @@ public class PrescriptionService {
         List<Prescription> prescriptions = prescriptionRepository.getPrescriptionsByPrescriptionStatus(status);
 
         return prescriptions.stream()
-                .map(this::copyToDTO)
-                .collect(Collectors.toList());
+                .map(PrescriptionDTO::new)
+                .toList();
     }
 
     /**
      * Updates the prescription with the corresponding ID and merges it to the prescription database
-     * @param prescriptionDTO - the PrescriptionDTO payload from the doctor API
+     * @param prescriptionDTO - the UpdatePrescriptionDTO payload from the doctor API
      * @param prescriptionId - the ID of the prescription
      * @return - the updated prescription
      */
     public PrescriptionDTO updatePrescriptionInfo(UpdatePrescriptionDTO prescriptionDTO,
                                                         Long prescriptionId) {
         Prescription prescription = getPrescriptionById(prescriptionId);
-        PrescriptionDTO getPrescription = new PrescriptionDTO();
-        getPrescription.setId(prescription.getId());
 
-        if (prescriptionDTO.getPrescriptionName() != null)
-            prescription.setPrescriptionName(prescriptionDTO.getPrescriptionName());
+        if (Objects.nonNull(prescriptionDTO.prescriptionName()))
+            prescription.setPrescriptionName(prescriptionDTO.prescriptionName());
 
-        if (prescriptionDTO.getPrescriptionDosage() != null)
-            prescription.setPrescriptionDosage(prescriptionDTO.getPrescriptionDosage());
+        if (Objects.nonNull(prescriptionDTO.prescriptionDosage()))
+            prescription.setPrescriptionDosage(prescriptionDTO.prescriptionDosage());
 
         prescriptionRepository.save(prescription);
 
-        BeanUtils.copyProperties(prescription, getPrescription);
-
-        return getPrescription;
+        return new PrescriptionDTO(prescription);
     }
 
     /**
@@ -99,13 +95,11 @@ public class PrescriptionService {
      */
     public PrescriptionDTO approvePrescription(PrescriptionStatusDTO status, Long prescriptionId) {
         Prescription prescription = getPrescriptionById(prescriptionId);
-        prescription.setPrescriptionStatus(status.getPrescriptionStatus());
+        prescription.setPrescriptionStatus(status.prescriptionStatus());
+
         prescriptionRepository.save(prescription);
 
-        PrescriptionDTO updatedPrescription = new PrescriptionDTO();
-        BeanUtils.copyProperties(prescription, updatedPrescription);
-
-        return updatedPrescription;
+        return new PrescriptionDTO(prescription);
     }
 
     /**
@@ -125,22 +119,11 @@ public class PrescriptionService {
      * @return - the prescription if available
      */
     private Prescription getPrescriptionById(Long prescriptionId) {
-        Optional<Prescription> prescription = prescriptionRepository.getPrescriptionById(prescriptionId);
+        Optional<Prescription> prescription = prescriptionRepository.findById(prescriptionId);
 
         if (prescription.isEmpty())
             throw new PrescriptionNotFoundException("No prescription with the specified ID found.");
 
         return prescription.get();
-    }
-
-    /**
-     * Copies the values of a Prescription object into a PrescriptionDTO object
-     * @param prescription - the Prescription object
-     * @return - the PrescriptionDTO object
-     */
-    private PrescriptionDTO copyToDTO(Prescription prescription) {
-        PrescriptionDTO prescriptionDTO = new PrescriptionDTO();
-        BeanUtils.copyProperties(prescription, prescriptionDTO);
-        return prescriptionDTO;
     }
 }

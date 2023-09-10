@@ -12,7 +12,7 @@ public class Prescription {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "prescription_id", nullable = false, unique = true, updatable = false)
+    @Column(name = "prescription_id", nullable = false, updatable = false, unique = true)
     private Long id;
 
     @Column(name = "doctor_first_name", nullable = false, updatable = false, length = 20)

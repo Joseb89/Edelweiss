@@ -2,6 +2,7 @@ package com.jaab.edelweiss.controller;
 
 import com.jaab.edelweiss.dto.PrescriptionDTO;
 import com.jaab.edelweiss.dto.UpdatePrescriptionDTO;
+import com.jaab.edelweiss.exception.PrescriptionException;
 import com.jaab.edelweiss.service.DoctorPrescriptionService;
 import com.jaab.edelweiss.utils.TestUtils;
 import org.hamcrest.Matchers;
@@ -55,6 +56,22 @@ public class DoctorPrescriptionControllerTest {
     }
 
     @Test
+    public void createPrescriptionExceptionTest() {
+        PrescriptionDTO prescriptionDTO = new PrescriptionDTO(1L, "Rinoa", "Heartily",
+                null, (byte) 50, null);
+
+        when(doctorPrescriptionService.createPrescription(any(PrescriptionDTO.class), anyLong()))
+                .thenThrow(PrescriptionException.class);
+
+        webTestClient.post()
+                .uri("/physician/" + TestUtils.ID + "/newPrescription")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(prescriptionDTO)
+                .exchange()
+                .expectStatus().is4xxClientError();
+    }
+
+    @Test
     public void getPrescriptionsTest() {
         List<PrescriptionDTO> prescriptions = TestUtils.getPrescriptions();
 
@@ -83,6 +100,23 @@ public class DoctorPrescriptionControllerTest {
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody().jsonPath("$.prescriptionName", Matchers.is("Ambrosia"));
+    }
+
+    @Test
+    public void updatePrescriptionInfoExceptionTest() {
+        UpdatePrescriptionDTO updatedPrescription =
+                new UpdatePrescriptionDTO(1L, "Ambrosia", (byte) -40);
+
+        when(doctorPrescriptionService.updatePrescriptionInfo(any(UpdatePrescriptionDTO.class), anyLong()))
+                .thenThrow(PrescriptionException.class);
+
+        webTestClient.patch()
+                .uri("/physician/updatePrescriptionInfo/" + updatedPrescription.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(updatedPrescription)
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().is4xxClientError();
     }
 
     @Test

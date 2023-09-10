@@ -8,13 +8,9 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public interface PrescriptionRepository extends JpaRepository<Prescription, Long> {
-
-    @Query("FROM Prescription p WHERE p.id = :id")
-    Optional<Prescription> getPrescriptionById(@Param("id") Long id);
 
     @Query("FROM Prescription p WHERE p.doctorFirstName = :firstName AND p.doctorLastName = :lastName")
     List<Prescription> getPrescriptionsByDoctorName(@Param("firstName") String firstName,

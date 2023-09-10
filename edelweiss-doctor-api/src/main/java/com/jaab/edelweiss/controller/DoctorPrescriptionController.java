@@ -3,7 +3,6 @@ package com.jaab.edelweiss.controller;
 import com.jaab.edelweiss.dto.PrescriptionDTO;
 import com.jaab.edelweiss.dto.UpdatePrescriptionDTO;
 import com.jaab.edelweiss.service.DoctorPrescriptionService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +21,6 @@ public class DoctorPrescriptionController {
 
     private final DoctorPrescriptionService doctorPrescriptionService;
 
-    @Autowired
     public DoctorPrescriptionController(DoctorPrescriptionService doctorPrescriptionService) {
         this.doctorPrescriptionService = doctorPrescriptionService;
     }
