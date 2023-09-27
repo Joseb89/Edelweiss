@@ -24,11 +24,12 @@ public class PatientController {
 
     /**
      * Saves a new patient to the patient database
+     *
      * @param patient - the Patient payload
      * @return - HTTP status response with the ID of the patient
      */
     @PostMapping(value = "/newPatient", consumes = MediaType.APPLICATION_JSON_VALUE,
-                produces = MediaType.APPLICATION_JSON_VALUE)
+            produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(value = HttpStatus.CREATED)
     public ResponseEntity<PatientDTO> createPatient(@RequestBody Patient patient) {
         return ResponseEntity.status(HttpStatus.CREATED).body((patientService.createPatient(patient)));
@@ -36,6 +37,7 @@ public class PatientController {
 
     /**
      * Retrieves a patient from the patient database based on the patient's ID
+     *
      * @param patientId - the ID of the patient
      * @return - the patient with the specified ID
      */
@@ -46,6 +48,7 @@ public class PatientController {
 
     /**
      * Retrieves a list of patients from the patient database based on the patient's first name
+     *
      * @param firstName - the first name of the patient
      * @return - List of patients matching the criteria
      */
@@ -56,6 +59,7 @@ public class PatientController {
 
     /**
      * Retrieves a list of patients from the patient database based on the patient's last name
+     *
      * @param lastName - the last name of the patient
      * @return - List of patients matching the criteria
      */
@@ -66,6 +70,7 @@ public class PatientController {
 
     /**
      * Retrieves a list of patients from the patient database based on the patient's blood type
+     *
      * @param bloodType - the blood type of the patient
      * @return - List of patients matching the criteria
      */
@@ -76,6 +81,7 @@ public class PatientController {
 
     /**
      * Retrieves the patient's address from the address database and sends it to the doctor API
+     *
      * @param patientId - the ID of the patient
      * @return - the AddressDTO object containing the patient's address
      */
@@ -86,32 +92,35 @@ public class PatientController {
 
     /**
      * Updates the patient's address and merges it to the address database
+     *
      * @param patientId - the ID of the patient
-     * @param fields - the Address payload containing the updated information
-     * @return - HTTP status response
+     * @param fields    - the Address payload containing the updated information
+     * @return - the updated Address
      */
-    @PatchMapping(value = "/patient/{patientId}/updateAddress", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> updateAddress(@PathVariable Long patientId,
-                                                    @RequestBody Map<String, Object> fields) {
-        patientService.updateAddress(patientId, fields);
-        return ResponseEntity.ok("Address successfully updated.");
+    @PatchMapping(value = "/patient/{patientId}/updateAddress", consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public AddressDTO updateAddress(@PathVariable Long patientId,
+                                    @RequestBody Map<String, Object> fields) {
+        return patientService.updateAddress(patientId, fields);
     }
 
     /**
      * Updates the patient's information and merges it to the patient database
+     *
      * @param patientId - the ID of the patient
-     * @param fields - the Patient payload containing the updated information
-     * @return - HTTP status response
+     * @param fields    - the Patient payload containing the updated information
+     * @return - the updated patient information
      */
-    @PatchMapping(value = "/patient/{patientId}/updatePatientInfo", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> updatePatientInfo(@PathVariable Long patientId,
-                                                    @RequestBody Map<String, Object> fields) {
-        patientService.updatePatientInfo(patientId, fields);
-        return ResponseEntity.ok("User information updated successfully.");
+    @PatchMapping(value = "/patient/{patientId}/updatePatientInfo", consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public PatientDTO updatePatientInfo(@PathVariable Long patientId,
+                                        @RequestBody Map<String, Object> fields) {
+        return patientService.updatePatientInfo(patientId, fields);
     }
 
     /**
      * Deletes a patient from the patient database based on the patient's ID
+     *
      * @param patientId - the ID of the patient
      */
     @DeleteMapping(value = "/physician/deletePatient/{patientId}")

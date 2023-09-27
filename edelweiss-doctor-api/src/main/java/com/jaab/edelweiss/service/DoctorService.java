@@ -27,19 +27,22 @@ public class DoctorService {
 
     /**
      * Saves a new doctor to the doctor database
+     *
      * @param doctor - the Doctor payload
      * @return - the new Doctor
      */
     public Doctor createDoctor(Doctor doctor) {
         doctor.setRole(Role.PHYSICIAN);
         doctorRepository.save(doctor);
+
         return doctor;
     }
 
     /**
      * Updates the information of the doctor via a Doctor payload and merges it to the doctor database
+     *
      * @param physicianId - the ID of the doctor
-     * @param fields - the Doctor payload
+     * @param fields      - the Doctor payload
      */
     public void updateDoctorInfo(Long physicianId, Map<String, Object> fields) {
         Optional<Doctor> doctor = doctorRepository.findById(physicianId);
@@ -59,14 +62,16 @@ public class DoctorService {
     }
 
     /**
-     * Deletes a doctor from the doctor database
+     * Deletes a doctor from the doctor database based on the doctor's ID
+     *
      * @param physicianId - the ID of the doctor
+     * @throws DoctorNotFoundException if the doctor with the specified ID is not found
      */
-    public void deleteDoctor(Long physicianId) {
+    public void deleteDoctor(Long physicianId) throws DoctorNotFoundException {
         Optional<Doctor> doctor = doctorRepository.findById(physicianId);
 
         if (doctor.isEmpty())
-            throw new DoctorNotFoundException("No doctor with specified ID found.");
+            throw new DoctorNotFoundException("No doctor with the specified ID found.");
 
         doctorRepository.deleteById(doctor.get().getId());
     }

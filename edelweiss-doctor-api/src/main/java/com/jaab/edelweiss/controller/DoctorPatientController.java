@@ -9,8 +9,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
- * This class is a controller for the endpoints for the retrieval of patient information from the
- * patient API
+ * This class is a controller for the endpoints for retrieving patient information from the patient API
  *
  * @author Joseph Barr
  */
@@ -26,6 +25,7 @@ public class DoctorPatientController {
 
     /**
      * Retrieves a patient from the patient API based on the patient's ID
+     *
      * @param patientId - the ID of the patient
      * @return - HTTP status response with the patient data
      */
@@ -36,6 +36,7 @@ public class DoctorPatientController {
 
     /**
      * Retrieves a list of patients from the patient API based on the patient's first name
+     *
      * @param firstName - the first name of the patient
      * @return - HTTP status response with the list of patients
      */
@@ -46,6 +47,7 @@ public class DoctorPatientController {
 
     /**
      * Retrieves a list of patients from the patient API based on the patient's last name
+     *
      * @param lastName - the last name of the patient
      * @return - HTTP status response with the list of patients
      */
@@ -56,6 +58,7 @@ public class DoctorPatientController {
 
     /**
      * Retrieves a list of patients from the patient API based on the patient's blood type
+     *
      * @param bloodType - the blood type of the patient
      * @return - HTTP status response with the list of patients
      */
@@ -66,6 +69,7 @@ public class DoctorPatientController {
 
     /**
      * Retrieves the address of a patient with the corresponding ID from the patient API
+     *
      * @param patientId - the ID of the patient
      * @return - HTTP status response with the patient's address
      */
@@ -76,6 +80,7 @@ public class DoctorPatientController {
 
     /**
      * Sends a DELETE request to the patient API to delete the patient with the specified ID
+     *
      * @param patientId - the ID of the patient
      * @return - the DELETE request
      */

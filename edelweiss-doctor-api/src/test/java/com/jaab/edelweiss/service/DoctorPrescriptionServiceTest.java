@@ -58,7 +58,7 @@ public class DoctorPrescriptionServiceTest {
 
     @BeforeEach
     public void init() {
-        doctor = TestUtils.createDoctor();
+        doctor = TestUtils.createDoctor(null);
 
         manager.persist(doctor);
     }
@@ -86,7 +86,7 @@ public class DoctorPrescriptionServiceTest {
         PrescriptionDTO prescriptionDTO = new PrescriptionDTO(1L, doctor.getFirstName(), doctor.getLastName(),
                 "", (byte) 20, null);
 
-        assertThrows(PrescriptionException.class, ()->
+        assertThrows(PrescriptionException.class, () ->
                 doctorPrescriptionService.createPrescription(prescriptionDTO, doctor.getId()).block());
     }
 
@@ -95,7 +95,7 @@ public class DoctorPrescriptionServiceTest {
         PrescriptionDTO prescriptionDTO = new PrescriptionDTO(1L, doctor.getFirstName(), doctor.getLastName(),
                 "Felandris", (byte) -20, null);
 
-        assertThrows(PrescriptionException.class, ()->
+        assertThrows(PrescriptionException.class, () ->
                 doctorPrescriptionService.createPrescription(prescriptionDTO, doctor.getId()).block());
     }
 
@@ -137,7 +137,7 @@ public class DoctorPrescriptionServiceTest {
                 "", null);
 
         assertThrows(PrescriptionException.class,
-                ()-> doctorPrescriptionService
+                () -> doctorPrescriptionService
                         .updatePrescriptionInfo(updatedPrescription, updatedPrescription.getId()).block());
     }
 
@@ -147,7 +147,7 @@ public class DoctorPrescriptionServiceTest {
                 "Dragon's Blood", (byte) -30);
 
         assertThrows(PrescriptionException.class,
-                ()-> doctorPrescriptionService
+                () -> doctorPrescriptionService
                         .updatePrescriptionInfo(updatedPrescription, updatedPrescription.getId()).block());
     }
 

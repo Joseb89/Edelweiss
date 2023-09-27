@@ -49,9 +49,9 @@ public abstract class TestUtils {
     }
 
     public static List<Patient> getPatientsByLastName() {
-       return PATIENTS.stream()
-               .filter(p -> Objects.equals(p.getLastName(), TestUtils.lastNameTestParameter))
-               .toList();
+        return PATIENTS.stream()
+                .filter(p -> Objects.equals(p.getLastName(), TestUtils.lastNameTestParameter))
+                .toList();
     }
 
     public static List<Patient> getPatientsByBloodType() {
@@ -74,7 +74,7 @@ public abstract class TestUtils {
 
     public static List<PatientDTO> getPatientDTOsByBloodType() {
         return PATIENT_DTOs.stream()
-                .filter(p-> Objects.equals(p.bloodType(), TestUtils.bloodTypeTestParameter))
+                .filter(p -> Objects.equals(p.bloodType(), TestUtils.bloodTypeTestParameter))
                 .toList();
     }
 

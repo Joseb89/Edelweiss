@@ -10,16 +10,16 @@ import org.springframework.boot.test.context.SpringBootTest;
 @SpringBootTest
 class EdelweissPatientApiApplicationTests {
 
-	@Autowired
-	private PatientController patientController;
+    @Autowired
+    private PatientController patientController;
 
-	@Autowired
-	private PatientService patientService;
+    @Autowired
+    private PatientService patientService;
 
-	@Test
-	void contextLoads() {
-		Assertions.assertNotNull(patientController);
-		Assertions.assertNotNull(patientService);
-	}
+    @Test
+    void contextLoads() {
+        Assertions.assertNotNull(patientController);
+        Assertions.assertNotNull(patientService);
+    }
 
 }

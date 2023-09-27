@@ -11,7 +11,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.rmi.ServerException;
-import java.util.Objects;
 
 /**
  * This class serves as a service for creating new prescriptions and maintaining their information
@@ -32,8 +31,9 @@ public class DoctorPrescriptionService {
 
     /**
      * Creates a new prescription and sends it to the prescription API
+     *
      * @param newPrescription - the PrescriptionDTO payload
-     * @param physicianId - the ID of the doctor
+     * @param physicianId     - the ID of the doctor
      * @return - the new prescription
      */
     public Mono<PrescriptionDTO> createPrescription(PrescriptionDTO newPrescription, Long physicianId) {
@@ -61,6 +61,7 @@ public class DoctorPrescriptionService {
 
     /**
      * Retrieves the prescriptions from the prescription API for the doctor with the specified ID
+     *
      * @param physicianId - the ID of the doctor
      * @return - the list of the prescriptions
      */
@@ -79,17 +80,18 @@ public class DoctorPrescriptionService {
 
     /**
      * Updates a prescription with the corresponding ID and sends it to the prescription API
+     *
      * @param prescriptionDTO - the UpdatePrescriptionDTO payload containing the updated information
-     * @param prescriptionId - the ID of the prescription
+     * @param prescriptionId  - the ID of the prescription
      * @return - the updated prescription
      */
     public Mono<UpdatePrescriptionDTO> updatePrescriptionInfo(UpdatePrescriptionDTO prescriptionDTO,
                                                               Long prescriptionId) throws PrescriptionException {
-        if (Objects.nonNull(prescriptionDTO.getPrescriptionName()) &&
+        if (prescriptionDTO.getPrescriptionName() != null &&
                 doctorUtils.prescriptionNameIsNotValid(prescriptionDTO))
             throw new PrescriptionException("Please specify prescription name.");
 
-        if (Objects.nonNull(prescriptionDTO.getPrescriptionDosage()) &&
+        if (prescriptionDTO.getPrescriptionDosage() != null &&
                 doctorUtils.prescriptionDosageIsNotValid(prescriptionDTO))
             throw new PrescriptionException("Prescription dosage must be between 1cc and 127cc.");
 
@@ -106,6 +108,7 @@ public class DoctorPrescriptionService {
 
     /**
      * Sends a DELETE request to the prescription API to delete the prescription with the specified ID
+     *
      * @param prescriptionId - the ID of the prescription
      * @return - the DELETE request
      */

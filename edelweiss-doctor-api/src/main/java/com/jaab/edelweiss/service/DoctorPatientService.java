@@ -26,6 +26,7 @@ public class DoctorPatientService {
 
     /**
      * Retrieves a patient from the patient API based on the patient's ID
+     *
      * @param patientId - the ID of the patient
      * @return - the patient's information from the patient API
      */
@@ -42,6 +43,7 @@ public class DoctorPatientService {
 
     /**
      * Retrieves a list of patients from the patient API based on their first name
+     *
      * @param firstName - the first name of the patient
      * @return - the PatientDTO List from the patient API
      */
@@ -51,6 +53,7 @@ public class DoctorPatientService {
 
     /**
      * Retrieves a list of patients from the patient API based on their last name
+     *
      * @param lastName - the last name of the patient
      * @return - the PatientDTO List from the patient API
      */
@@ -60,6 +63,7 @@ public class DoctorPatientService {
 
     /**
      * Retrieves a list of patients from the patient API based on their blood type
+     *
      * @param bloodType - the blood type of the patient
      * @return - the PatientDTO List from the patient API
      */
@@ -69,6 +73,7 @@ public class DoctorPatientService {
 
     /**
      * Retrieves the address of the patient with the corresponding ID from the patient API
+     *
      * @param patientId - the ID of the patient
      * @return - the patient's address
      */
@@ -85,6 +90,7 @@ public class DoctorPatientService {
 
     /**
      * Sends a DELETE request to the patient API to delete the patient with the specified ID
+     *
      * @param patientId - the ID of the patient
      * @return - the DELETE request
      */
@@ -101,7 +107,8 @@ public class DoctorPatientService {
 
     /**
      * Creates a GET request to send to the patient API
-     * @param uri - the specified URI at the patient API
+     *
+     * @param uri       - the specified URI at the patient API
      * @param parameter - the search parameter for retrieving the specified data
      * @return - the GET request
      */

@@ -3,7 +3,6 @@ package com.jaab.edelweiss.service;
 import com.jaab.edelweiss.dto.AppointmentDTO;
 import com.jaab.edelweiss.exception.AppointmentException;
 import com.jaab.edelweiss.utils.DoctorUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -11,6 +10,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.rmi.ServerException;
+import java.time.LocalDate;
 
 /**
  * This class serves as a service for creating and maintaining appointment data
@@ -24,16 +24,16 @@ public class DoctorAppointmentService {
 
     private final WebClient webClient;
 
-    @Autowired
     public DoctorAppointmentService(DoctorUtils doctorUtils, WebClient.Builder builder) {
         this.doctorUtils = doctorUtils;
-        this.webClient = builder.baseUrl("http://localhost:8086/physician").build();
+        this.webClient = builder.baseUrl("http://localhost:8085/physician").build();
     }
 
     /**
      * Creates a new appointment and sends it to the appointment API
+     *
      * @param newAppointment - the AppointmentDTO payload
-     * @param physicianId - the ID of the doctor
+     * @param physicianId    - the ID of the doctor
      * @return - the new appointment
      */
     public Mono<AppointmentDTO> createAppointment(AppointmentDTO newAppointment, Long physicianId) {
@@ -58,6 +58,7 @@ public class DoctorAppointmentService {
 
     /**
      * Retrieves the appointments from the appointment API for the doctor with the specified ID
+     *
      * @param physicianId - the ID of the doctor
      * @return - the list of the appointments
      */
@@ -76,15 +77,15 @@ public class DoctorAppointmentService {
 
     /**
      * Updates an appointment with the corresponding ID and sends it to the appointment API
+     *
      * @param appointmentDTO - the AppointmentDTO payload containing the updated information
-     * @param appointmentId - the ID of the appointment
+     * @param appointmentId  - the ID of the appointment
      * @return - the updated appointment
      */
     public Mono<AppointmentDTO> updateAppointmentInfo(AppointmentDTO appointmentDTO, Long appointmentId) {
-        if (appointmentDTO.getAppointmentDate() != null && doctorUtils.appointmentDateIsNotValid(appointmentDTO))
+        if (appointmentDTO.getAppointmentDate() != null &&
+                appointmentDTO.getAppointmentDate().isBefore(LocalDate.now()))
             throw new AppointmentException("Appointment date must be today or later date.");
-
-        appointmentDTO.setId(appointmentId);
 
         return webClient.patch()
                 .uri("/updateAppointmentInfo/" + appointmentId)
@@ -99,6 +100,7 @@ public class DoctorAppointmentService {
 
     /**
      * Sends a DELETE request to the appointment API to delete the appointment with the specified ID
+     *
      * @param appointmentId - the ID of the appointment
      * @return - the DELETE request
      */

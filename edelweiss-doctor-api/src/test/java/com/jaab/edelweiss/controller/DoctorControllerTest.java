@@ -32,7 +32,7 @@ public class DoctorControllerTest {
         assertNotNull(webTestClient);
         assertNotNull(doctorService);
 
-        doctor = TestUtils.createDoctor();
+        doctor = TestUtils.createDoctor(TestUtils.ID);
     }
 
     @Test

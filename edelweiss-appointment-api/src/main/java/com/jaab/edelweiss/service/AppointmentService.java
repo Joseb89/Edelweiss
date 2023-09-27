@@ -2,104 +2,106 @@ package com.jaab.edelweiss.service;
 
 import com.jaab.edelweiss.dao.AppointmentRepository;
 import com.jaab.edelweiss.dto.AppointmentDTO;
-import com.jaab.edelweiss.exception.AppointmentException;
 import com.jaab.edelweiss.exception.AppointmentNotFoundException;
 import com.jaab.edelweiss.model.Appointment;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 @Service
 public class AppointmentService {
 
-    private AppointmentRepository appointmentRepository;
+    private final AppointmentRepository appointmentRepository;
 
-    @Autowired
-    public void setAppointmentRepository(AppointmentRepository appointmentRepository) {
+    public AppointmentService(AppointmentRepository appointmentRepository) {
         this.appointmentRepository = appointmentRepository;
     }
 
     /**
-     * Creates a new appointment based on an AppointmentDTO from the doctor API
-     * @param appointmentDTO - the AppointmentDTO object from the doctor API
+     * Creates a new appointment based on an AppointmentDTO payload from the doctor API
+     *
+     * @param appointmentDTO - the AppointmentDTO payload from the doctor API
      * @return - the appointment data
      */
-    public Appointment createAppointment(AppointmentDTO appointmentDTO) {
+    public AppointmentDTO createAppointment(AppointmentDTO appointmentDTO) {
         Appointment appointment = new Appointment();
         BeanUtils.copyProperties(appointmentDTO, appointment);
+
         appointmentRepository.save(appointment);
 
-        return appointment;
+        return new AppointmentDTO(appointment);
     }
 
     /**
      * Retrieves a list of appointments from the appointment database based on the doctor's name
+     *
      * @param firstName - the first name of the doctor
-     * @param lastName - the last name of the doctor
+     * @param lastName  - the last name of the doctor
      * @return - the List of appointments
      */
-    public List<AppointmentDTO> getAppointmentsByDoctorName (String firstName, String lastName) {
+    public List<AppointmentDTO> getAppointmentsByDoctorName(String firstName, String lastName) {
         List<Appointment> appointments = appointmentRepository.getAppointmentsByDoctorName(firstName, lastName);
 
         return appointments.stream()
-                .map(this::copyToDTO)
-                .collect(Collectors.toList());
+                .map(AppointmentDTO::new)
+                .toList();
     }
 
     /**
      * Updates the appointment with the corresponding ID and merges it to the appointment database
+     *
      * @param appointmentDTO - the AppointmentDTO payload from the doctor API
-     * @param appointmentId - the ID of the appointment
+     * @param appointmentId  - the ID of the appointment
      * @return - the updated appointment
+     * @throws AppointmentNotFoundException if the appointment with the specified ID is not found
      */
-    public AppointmentDTO updateAppointmentInfo(AppointmentDTO appointmentDTO, Long appointmentId) {
+    public AppointmentDTO updateAppointmentInfo(AppointmentDTO appointmentDTO, Long appointmentId)
+            throws AppointmentNotFoundException {
         Appointment appointment = getAppointmentById(appointmentId);
 
-        updateAppointmentIfNotNull(appointmentDTO.getPatientFirstName(), appointment::getPatientFirstName,
+        updateAppointmentIfNotNull(appointmentDTO.patientFirstName(), appointment::getPatientFirstName,
                 appointment::setPatientFirstName);
 
-        updateAppointmentIfNotNull(appointmentDTO.getPatientLastName(), appointment::getPatientLastName,
+        updateAppointmentIfNotNull(appointmentDTO.patientLastName(), appointment::getPatientLastName,
                 appointment::setPatientLastName);
 
-        updateAppointmentIfNotNull(appointmentDTO.getAppointmentDate(), appointment::getAppointmentDate,
+        updateAppointmentIfNotNull(appointmentDTO.appointmentDate(), appointment::getAppointmentDate,
                 appointment::setAppointmentDate);
 
-        updateAppointmentIfNotNull(appointmentDTO.getAppointmentTime(), appointment::getAppointmentTime,
+        updateAppointmentIfNotNull(appointmentDTO.appointmentTime(), appointment::getAppointmentTime,
                 appointment::setAppointmentTime);
-
-        if (appointment.getAppointmentDate().isBefore(LocalDate.now()) &&
-                appointment.getAppointmentTime().isBefore(LocalTime.now()))
-            throw new AppointmentException("Appointment date must be today or later date.");
 
         appointmentRepository.save(appointment);
 
-        AppointmentDTO getAppointment = new AppointmentDTO();
-
-        BeanUtils.copyProperties(appointment, getAppointment);
-        getAppointment.setId(appointmentId);
-
-        return getAppointment;
+        return new AppointmentDTO(appointment);
     }
 
     /**
      * Deletes an appointment from the appointment database based on their ID
+     *
      * @param appointmentId - the ID of the appointment
+     * @throws AppointmentNotFoundException if the appointment with the specified ID is not found
      */
-    public void deleteAppointment(Long appointmentId) {
+    public void deleteAppointment(Long appointmentId) throws AppointmentNotFoundException {
         Appointment appointment = getAppointmentById(appointmentId);
 
         appointmentRepository.deleteById(appointment.getId());
     }
 
+    /**
+     * Checks the fields of a payload object and updates the specified entity if the specified field
+     * is not null and does not equal the current value of the field
+     *
+     * @param attribute - the field attribute to check
+     * @param supplier  - the entity to check
+     * @param entity    - the entity to update if the requirements are met
+     * @param <T>       - the type of the attribute
+     */
     private <T> void updateAppointmentIfNotNull(T attribute, Supplier<T> supplier, Consumer<T> entity) {
         Predicate<T> predicate = input -> !input.equals(attribute);
 
@@ -108,28 +110,19 @@ public class AppointmentService {
     }
 
     /**
-     * Retrieves an appointment from the appointment database based on their ID and throws an exception if the
+     * Retrieves an appointment from the appointment database based on its ID and throws an exception if the
      * specified appointment is not found
+     *
      * @param appointmentId - the ID of the appointment
      * @return - the appointment if available
+     * @throws AppointmentNotFoundException if the appointment with the specified ID is not found
      */
-    private Appointment getAppointmentById(Long appointmentId) {
-        Optional<Appointment> appointment = appointmentRepository.getAppointmentById(appointmentId);
+    private Appointment getAppointmentById(Long appointmentId) throws AppointmentNotFoundException {
+        Optional<Appointment> appointment = appointmentRepository.findById(appointmentId);
 
         if (appointment.isEmpty())
             throw new AppointmentNotFoundException("No appointment with the specified ID found.");
 
         return appointment.get();
-    }
-
-    /**
-     * Copies the values of an Appointment object into a AppointmentDTO object
-     * @param appointment - the Appointment object
-     * @return - the AppointmentDTO object
-     */
-    private AppointmentDTO copyToDTO(Appointment appointment) {
-        AppointmentDTO appointmentDTO = new AppointmentDTO();
-        BeanUtils.copyProperties(appointment, appointmentDTO);
-        return appointmentDTO;
     }
 }

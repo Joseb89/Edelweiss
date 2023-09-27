@@ -18,10 +18,10 @@ public class Appointment {
     @Column(name = "appointment_id", nullable = false, updatable = false, unique = true)
     private Long id;
 
-    @Column(name = "doctor_first_name", nullable = false, length = 20)
+    @Column(name = "doctor_first_name", nullable = false, updatable = false, length = 20)
     private String doctorFirstName;
 
-    @Column(name = "doctor_last_name", nullable = false, length = 30)
+    @Column(name = "doctor_last_name", nullable = false, updatable = false, length = 30)
     private String doctorLastName;
 
     @Column(name = "patient_first_name", nullable = false, length = 20)

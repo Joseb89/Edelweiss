@@ -5,7 +5,6 @@ import com.jaab.edelweiss.dto.AddressDTO;
 import com.jaab.edelweiss.dto.PatientDTO;
 import com.jaab.edelweiss.exception.PatientNotFoundException;
 import com.jaab.edelweiss.model.Patient;
-import com.jaab.edelweiss.utils.PatientUtils;
 import com.jaab.edelweiss.utils.TestUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,9 +31,6 @@ public class PatientServiceTest {
     @Mock
     private PatientRepository patientRepository;
 
-    @Mock
-    private PatientUtils patientUtils;
-
     private Patient james, bethany, carver;
 
     @BeforeEach
@@ -60,7 +56,7 @@ public class PatientServiceTest {
 
     @Test
     public void getPatientByIdTest() {
-        when(patientUtils.getPatientById(anyLong())).thenReturn(james);
+        when(patientRepository.findById(anyLong())).thenReturn(Optional.of(james));
         PatientDTO patientDTO = patientService.getPatientById(james.getId());
 
         assertEquals("James", patientDTO.firstName());
@@ -69,7 +65,6 @@ public class PatientServiceTest {
 
     @Test
     public void getPatientByIdExceptionTest() {
-        when(patientUtils.getPatientById(anyLong())).thenThrow(PatientNotFoundException.class);
         assertThrows(PatientNotFoundException.class, () -> patientService.getPatientById(4L));
     }
 
@@ -111,7 +106,7 @@ public class PatientServiceTest {
 
     @Test
     public void getAddressTest() {
-        when(patientUtils.getPatientById(anyLong())).thenReturn(bethany);
+        when(patientRepository.findById(anyLong())).thenReturn(Optional.of(bethany));
         AddressDTO addressDTO = patientService.getAddress(bethany.getId());
 
         assertEquals("59 Gallows St", addressDTO.streetAddress());
@@ -156,9 +151,14 @@ public class PatientServiceTest {
     public void deletePatientTest() {
         assertNotNull(james);
 
-        when(patientUtils.getPatientById(anyLong())).thenReturn(james);
+        when(patientRepository.findById(anyLong())).thenReturn(Optional.of(james));
         patientService.deletePatient(james.getId());
 
         verify(patientRepository, times(1)).deleteById(james.getId());
+    }
+
+    @Test
+    public void deletePatientExceptionTest() {
+        assertThrows(PatientNotFoundException.class, ()-> patientService.deletePatient(james.getId()));
     }
 }

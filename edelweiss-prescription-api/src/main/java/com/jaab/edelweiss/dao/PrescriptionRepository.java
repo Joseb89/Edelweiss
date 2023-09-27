@@ -17,5 +17,5 @@ public interface PrescriptionRepository extends JpaRepository<Prescription, Long
                                                     @Param("lastName") String lastName);
 
     @Query("FROM Prescription p WHERE p.prescriptionStatus = :status")
-    List<Prescription> getPrescriptionsByPrescriptionStatus(@Param("status")Status status);
+    List<Prescription> getPrescriptionsByPrescriptionStatus(@Param("status") Status status);
 }

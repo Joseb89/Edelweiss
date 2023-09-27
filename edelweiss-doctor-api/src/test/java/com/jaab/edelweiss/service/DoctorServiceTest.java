@@ -27,7 +27,7 @@ public class DoctorServiceTest {
     private DoctorService doctorService;
 
     @Mock
-    private DoctorRepository  doctorRepository;
+    private DoctorRepository doctorRepository;
 
     private Doctor doctor;
 
@@ -36,7 +36,7 @@ public class DoctorServiceTest {
         assertNotNull(doctorService);
         assertNotNull(doctorRepository);
 
-        doctor = TestUtils.createDoctor();
+        doctor = TestUtils.createDoctor(TestUtils.ID);
     }
 
     @Test
@@ -64,8 +64,6 @@ public class DoctorServiceTest {
 
     @Test
     public void deleteDoctorTest() {
-        assertNotNull(doctor);
-
         when(doctorRepository.findById(anyLong())).thenReturn(Optional.of(doctor));
         doctorService.deleteDoctor(doctor.getId());
 
@@ -74,6 +72,6 @@ public class DoctorServiceTest {
 
     @Test
     public void deleteDoctorExceptionTest() {
-        assertThrows(DoctorNotFoundException.class, ()-> doctorService.deleteDoctor(1L));
+        assertThrows(DoctorNotFoundException.class, () -> doctorService.deleteDoctor(1L));
     }
 }

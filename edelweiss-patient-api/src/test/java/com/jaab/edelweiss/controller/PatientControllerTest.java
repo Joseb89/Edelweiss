@@ -161,7 +161,7 @@ public class PatientControllerTest {
     }
 
     @Test
-    public void getAddressEmptyList() {
+    public void getAddressExceptionTest() {
         when(patientService.getAddress(anyLong())).thenThrow(PatientNotFoundException.class);
 
         webTestClient.get()
@@ -176,9 +176,10 @@ public class PatientControllerTest {
                 "ID", 96521);
 
         webTestClient.patch()
-                .uri("/patient/" + carver.getId() +"/updateAddress")
+                .uri("/patient/" + carver.getId() + "/updateAddress")
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(updatedAddress)
+                .accept(MediaType.APPLICATION_JSON)
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody().jsonPath("$.city", Matchers.is("Boise"));
@@ -193,6 +194,7 @@ public class PatientControllerTest {
                 .uri("/patient/" + bethany.getId() + "/updatePatientInfo")
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(updatedInfo)
+                .accept(MediaType.APPLICATION_JSON)
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody().jsonPath("$.lastName", Matchers.is("Amell"));

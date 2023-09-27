@@ -6,7 +6,7 @@ public record PatientDTO(Long id, String firstName, String lastName, String emai
                          Long phoneNumber, String primaryDoctor, String bloodType) {
 
     public PatientDTO(Patient patient) {
-     this(patient.getId(), patient.getFirstName(), patient.getLastName(), patient.getEmail(), patient.getPhoneNumber(),
-             patient.getPrimaryDoctor(), patient.getBloodType());
+        this(patient.getId(), patient.getFirstName(), patient.getLastName(), patient.getEmail(),
+                patient.getPhoneNumber(), patient.getPrimaryDoctor(), patient.getBloodType());
     }
 }

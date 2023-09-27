@@ -31,8 +31,8 @@ public abstract class TestUtils {
 
     private static final List<AppointmentDTO> APPOINTMENTS = createAppointments();
 
-    public static Doctor createDoctor() {
-        return new Doctor(null, "Wynne", "Langrene", "seniorenchanter@aol.com",
+    public static Doctor createDoctor(Long physicianId) {
+        return new Doctor(physicianId, "Wynne", "Langrene", "seniorenchanter@aol.com",
                 "spiritoffaith", 6687412012L, "Hematology", Role.PHYSICIAN);
     }
 

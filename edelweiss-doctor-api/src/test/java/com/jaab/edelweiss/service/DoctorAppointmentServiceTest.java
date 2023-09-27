@@ -40,16 +40,14 @@ public class DoctorAppointmentServiceTest {
     @Autowired
     private EntityManager manager;
 
+    private Doctor doctor;
+
     private static MockWebServer mockWebServer;
 
-    private static Doctor doctor;
-
-    private static final int APPOINTMENT_API_PORT = 8086;
+    private static final int APPOINTMENT_API_PORT = 8085;
 
     @BeforeAll
     public static void setup() throws IOException {
-        doctor = TestUtils.createDoctor();
-
         mockWebServer = new MockWebServer();
         mockWebServer.start(APPOINTMENT_API_PORT);
     }
@@ -61,6 +59,8 @@ public class DoctorAppointmentServiceTest {
 
     @BeforeEach
     public void init() {
+        doctor = TestUtils.createDoctor(null);
+
         manager.persist(doctor);
     }
 

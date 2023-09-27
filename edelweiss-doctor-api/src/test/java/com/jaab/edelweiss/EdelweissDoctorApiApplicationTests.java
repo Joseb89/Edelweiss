@@ -14,41 +14,41 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @SpringBootTest
 class EdelweissDoctorApiApplicationTests {
 
-	@Autowired
-	private DoctorController doctorController;
+    @Autowired
+    private DoctorController doctorController;
 
-	@Autowired
-	private DoctorPatientController doctorPatientController;
+    @Autowired
+    private DoctorPatientController doctorPatientController;
 
-	@Autowired
-	private DoctorPrescriptionController doctorPrescriptionController;
+    @Autowired
+    private DoctorPrescriptionController doctorPrescriptionController;
 
-	@Autowired
-	private DoctorAppointmentController doctorAppointmentController;
+    @Autowired
+    private DoctorAppointmentController doctorAppointmentController;
 
-	@Autowired
-	private DoctorService doctorService;
+    @Autowired
+    private DoctorService doctorService;
 
-	@Autowired
-	private DoctorPatientService doctorPatientService;
+    @Autowired
+    private DoctorPatientService doctorPatientService;
 
-	@Autowired
-	private DoctorPrescriptionService doctorPrescriptionService;
+    @Autowired
+    private DoctorPrescriptionService doctorPrescriptionService;
 
-	@Autowired
-	private DoctorAppointmentService doctorAppointmentService;
+    @Autowired
+    private DoctorAppointmentService doctorAppointmentService;
 
-	@Test
-	void contextLoads() {
-		assertNotNull(doctorController);
-		assertNotNull(doctorPatientController);
-		assertNotNull(doctorPrescriptionController);
-		assertNotNull(doctorAppointmentController);
+    @Test
+    void contextLoads() {
+        assertNotNull(doctorController);
+        assertNotNull(doctorPatientController);
+        assertNotNull(doctorPrescriptionController);
+        assertNotNull(doctorAppointmentController);
 
-		assertNotNull(doctorService);
-		assertNotNull(doctorPatientService);
-		assertNotNull(doctorPrescriptionService);
-		assertNotNull(doctorAppointmentService);
-	}
+        assertNotNull(doctorService);
+        assertNotNull(doctorPatientService);
+        assertNotNull(doctorPrescriptionService);
+        assertNotNull(doctorAppointmentService);
+    }
 
 }

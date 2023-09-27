@@ -25,6 +25,7 @@ public class DoctorController {
 
     /**
      * Saves a new doctor to the doctor database
+     *
      * @param doctor - the Doctor payload
      * @return - HTTP status response with the new doctor's info
      */
@@ -36,19 +37,22 @@ public class DoctorController {
 
     /**
      * Updates the doctor's information and merges it to the doctor database
+     *
      * @param physicianId - the ID of the doctor
-     * @param fields - the Doctor payload containing the updated information
-     * @return - HTTP status response with the updated information
+     * @param fields      - the Doctor payload containing the updated information
+     * @return - HTTP status response
      */
-    @PatchMapping(value = "/physician/{physicianId}/updatePhysicianInfo")
+    @PatchMapping(value = "/physician/{physicianId}/updatePhysicianInfo",
+            consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> updateDoctorInfo(@PathVariable Long physicianId,
-                                                         @RequestBody Map<String, Object> fields) {
+                                                   @RequestBody Map<String, Object> fields) {
         doctorService.updateDoctorInfo(physicianId, fields);
         return ResponseEntity.ok("User information updated successfully.");
     }
 
     /**
      * Deletes a doctor from the doctor database based on their id
+     *
      * @param physicianId - the ID of the doctor
      */
     @DeleteMapping(value = "/physician/deleteDoctor/{physicianId}")

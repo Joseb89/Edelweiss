@@ -27,8 +27,9 @@ public class DoctorPrescriptionController {
 
     /**
      * Sends a prescription payload to the prescription API
+     *
      * @param prescription - the PrescriptionDTO payload
-     * @param physicianId - the ID of the doctor
+     * @param physicianId  - the ID of the doctor
      * @return - HTTP status response with the prescription payload
      */
     @PostMapping(value = "/{physicianId}/newPrescription", consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -42,6 +43,7 @@ public class DoctorPrescriptionController {
 
     /**
      * Retrieves the specified doctor's prescriptions from the prescription API
+     *
      * @param physicianId - the ID of the doctor
      * @return - HTTP status response with the list of the doctor's prescriptions
      */
@@ -52,8 +54,9 @@ public class DoctorPrescriptionController {
 
     /**
      * Updates a prescription with the corresponding ID and sends it to the prescription API
+     *
      * @param prescriptionDTO - the UpdatePrescriptionDTO payload containing the updated information
-     * @param prescriptionId - the ID of the prescription
+     * @param prescriptionId  - the ID of the prescription
      * @return - HTTP status response with the updated information
      */
     @PatchMapping(value = "/updatePrescriptionInfo/{prescriptionId}",
@@ -65,6 +68,7 @@ public class DoctorPrescriptionController {
 
     /**
      * Sends a DELETE request to the prescription API to delete the prescription with the specified ID
+     *
      * @param prescriptionId - the ID of the prescription
      * @return - the DELETE request
      */

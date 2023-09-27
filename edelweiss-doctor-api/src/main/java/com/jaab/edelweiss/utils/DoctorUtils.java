@@ -8,7 +8,6 @@ import com.jaab.edelweiss.model.Doctor;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
-import java.util.Objects;
 
 @Component
 public class DoctorUtils {
@@ -22,6 +21,7 @@ public class DoctorUtils {
     /**
      * Retrieves a doctor from the doctor database based on the doctor's ID and sets the doctor's
      * first and last name to a String array
+     *
      * @param physicianId - the ID of the doctor
      * @return - the String array containing the doctor's first and last name
      */
@@ -37,16 +37,18 @@ public class DoctorUtils {
 
     /**
      * Checks to see if a prescription name is null or empty
+     *
      * @param prescriptionDTO - the PrescriptionDTO object containing the prescription name
      * @return - true if the prescription name is null or empty
      */
     public boolean prescriptionNameIsNotValid(PrescriptionDTO prescriptionDTO) {
-        return Objects.isNull(prescriptionDTO.getPrescriptionName()) ||
+        return prescriptionDTO.getPrescriptionName() == null ||
                 prescriptionDTO.getPrescriptionName().isEmpty();
     }
 
     /**
      * Checks to see if a prescription name is empty
+     *
      * @param prescriptionDTO - the UpdatePrescriptionDTO object containing the prescription name
      * @return - true if the prescription name is empty
      */
@@ -56,16 +58,18 @@ public class DoctorUtils {
 
     /**
      * Checks to see if a prescription dosage is null or less than 1cc
+     *
      * @param prescriptionDTO - the PrescriptionDTO object containing the prescription dosage
      * @return - true if the prescription dosage is null or less than 1cc
      */
     public boolean prescriptionDosageIsNotValid(PrescriptionDTO prescriptionDTO) {
-        return Objects.isNull(prescriptionDTO.getPrescriptionDosage()) ||
+        return prescriptionDTO.getPrescriptionDosage() == null ||
                 prescriptionDTO.getPrescriptionDosage() < 1;
     }
 
     /**
      * Checks to see if a prescription dosage is less than 1cc
+     *
      * @param prescriptionDTO - the UpdatePrescriptionDTO object containing the prescription dosage
      * @return - true if the prescription dosage is less than 1cc
      */
@@ -74,11 +78,13 @@ public class DoctorUtils {
     }
 
     /**
-     * Checks to see if an appointment date is before the current date
+     * Checks to see if an appointment date is null or before the current date
+     *
      * @param appointmentDTO - the AppointmentDTO object containing the appointment date
-     * @return - true if the appointment date is before the current date
+     * @return - true if the appointment date is null or before the current date
      */
     public boolean appointmentDateIsNotValid(AppointmentDTO appointmentDTO) {
-        return appointmentDTO.getAppointmentDate().isBefore(LocalDate.now());
+        return appointmentDTO.getAppointmentDate() == null ||
+                appointmentDTO.getAppointmentDate().isBefore(LocalDate.now());
     }
 }

@@ -6,5 +6,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 @ResponseStatus(value = HttpStatus.FORBIDDEN)
 public class PrescriptionException extends RuntimeException {
 
-    public PrescriptionException(String message){ super(message); }
+    public PrescriptionException(String message) {
+        super(message);
+    }
 }

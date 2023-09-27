@@ -81,7 +81,8 @@ public class DoctorPrescriptionControllerTest {
         webTestClient.get()
                 .uri("/physician/" + TestUtils.ID + "/myPrescriptions")
                 .exchange()
-                .expectStatus().isOk();
+                .expectStatus().isOk()
+                .expectBodyList(PrescriptionDTO.class).hasSize(2);
     }
 
     @Test
