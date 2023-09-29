@@ -3,62 +3,56 @@ package com.jaab.edelweiss.service;
 import com.jaab.edelweiss.dao.PharmacistRepository;
 import com.jaab.edelweiss.dto.PrescriptionDTO;
 import com.jaab.edelweiss.dto.PrescriptionStatusDTO;
-import com.jaab.edelweiss.dto.UserDTO;
 import com.jaab.edelweiss.exception.PharmacistNotFoundException;
+import com.jaab.edelweiss.exception.PrescriptionStatusException;
 import com.jaab.edelweiss.model.Pharmacist;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.jaab.edelweiss.model.Role;
+import com.jaab.edelweiss.model.Status;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ReflectionUtils;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.lang.reflect.Field;
 import java.rmi.ServerException;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
 public class PharmacistService {
 
+    private final PharmacistRepository pharmacistRepository;
+
     private final WebClient webClient;
 
-    private PharmacistRepository pharmacistRepository;
-
-    private static final String USER_API_URL = "http://localhost:8081";
-
-    private static final String PRESCRIPTION_API_URL = "http://localhost:8085/pharmacy";
-
-    @Autowired
-    public PharmacistService(WebClient.Builder builder) {
-        this.webClient = builder.build();
-    }
-
-    @Autowired
-    public void setPharmacistRepository(PharmacistRepository pharmacistRepository) {
+    public PharmacistService(PharmacistRepository pharmacistRepository, WebClient.Builder builder) {
         this.pharmacistRepository = pharmacistRepository;
+        this.webClient = builder.baseUrl("http://localhost:8084/pharmacy").build();
     }
 
     /**
      * Saves a new pharmacist to the pharmacist database
-     * @param pharmacist - the new Pharmacist
-     * @return - the UserDTO payload
+     *
+     * @param pharmacist - the Pharmacist payload
+     * @return - the new Pharmacist
      */
-    public UserDTO createPharmacist(Pharmacist pharmacist) {
-        UserDTO userDTO = new UserDTO();
-        BeanUtils.copyProperties(pharmacist, userDTO);
-        UserDTO userData = sendUserData(userDTO);
-        pharmacist.setId(userData.getId());
+    public Pharmacist createPharmacist(Pharmacist pharmacist) {
+        pharmacist.setRole(Role.PHARMACIST);
         pharmacistRepository.save(pharmacist);
-        return userData;
+
+        return pharmacist;
     }
 
     /**
      * Retrieves all the prescriptions from the prescription API with PENDING status
+     *
      * @return - the list of pending prescriptions
      */
     public Flux<PrescriptionDTO> getPendingPrescriptions() {
         return webClient.get()
-                .uri(PRESCRIPTION_API_URL + "/getPendingPrescriptions")
+                .uri("/getPendingPrescriptions")
                 .retrieve()
                 .onStatus(HttpStatusCode::is4xxClientError,
                         response -> response.bodyToMono(String.class).map(Exception::new))
@@ -68,37 +62,47 @@ public class PharmacistService {
     }
 
     /**
-     * Sends the updated pharmacist information to the user API
-     * @param pharmacist - the Pharmacist payload
+     * Updates the information of the Pharmacist via a Pharmacist payload
+     * and merges it to the pharmacist database
+     *
      * @param pharmacistId - the ID of the pharmacist
-     * @return - the UserDTO object containing the updated information
+     * @param fields       - the Pharmacist payload
+     * @return - the updated Pharmacist
      */
-    public Mono<UserDTO> updateUserInfo(Pharmacist pharmacist, Long pharmacistId) {
-        UserDTO userDTO = updatePharmacistInfo(pharmacist, pharmacistId);
+    public Pharmacist updateUserInfo(Long pharmacistId, Map<String, Object> fields) {
+        Pharmacist pharmacist = getPharmacistById(pharmacistId);
 
-        return webClient.patch()
-                .uri(USER_API_URL + "/updateUserInfo")
-                .body(Mono.just(userDTO), UserDTO.class)
-                .retrieve()
-                .onStatus(HttpStatusCode::is4xxClientError,
-                        response -> response.bodyToMono(String.class).map(Exception::new))
-                .onStatus(HttpStatusCode::is5xxServerError,
-                        response -> response.bodyToMono(String.class).map(ServerException::new))
-                .bodyToMono(UserDTO.class);
+        fields.forEach((key, value) -> {
+            Field field = ReflectionUtils.findField(Pharmacist.class, key);
+
+            if (field != null) {
+                field.setAccessible(true);
+                ReflectionUtils.setField(field, pharmacist, value);
+            }
+        });
+
+        pharmacistRepository.save(pharmacist);
+
+        return pharmacist;
     }
 
     /**
      * Sets an APPROVED or DENIED status for a PrescriptionStatusDTO object and sends it to the prescriptionAPI
-     * @param status - the new status of the prescription
+     *
+     * @param status         - the new status of the prescription
      * @param prescriptionId - the ID of the prescription
-     * @return - the updated prescription
+     * @return - the prescription status
+     * @throws PrescriptionStatusException if the status is PENDING
      */
-    public Mono<PrescriptionStatusDTO> approvePrescription(PrescriptionStatusDTO status, Long prescriptionId) {
-        PrescriptionStatusDTO prescriptionStatus = new PrescriptionStatusDTO();
-        prescriptionStatus.setPrescriptionStatus(status.getPrescriptionStatus());
+    public Mono<PrescriptionStatusDTO> approvePrescription(PrescriptionStatusDTO status, Long prescriptionId)
+            throws PrescriptionStatusException {
+        if (status.prescriptionStatus() == Status.PENDING)
+            throw new PrescriptionStatusException("Prescription must be approved or denied.");
+
+        PrescriptionStatusDTO prescriptionStatus = new PrescriptionStatusDTO(status.prescriptionStatus());
 
         return webClient.patch()
-                .uri(PRESCRIPTION_API_URL + "/approvePrescription/" + prescriptionId)
+                .uri("/approvePrescription/" + prescriptionId)
                 .body(Mono.just(prescriptionStatus), PrescriptionStatusDTO.class)
                 .retrieve()
                 .onStatus(HttpStatusCode::is4xxClientError,
@@ -109,84 +113,30 @@ public class PharmacistService {
     }
 
     /**
-     * Deletes a pharmacist from the pharmacist database and sends a DELETE request to the user API to delete
-     * the user with the corresponding ID
+     * Deletes a pharmacist from the pharmacist database based on their ID
+     *
      * @param pharmacistId - the ID of the pharmacist
-     * @return - the DELETE request
+     * @throws PharmacistNotFoundException if the pharmacist with the specified ID is not found
      */
-    public Mono<Void> deleteUser(Long pharmacistId) {
-        deletePharmacist(pharmacistId);
+    public void deletePharmacist(Long pharmacistId) throws PharmacistNotFoundException {
+        Pharmacist pharmacist = getPharmacistById(pharmacistId);
 
-        return webClient.delete()
-                .uri(USER_API_URL + "/deleteUser/" + pharmacistId)
-                .retrieve()
-                .onStatus(HttpStatusCode::is4xxClientError,
-                        response -> response.bodyToMono(String.class).map(Exception::new))
-                .onStatus(HttpStatusCode::is5xxServerError,
-                        response -> response.bodyToMono(String.class).map(ServerException::new))
-                .bodyToMono(Void.class);
+        pharmacistRepository.deleteById(pharmacist.getId());
     }
 
     /**
-     * Deletes a pharmacist from the pharmacist database based on their ID throws an exception if the
-     * specified pharmacist is not found
+     * Retrieves a pharmacist from the pharmacist database based on their ID
+     *
      * @param pharmacistId - the ID of the pharmacist
+     * @return - the pharmacist if available
+     * @throws PharmacistNotFoundException if the pharmacist with the specified ID is not found
      */
-    private void deletePharmacist(Long pharmacistId) {
-        Optional<Pharmacist> pharmacist = pharmacistRepository.getPharmacistById(pharmacistId);
+    private Pharmacist getPharmacistById(Long pharmacistId) throws PharmacistNotFoundException {
+        Optional<Pharmacist> pharmacist = pharmacistRepository.findById(pharmacistId);
 
         if (pharmacist.isEmpty())
             throw new PharmacistNotFoundException("No pharmacist with the specified ID found.");
 
-        pharmacistRepository.deleteById(pharmacist.get().getId());
-    }
-
-    /**
-     * Updates the information of the pharmacist via a Pharmacist payload, merges it to the pharmacist database,
-     * and stores it in a UserDTO object
-     * @param pharmacist - the Pharmacist payload
-     * @param pharmacistId - the ID of the pharmacist
-     * @return - the UserDTO object with the updated information
-     */
-    private UserDTO updatePharmacistInfo(Pharmacist pharmacist, Long pharmacistId) {
-        Pharmacist getPharmacist = pharmacistRepository.getReferenceById(pharmacistId);
-        UserDTO userDTO = new UserDTO(pharmacistId);
-
-        if (pharmacist.getLastName() != null) {
-            getPharmacist.setLastName(pharmacist.getLastName());
-            userDTO.setLastName(pharmacist.getLastName());
-        }
-
-        if (pharmacist.getEmail() != null) {
-            getPharmacist.setEmail(pharmacist.getEmail());
-            userDTO.setEmail(pharmacist.getEmail());
-        }
-
-        if (pharmacist.getPassword() != null) {
-            getPharmacist.setPassword(pharmacist.getPassword());
-            userDTO.setPassword(pharmacist.getPassword());
-        }
-
-        pharmacistRepository.save(getPharmacist);
-
-        return userDTO;
-    }
-
-    /**
-     * Sends a UserDTO payload to the user API and returns the user ID
-     * @param userDTO - the userDTO object
-     * @return - the userDTO payload
-     */
-    private UserDTO sendUserData(UserDTO userDTO) {
-        return webClient.post()
-                .uri("http://localhost:8081/newPharmacist")
-                .body(Mono.just(userDTO), UserDTO.class)
-                .retrieve()
-                .onStatus(HttpStatusCode::is4xxClientError,
-                        response -> response.bodyToMono(String.class).map(Exception::new))
-                .onStatus(HttpStatusCode::is5xxServerError,
-                        response -> response.bodyToMono(String.class).map(ServerException::new))
-                .bodyToMono(UserDTO.class)
-                .block();
+        return pharmacist.get();
     }
 }

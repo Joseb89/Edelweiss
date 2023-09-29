@@ -26,11 +26,10 @@ public class PatientController {
      * Saves a new patient to the patient database
      *
      * @param patient - the Patient payload
-     * @return - HTTP status response with the ID of the patient
+     * @return - HTTP status response with the new patient information
      */
     @PostMapping(value = "/newPatient", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseStatus(value = HttpStatus.CREATED)
     public ResponseEntity<PatientDTO> createPatient(@RequestBody Patient patient) {
         return ResponseEntity.status(HttpStatus.CREATED).body((patientService.createPatient(patient)));
     }
@@ -95,7 +94,7 @@ public class PatientController {
      *
      * @param patientId - the ID of the patient
      * @param fields    - the Address payload containing the updated information
-     * @return - the updated Address
+     * @return - the updated address
      */
     @PatchMapping(value = "/patient/{patientId}/updateAddress", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)

@@ -50,8 +50,8 @@ public class PatientServiceTest {
         when(patientRepository.save(any(Patient.class))).thenReturn(james);
         PatientDTO patientDTO = patientService.createPatient(james);
 
-        assertEquals(1L, patientDTO.id());
         assertEquals("Varric Tethras", patientDTO.primaryDoctor());
+        assertEquals("O+", patientDTO.bloodType());
     }
 
     @Test
@@ -159,6 +159,6 @@ public class PatientServiceTest {
 
     @Test
     public void deletePatientExceptionTest() {
-        assertThrows(PatientNotFoundException.class, ()-> patientService.deletePatient(james.getId()));
+        assertThrows(PatientNotFoundException.class, () -> patientService.deletePatient(james.getId()));
     }
 }

@@ -37,7 +37,8 @@ create table if not exists pharmacists (
     first_name VARCHAR(20) not null,
     last_name VARCHAR(30) not null,
     pharmacist_email VARCHAR(30) not null,
-    pharmacist_password VARCHAR(100) not null
+    pharmacist_password VARCHAR(100) not null,
+    role VARCHAR(10) not null
 );
 
 create table if not exists prescriptions (

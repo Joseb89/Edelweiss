@@ -35,7 +35,7 @@ public class PatientService {
         Address address = new Address();
         BeanUtils.copyProperties(patient.getAddress(), address);
         address.setPatient(patient);
-        patient.setAddress(address);
+        patient.setAddress(patient.getAddress());
         patient.setRole(Role.PATIENT);
 
         patientRepository.save(patient);
@@ -111,7 +111,7 @@ public class PatientService {
     }
 
     /**
-     * Retrieves a patient's address from the address database and saves it to an AddressDTO object
+     * Retrieves a patient's address from the address database and stores it to an AddressDTO object
      *
      * @param patientId - the ID of the patient
      * @return - the AddressDTO object with the address information

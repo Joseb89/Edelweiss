@@ -3,10 +3,10 @@ package com.jaab.edelweiss.exception;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-@ResponseStatus(value = HttpStatus.NOT_FOUND)
-public class PharmacistNotFoundException extends RuntimeException {
+@ResponseStatus(value = HttpStatus.FORBIDDEN)
+public class PrescriptionStatusException extends RuntimeException {
 
-    public PharmacistNotFoundException(String message) {
+    public PrescriptionStatusException(String message) {
         super(message);
     }
 }

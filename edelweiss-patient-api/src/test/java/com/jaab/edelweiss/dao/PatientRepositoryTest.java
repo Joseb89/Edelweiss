@@ -2,7 +2,7 @@ package com.jaab.edelweiss.dao;
 
 import com.jaab.edelweiss.model.Address;
 import com.jaab.edelweiss.model.Patient;
-import com.jaab.edelweiss.model.Role;
+import com.jaab.edelweiss.utils.TestUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,40 +20,27 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 public class PatientRepositoryTest {
 
     @Autowired
-    PatientRepository patientRepository;
+    private PatientRepository patientRepository;
 
     @Autowired
-    TestEntityManager entityManager;
-
-    Patient james, bethany, carver;
-
-    Address jamesAddress, bethanyAddress, carverAddress;
+    private TestEntityManager entityManager;
 
     @BeforeEach
     public void init() {
         assertNotNull(patientRepository);
         assertNotNull(entityManager);
 
-        james = new Patient(null, "James", "Hawke", "championofkirkwall@gmail.com",
-                "magerebellion", jamesAddress, 7130042356L,
-                "Varric Tethras", "O+", Role.PATIENT);
+        Patient james = TestUtils.james;
+        Patient bethany = TestUtils.bethany;
+        Patient carver = TestUtils.carver;
 
-        bethany = new Patient(null, "Bethany", "Hawke", "circlemage@gmail.com",
-                "daughterofamell", bethanyAddress, 7130042357L,
-                "Varric Tethras", "O-", Role.PATIENT);
+        james.setId(null);
+        bethany.setId(null);
+        carver.setId(null);
 
-        carver = new Patient(null, "Carver", "Hawke", "templarknight@gmail.com",
-                "sonofamell", carverAddress, 7130042357L,
-                "Varric Tethras", "O-", Role.PATIENT);
-
-        jamesAddress = new Address(james.getId(), james, "58 Hightown Court",
-                "San Antonio", "TX", 78615);
-
-        bethanyAddress = new Address(bethany.getId(), bethany, "59 Gallows St",
-                "San Antonio", "TX", 78615);
-
-        carverAddress = new Address(carver.getId(), carver, "59 Gallows St",
-                "San Antonio", "TX", 78615);
+        Address jamesAddress = TestUtils.jamesAddress;
+        Address bethanyAddress = TestUtils.bethanyAddress;
+        Address carverAddress = TestUtils.carverAddress;
 
         entityManager.persist(james);
         entityManager.persist(jamesAddress);
@@ -65,7 +52,7 @@ public class PatientRepositoryTest {
 
     @Test
     public void getPatientsByFirstNameTest() {
-        List<Patient> patients = patientRepository.getPatientsByFirstName("James");
+        List<Patient> patients = patientRepository.getPatientsByFirstName(TestUtils.firstNameTestParameter);
         assertThat(patients.size()).isEqualTo(1);
     }
 
@@ -77,7 +64,7 @@ public class PatientRepositoryTest {
 
     @Test
     public void getPatientsByLastNameTest() {
-        List<Patient> patients = patientRepository.getPatientsByLastName("Hawke");
+        List<Patient> patients = patientRepository.getPatientsByLastName(TestUtils.lastNameTestParameter);
         assertThat(patients.size()).isEqualTo(3);
     }
 
@@ -89,7 +76,7 @@ public class PatientRepositoryTest {
 
     @Test
     public void getPatientsByBloodTypeTest() {
-        List<Patient> patients = patientRepository.getPatientsByBloodType("O-");
+        List<Patient> patients = patientRepository.getPatientsByBloodType(TestUtils.bloodTypeTestParameter);
         assertThat(patients.size()).isEqualTo(2);
     }
 
