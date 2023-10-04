@@ -6,7 +6,6 @@ import com.jaab.edelweiss.model.Patient;
 import com.jaab.edelweiss.service.PatientService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -26,12 +25,13 @@ public class PatientController {
      * Saves a new patient to the patient database
      *
      * @param patient - the Patient payload
-     * @return - HTTP status response with the new patient information
+     * @return - the new patient
      */
     @PostMapping(value = "/newPatient", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<PatientDTO> createPatient(@RequestBody Patient patient) {
-        return ResponseEntity.status(HttpStatus.CREATED).body((patientService.createPatient(patient)));
+    @ResponseStatus(HttpStatus.CREATED)
+    public PatientDTO createPatient(@RequestBody Patient patient) {
+        return patientService.createPatient(patient);
     }
 
     /**

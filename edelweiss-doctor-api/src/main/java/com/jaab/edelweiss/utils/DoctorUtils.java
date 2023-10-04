@@ -53,7 +53,7 @@ public class DoctorUtils {
      * @return - true if the prescription name is empty
      */
     public boolean prescriptionNameIsNotValid(UpdatePrescriptionDTO prescriptionDTO) {
-        return prescriptionDTO.getPrescriptionName().isEmpty();
+        return prescriptionDTO.prescriptionName().isEmpty();
     }
 
     /**
@@ -74,7 +74,7 @@ public class DoctorUtils {
      * @return - true if the prescription dosage is less than 1cc
      */
     public boolean prescriptionDosageIsNotValid(UpdatePrescriptionDTO prescriptionDTO) {
-        return prescriptionDTO.getPrescriptionDosage() < 1;
+        return prescriptionDTO.prescriptionDosage() < 1;
     }
 
     /**

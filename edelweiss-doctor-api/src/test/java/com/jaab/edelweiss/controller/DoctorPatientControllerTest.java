@@ -5,7 +5,6 @@ import com.jaab.edelweiss.dto.PatientDTO;
 import com.jaab.edelweiss.service.DoctorPatientService;
 import com.jaab.edelweiss.utils.TestUtils;
 import org.hamcrest.Matchers;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
@@ -16,7 +15,6 @@ import reactor.core.publisher.Mono;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
@@ -29,12 +27,6 @@ public class DoctorPatientControllerTest {
 
     @MockBean
     private DoctorPatientService doctorPatientService;
-
-    @BeforeEach
-    public void init() {
-        assertNotNull(webTestClient);
-        assertNotNull(doctorPatientService);
-    }
 
     @Test
     public void getPatientByIdTest() {

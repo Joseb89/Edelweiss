@@ -16,6 +16,6 @@ public interface PrescriptionRepository extends JpaRepository<Prescription, Long
     List<Prescription> getPrescriptionsByDoctorName(@Param("firstName") String firstName,
                                                     @Param("lastName") String lastName);
 
-    @Query("FROM Prescription p WHERE p.prescriptionStatus = :status")
+    @Query("FROM Prescription p WHERE p.prescriptionStatus = :status ORDER BY p.id")
     List<Prescription> getPrescriptionsByPrescriptionStatus(@Param("status") Status status);
 }

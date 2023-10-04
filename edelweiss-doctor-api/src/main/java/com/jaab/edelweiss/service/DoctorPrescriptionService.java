@@ -87,11 +87,11 @@ public class DoctorPrescriptionService {
      */
     public Mono<UpdatePrescriptionDTO> updatePrescriptionInfo(UpdatePrescriptionDTO prescriptionDTO,
                                                               Long prescriptionId) throws PrescriptionException {
-        if (prescriptionDTO.getPrescriptionName() != null &&
+        if (prescriptionDTO.prescriptionName() != null &&
                 doctorUtils.prescriptionNameIsNotValid(prescriptionDTO))
             throw new PrescriptionException("Please specify prescription name.");
 
-        if (prescriptionDTO.getPrescriptionDosage() != null &&
+        if (prescriptionDTO.prescriptionDosage() != null &&
                 doctorUtils.prescriptionDosageIsNotValid(prescriptionDTO))
             throw new PrescriptionException("Prescription dosage must be between 1cc and 127cc.");
 

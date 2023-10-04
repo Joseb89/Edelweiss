@@ -94,7 +94,7 @@ public class DoctorPrescriptionControllerTest {
                 .thenReturn(Mono.just(updatedPrescription));
 
         webTestClient.patch()
-                .uri("/physician/updatePrescriptionInfo/" + updatedPrescription.getId())
+                .uri("/physician/updatePrescriptionInfo/" + updatedPrescription.id())
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(updatedPrescription)
                 .accept(MediaType.APPLICATION_JSON)
@@ -112,7 +112,7 @@ public class DoctorPrescriptionControllerTest {
                 .thenThrow(PrescriptionException.class);
 
         webTestClient.patch()
-                .uri("/physician/updatePrescriptionInfo/" + updatedPrescription.getId())
+                .uri("/physician/updatePrescriptionInfo/" + updatedPrescription.id())
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(updatedPrescription)
                 .accept(MediaType.APPLICATION_JSON)

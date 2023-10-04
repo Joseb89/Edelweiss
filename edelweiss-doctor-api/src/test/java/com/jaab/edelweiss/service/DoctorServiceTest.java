@@ -15,8 +15,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
@@ -33,15 +33,11 @@ public class DoctorServiceTest {
 
     @BeforeEach
     public void init() {
-        assertNotNull(doctorService);
-        assertNotNull(doctorRepository);
-
         doctor = TestUtils.createDoctor(TestUtils.ID);
     }
 
     @Test
     public void createDoctorTest() {
-        when(doctorRepository.save(any(Doctor.class))).thenReturn(doctor);
         Doctor newDoctor = doctorService.createDoctor(doctor);
 
         assertEquals(1L, newDoctor.getId());

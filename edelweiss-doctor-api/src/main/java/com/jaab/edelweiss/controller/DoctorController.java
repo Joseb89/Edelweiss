@@ -27,12 +27,13 @@ public class DoctorController {
      * Saves a new doctor to the doctor database
      *
      * @param doctor - the Doctor payload
-     * @return - HTTP status response with the new doctor's info
+     * @return - the new doctor
      */
     @PostMapping(value = "/newPhysician", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Doctor> createPhysician(@RequestBody Doctor doctor) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(doctorService.createDoctor(doctor));
+    @ResponseStatus(HttpStatus.CREATED)
+    public Doctor createPhysician(@RequestBody Doctor doctor) {
+        return doctorService.createDoctor(doctor);
     }
 
     /**
@@ -54,6 +55,7 @@ public class DoctorController {
      * Deletes a doctor from the doctor database based on their id
      *
      * @param physicianId - the ID of the doctor
+     * @return - HTTP status response
      */
     @DeleteMapping(value = "/physician/deleteDoctor/{physicianId}")
     public ResponseEntity<String> deleteDoctor(@PathVariable Long physicianId) {

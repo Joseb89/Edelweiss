@@ -124,10 +124,10 @@ public class DoctorPrescriptionServiceTest {
                 .setBody(objectMapper.writeValueAsString(updatedPrescription)));
 
         Mono<UpdatePrescriptionDTO> updatePrescription =
-                doctorPrescriptionService.updatePrescriptionInfo(updatedPrescription, updatedPrescription.getId());
+                doctorPrescriptionService.updatePrescriptionInfo(updatedPrescription, updatedPrescription.id());
 
         StepVerifier.create(updatePrescription)
-                .expectNextMatches(u -> Objects.equals(u.getPrescriptionName(), "Dragon's Blood"))
+                .expectNextMatches(u -> Objects.equals(u.prescriptionName(), "Dragon's Blood"))
                 .verifyComplete();
     }
 
@@ -138,7 +138,7 @@ public class DoctorPrescriptionServiceTest {
 
         assertThrows(PrescriptionException.class,
                 () -> doctorPrescriptionService
-                        .updatePrescriptionInfo(updatedPrescription, updatedPrescription.getId()).block());
+                        .updatePrescriptionInfo(updatedPrescription, updatedPrescription.id()).block());
     }
 
     @Test
@@ -148,7 +148,7 @@ public class DoctorPrescriptionServiceTest {
 
         assertThrows(PrescriptionException.class,
                 () -> doctorPrescriptionService
-                        .updatePrescriptionInfo(updatedPrescription, updatedPrescription.getId()).block());
+                        .updatePrescriptionInfo(updatedPrescription, updatedPrescription.id()).block());
     }
 
     @Test

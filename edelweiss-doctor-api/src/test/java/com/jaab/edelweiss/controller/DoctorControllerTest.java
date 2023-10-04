@@ -13,8 +13,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
 
 @WebFluxTest(controllers = DoctorController.class)
 public class DoctorControllerTest {
@@ -37,8 +35,6 @@ public class DoctorControllerTest {
 
     @Test
     public void createPhysicianTest() {
-        when(doctorService.createDoctor(any(Doctor.class))).thenReturn(doctor);
-
         webTestClient.post()
                 .uri("/newPhysician")
                 .contentType(MediaType.APPLICATION_JSON)
