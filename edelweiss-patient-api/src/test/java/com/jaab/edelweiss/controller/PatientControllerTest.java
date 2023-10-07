@@ -37,17 +37,13 @@ public class PatientControllerTest {
         assertNotNull(patientService);
 
         james = TestUtils.james;
-
         bethany = TestUtils.bethany;
-
         carver = TestUtils.carver;
     }
 
     @Test
     public void createPatientTest() {
         PatientDTO patientDTO = new PatientDTO(james);
-
-        when(patientService.createPatient(any(Patient.class))).thenReturn(patientDTO);
 
         webTestClient.post()
                 .uri("/newPatient")
@@ -151,6 +147,7 @@ public class PatientControllerTest {
     @Test
     public void getAddressTest() {
         AddressDTO addressDTO = new AddressDTO(TestUtils.carverAddress);
+
         when(patientService.getAddress(anyLong())).thenReturn(addressDTO);
 
         webTestClient.get()

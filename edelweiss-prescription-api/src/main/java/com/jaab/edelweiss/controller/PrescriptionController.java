@@ -5,6 +5,7 @@ import com.jaab.edelweiss.dto.PrescriptionStatusDTO;
 import com.jaab.edelweiss.dto.UpdatePrescriptionDTO;
 import com.jaab.edelweiss.model.Status;
 import com.jaab.edelweiss.service.PrescriptionService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
@@ -27,6 +28,7 @@ public class PrescriptionController {
      */
     @PostMapping(value = "/physician/newPrescription", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.CREATED)
     public Mono<PrescriptionDTO> createPrescription(@RequestBody PrescriptionDTO prescriptionDTO) {
         return Mono.just(prescriptionService.createPrescription(prescriptionDTO));
     }

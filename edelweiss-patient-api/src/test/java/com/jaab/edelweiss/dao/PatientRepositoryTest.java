@@ -13,7 +13,6 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
@@ -27,9 +26,6 @@ public class PatientRepositoryTest {
 
     @BeforeEach
     public void init() {
-        assertNotNull(patientRepository);
-        assertNotNull(entityManager);
-
         Patient james = TestUtils.james;
         Patient bethany = TestUtils.bethany;
         Patient carver = TestUtils.carver;

@@ -73,6 +73,7 @@ public class PrescriptionService {
      * @param prescriptionDTO - the UpdatePrescriptionDTO payload from the doctor API
      * @param prescriptionId  - the ID of the prescription
      * @return - the updated prescription
+     * @throws PrescriptionNotFoundException if the prescription with the specified ID is not found
      */
     public PrescriptionDTO updatePrescriptionInfo(UpdatePrescriptionDTO prescriptionDTO,
                                                   Long prescriptionId) {
