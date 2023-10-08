@@ -2,6 +2,7 @@ package com.jaab.edelweiss.controller;
 
 import com.jaab.edelweiss.dto.AppointmentDTO;
 import com.jaab.edelweiss.service.AppointmentService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
@@ -25,6 +26,7 @@ public class AppointmentController {
      */
     @PostMapping(value = "/newAppointment", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.CREATED)
     public Mono<AppointmentDTO> createAppointment(@RequestBody AppointmentDTO appointmentDTO) {
         return Mono.just(appointmentService.createAppointment(appointmentDTO));
     }

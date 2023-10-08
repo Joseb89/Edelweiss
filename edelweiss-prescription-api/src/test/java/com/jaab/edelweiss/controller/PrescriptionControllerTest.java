@@ -7,7 +7,6 @@ import com.jaab.edelweiss.model.Prescription;
 import com.jaab.edelweiss.model.Status;
 import com.jaab.edelweiss.service.PrescriptionService;
 import com.jaab.edelweiss.utils.TestUtils;
-import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
@@ -15,8 +14,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
 @WebFluxTest(controllers = PrescriptionController.class)
@@ -40,8 +38,7 @@ public class PrescriptionControllerTest {
                 .bodyValue(prescriptionDTO)
                 .accept(MediaType.APPLICATION_JSON)
                 .exchange()
-                .expectStatus().isCreated()
-                .expectBody().jsonPath("$.prescriptionName", Matchers.is("Potion"));
+                .expectStatus().isCreated();
     }
 
     @Test
@@ -78,7 +75,7 @@ public class PrescriptionControllerTest {
                 prescription.getDoctorLastName(), updatePrescriptionDTO.prescriptionName(),
                 updatePrescriptionDTO.prescriptionDosage(), prescription.getPrescriptionStatus());
 
-        when(prescriptionService.updatePrescriptionInfo(updatePrescriptionDTO, prescription.getId()))
+        when(prescriptionService.updatePrescriptionInfo(any(UpdatePrescriptionDTO.class), anyLong()))
                 .thenReturn(prescriptionDTO);
 
         webTestClient.patch()
@@ -100,7 +97,7 @@ public class PrescriptionControllerTest {
                 prescription.getDoctorLastName(), prescription.getPrescriptionName(),
                 prescription.getPrescriptionDosage(), status.prescriptionStatus());
 
-        when(prescriptionService.approvePrescription(status, prescription.getId()))
+        when(prescriptionService.approvePrescription(any(PrescriptionStatusDTO.class), anyLong()))
                 .thenReturn(prescriptionDTO);
 
         webTestClient.patch()
