@@ -10,7 +10,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
- * This class is a controller for the endpoints for creating and maintaining appointment data
+ * This class is a controller for the endpoints that create and maintain appointment data
  *
  * @author Joseph Barr
  */
@@ -25,11 +25,11 @@ public class DoctorAppointmentController {
     }
 
     /**
-     * Sends an appointment payload to the appointment API
+     * Sends an AppointmentDTO payload to the appointment API
      *
      * @param appointment - the AppointmentDTO payload
      * @param physicianId - the ID of the doctor
-     * @return - HTTP status response with the appointment payload
+     * @return - HTTP status response with the new appointment
      */
     @PostMapping(value = "/{physicianId}/newAppointment", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)

@@ -32,11 +32,13 @@ public class DoctorPrescriptionService {
     /**
      * Creates a new prescription and sends it to the prescription API
      *
-     * @param newPrescription - the PrescriptionDTO payload
+     * @param newPrescription - the PrescriptionDTO object
      * @param physicianId     - the ID of the doctor
      * @return - the new prescription
+     * @throws PrescriptionException if the doctor inputs invalid data for the prescription
      */
-    public Mono<PrescriptionDTO> createPrescription(PrescriptionDTO newPrescription, Long physicianId) {
+    public Mono<PrescriptionDTO> createPrescription(PrescriptionDTO newPrescription, Long physicianId)
+            throws PrescriptionException {
         if (doctorUtils.prescriptionNameIsNotValid(newPrescription))
             throw new PrescriptionException("Please specify prescription name.");
 
@@ -63,7 +65,7 @@ public class DoctorPrescriptionService {
      * Retrieves the prescriptions from the prescription API for the doctor with the specified ID
      *
      * @param physicianId - the ID of the doctor
-     * @return - the list of the prescriptions
+     * @return - the list of the doctor's prescriptions
      */
     public Flux<PrescriptionDTO> getPrescriptions(Long physicianId) {
         String[] doctorName = doctorUtils.setDoctorName(physicianId);
@@ -79,11 +81,12 @@ public class DoctorPrescriptionService {
     }
 
     /**
-     * Updates a prescription with the corresponding ID and sends it to the prescription API
+     * Updates a prescription with the specified ID and sends it to the prescription API
      *
-     * @param prescriptionDTO - the UpdatePrescriptionDTO payload containing the updated information
+     * @param prescriptionDTO - the UpdatePrescriptionDTO object containing the updated information
      * @param prescriptionId  - the ID of the prescription
      * @return - the updated prescription
+     * @throws PrescriptionException if the doctor inputs invalid data for the prescription
      */
     public Mono<UpdatePrescriptionDTO> updatePrescriptionInfo(UpdatePrescriptionDTO prescriptionDTO,
                                                               Long prescriptionId) throws PrescriptionException {

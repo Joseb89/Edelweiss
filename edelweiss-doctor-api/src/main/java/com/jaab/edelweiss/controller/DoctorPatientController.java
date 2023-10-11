@@ -9,7 +9,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
- * This class is a controller for the endpoints for retrieving patient information from the patient API
+ * This class is a controller for the endpoints that retrieve patient information from the patient API
  *
  * @author Joseph Barr
  */
@@ -68,7 +68,7 @@ public class DoctorPatientController {
     }
 
     /**
-     * Retrieves the address of a patient with the corresponding ID from the patient API
+     * Retrieves the address of a patient with the specified ID from the patient API
      *
      * @param patientId - the ID of the patient
      * @return - HTTP status response with the patient's address

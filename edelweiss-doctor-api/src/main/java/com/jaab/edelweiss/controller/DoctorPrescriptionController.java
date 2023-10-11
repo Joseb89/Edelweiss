@@ -11,7 +11,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
- * This class is a controller for the endpoints for creating and maintaining prescription data
+ * This class is a controller for the endpoints that create and maintain prescription data
  *
  * @author Joseph Barr
  */
@@ -26,17 +26,16 @@ public class DoctorPrescriptionController {
     }
 
     /**
-     * Sends a prescription payload to the prescription API
+     * Sends a PrescriptionDTO payload to the prescription API
      *
      * @param prescription - the PrescriptionDTO payload
      * @param physicianId  - the ID of the doctor
-     * @return - HTTP status response with the prescription payload
+     * @return - HTTP status response with the new prescription
      */
     @PostMapping(value = "/{physicianId}/newPrescription", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Mono<PrescriptionDTO>> createPrescription(
-            @RequestBody PrescriptionDTO prescription,
-            @PathVariable Long physicianId) {
+            @RequestBody PrescriptionDTO prescription, @PathVariable Long physicianId) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(doctorPrescriptionService.createPrescription(prescription, physicianId));
     }
@@ -53,7 +52,7 @@ public class DoctorPrescriptionController {
     }
 
     /**
-     * Updates a prescription with the corresponding ID and sends it to the prescription API
+     * Updates a prescription with the specified ID and sends it to the prescription API
      *
      * @param prescriptionDTO - the UpdatePrescriptionDTO payload containing the updated information
      * @param prescriptionId  - the ID of the prescription

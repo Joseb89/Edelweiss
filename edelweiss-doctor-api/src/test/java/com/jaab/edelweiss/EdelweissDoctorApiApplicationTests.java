@@ -1,10 +1,7 @@
 package com.jaab.edelweiss;
 
 import com.jaab.edelweiss.controller.*;
-import com.jaab.edelweiss.service.DoctorAppointmentService;
-import com.jaab.edelweiss.service.DoctorPatientService;
-import com.jaab.edelweiss.service.DoctorPrescriptionService;
-import com.jaab.edelweiss.service.DoctorService;
+import com.jaab.edelweiss.service.*;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

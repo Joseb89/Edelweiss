@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 /**
- * This class is a controller for the endpoints for creating and maintaining physician data
+ * This class is a controller for the endpoints that create and maintain physician data
  *
  * @author Joseph Barr
  */
@@ -32,7 +32,7 @@ public class DoctorController {
     @PostMapping(value = "/newPhysician", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
-    public Doctor createPhysician(@RequestBody Doctor doctor) {
+    public Doctor createDoctor(@RequestBody Doctor doctor) {
         return doctorService.createDoctor(doctor);
     }
 
@@ -40,19 +40,18 @@ public class DoctorController {
      * Updates the doctor's information and merges it to the doctor database
      *
      * @param physicianId - the ID of the doctor
-     * @param fields      - the Doctor payload containing the updated information
-     * @return - HTTP status response
+     * @param fields      - the payload containing the updated information
+     * @return - HTTP status response with the updated doctor
      */
     @PatchMapping(value = "/physician/{physicianId}/updatePhysicianInfo",
-            consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> updateDoctorInfo(@PathVariable Long physicianId,
+            consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Doctor> updateDoctorInfo(@PathVariable Long physicianId,
                                                    @RequestBody Map<String, Object> fields) {
-        doctorService.updateDoctorInfo(physicianId, fields);
-        return ResponseEntity.ok("User information updated successfully.");
+        return ResponseEntity.ok(doctorService.updateDoctorInfo(physicianId, fields));
     }
 
     /**
-     * Deletes a doctor from the doctor database based on their id
+     * Deletes a doctor from the doctor database based on their ID
      *
      * @param physicianId - the ID of the doctor
      * @return - HTTP status response

@@ -3,7 +3,6 @@ package com.jaab.edelweiss.controller;
 import com.jaab.edelweiss.dto.AddressDTO;
 import com.jaab.edelweiss.dto.PatientDTO;
 import com.jaab.edelweiss.service.DoctorPatientService;
-import com.jaab.edelweiss.utils.TestUtils;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,8 +12,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
-
+import static com.jaab.edelweiss.utils.TestUtils.*;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
@@ -30,7 +28,7 @@ public class DoctorPatientControllerTest {
 
     @Test
     public void getPatientByIdTest() {
-        PatientDTO patientDTO = new PatientDTO(1L, "Squall", "Leonheart",
+        PatientDTO patientDTO = new PatientDTO(ID, "Squall", "Leonheart",
                 "finalfantasy8@gmail.com", 3304589971L, "Rinoa Heartily", "A+");
 
         when(doctorPatientService.getPatientById(anyLong())).thenReturn(Mono.just(patientDTO));
@@ -44,12 +42,11 @@ public class DoctorPatientControllerTest {
 
     @Test
     public void getPatientsByFirstNameTest() {
-        List<PatientDTO> patients = TestUtils.getPatientsByFirstName();
-
-        when(doctorPatientService.getPatientsByFirstName(anyString())).thenReturn(Flux.fromIterable(patients));
+        when(doctorPatientService.getPatientsByFirstName(anyString()))
+                .thenReturn(Flux.fromIterable(getPatientsByFirstName()));
 
         webTestClient.get()
-                .uri("/physician/getPatientsByFirstName/" + TestUtils.firstNameTestParameter)
+                .uri("/physician/getPatientsByFirstName/" + firstNameTestParameter)
                 .exchange()
                 .expectStatus().isOk()
                 .expectBodyList(PatientDTO.class).hasSize(1);
@@ -57,12 +54,11 @@ public class DoctorPatientControllerTest {
 
     @Test
     public void getPatientsByLastNameTest() {
-        List<PatientDTO> patients = TestUtils.getPatientsByLastName();
-
-        when(doctorPatientService.getPatientsByLastName(anyString())).thenReturn(Flux.fromIterable(patients));
+        when(doctorPatientService.getPatientsByLastName(anyString()))
+                .thenReturn(Flux.fromIterable(getPatientsByLastName()));
 
         webTestClient.get()
-                .uri("/physician/getPatientsByLastName/" + TestUtils.lastNameTestParameter)
+                .uri("/physician/getPatientsByLastName/" + lastNameTestParameter)
                 .exchange()
                 .expectStatus().isOk()
                 .expectBodyList(PatientDTO.class).hasSize(3);
@@ -70,12 +66,11 @@ public class DoctorPatientControllerTest {
 
     @Test
     public void getPatientsByBloodTypeTest() {
-        List<PatientDTO> patients = TestUtils.getPatientsByBloodType();
-
-        when(doctorPatientService.getPatientsByBloodType(anyString())).thenReturn(Flux.fromIterable(patients));
+        when(doctorPatientService.getPatientsByBloodType(anyString()))
+                .thenReturn(Flux.fromIterable(getPatientsByBloodType()));
 
         webTestClient.get()
-                .uri("/physician/getPatientsByBloodType/" + TestUtils.bloodTypeTestParameter)
+                .uri("/physician/getPatientsByBloodType/" + bloodTypeTestParameter)
                 .exchange()
                 .expectStatus().isOk()
                 .expectBodyList(PatientDTO.class).hasSize(2);
@@ -89,7 +84,7 @@ public class DoctorPatientControllerTest {
         when(doctorPatientService.getPatientAddress(anyLong())).thenReturn(Mono.just(addressDTO));
 
         webTestClient.get()
-                .uri("/physician/getPatientAddress/" + TestUtils.ID)
+                .uri("/physician/getPatientAddress/" + ID)
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody().jsonPath("$.streetAddress", Matchers.is("59 Gallows St"));
@@ -98,7 +93,7 @@ public class DoctorPatientControllerTest {
     @Test
     public void deletePatientTest() {
         webTestClient.delete()
-                .uri("/physician/deletePatient/" + TestUtils.ID)
+                .uri("/physician/deletePatient/" + ID)
                 .exchange()
                 .expectStatus().isOk();
     }

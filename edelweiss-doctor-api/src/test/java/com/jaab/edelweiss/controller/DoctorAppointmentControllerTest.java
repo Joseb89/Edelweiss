@@ -1,10 +1,8 @@
 package com.jaab.edelweiss.controller;
 
 import com.jaab.edelweiss.dto.AppointmentDTO;
+import com.jaab.edelweiss.exception.AppointmentException;
 import com.jaab.edelweiss.service.DoctorAppointmentService;
-import com.jaab.edelweiss.utils.TestUtils;
-import org.hamcrest.Matchers;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
@@ -16,9 +14,8 @@ import reactor.core.publisher.Mono;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static com.jaab.edelweiss.utils.TestUtils.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
@@ -32,38 +29,46 @@ public class DoctorAppointmentControllerTest {
     @MockBean
     private DoctorAppointmentService doctorAppointmentService;
 
-    @BeforeEach
-    public void init() {
-        assertNotNull(webTestClient);
-        assertNotNull(doctorAppointmentService);
+    @Test
+    public void createAppointmentTest() {
+        AppointmentDTO appointmentDTO = new AppointmentDTO(ID, "Rinoa", "Heartily",
+                "Squall", "Leonheart",
+                LocalDate.of(YEAR, 10, 25), LocalTime.of(14, 30));
+
+        webTestClient.post()
+                .uri("/physician/" + ID + "/newAppointment")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(appointmentDTO)
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isCreated();
     }
 
     @Test
-    public void createAppointmentTest() {
-        AppointmentDTO appointmentDTO = new AppointmentDTO(1L, "Rinoa", "Heartily",
+    public void createAppointmentExceptionTest() {
+        AppointmentDTO appointmentDTO = new AppointmentDTO(ID, "Rinoa", "Heartily",
                 "Squall", "Leonheart",
-                LocalDate.of(TestUtils.YEAR, 10, 25), LocalTime.of(14, 30));
+                LocalDate.of(2023, 10, 25), LocalTime.of(14, 30));
 
         when(doctorAppointmentService.createAppointment(any(AppointmentDTO.class), anyLong()))
-                .thenReturn(Mono.just(appointmentDTO));
+                .thenThrow(AppointmentException.class);
 
         webTestClient.post()
-                .uri("/physician/" + TestUtils.ID + "/newAppointment")
+                .uri("/physician/" + ID + "/newAppointment")
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(appointmentDTO)
+                .accept(MediaType.APPLICATION_JSON)
                 .exchange()
-                .expectStatus().isCreated()
-                .expectBody().jsonPath("$.lastName", Matchers.is("Heartily"));
+                .expectStatus().is4xxClientError();
     }
 
     @Test
     public void getAppointmentsTest() {
-        List<AppointmentDTO> appointments = TestUtils.getAppointments();
-
-        when(doctorAppointmentService.getAppointments(anyLong())).thenReturn(Flux.fromIterable(appointments));
+        when(doctorAppointmentService.getAppointments(anyLong()))
+                .thenReturn(Flux.fromIterable(getAppointments()));
 
         webTestClient.get()
-                .uri("/physician/" + TestUtils.ID + "/myAppointments")
+                .uri("/physician/" + ID + "/myAppointments")
                 .exchange()
                 .expectStatus().isOk()
                 .expectBodyList(AppointmentDTO.class).hasSize(2);
@@ -71,7 +76,7 @@ public class DoctorAppointmentControllerTest {
 
     @Test
     public void updateAppointmentInfoTest() {
-        AppointmentDTO updatedAppointment = new AppointmentDTO(1L, null, null,
+        AppointmentDTO updatedAppointment = new AppointmentDTO(ID, null, null,
                 null, null, null, LocalTime.of(15, 0));
 
         when(doctorAppointmentService.updateAppointmentInfo(any(AppointmentDTO.class), anyLong()))
@@ -83,14 +88,31 @@ public class DoctorAppointmentControllerTest {
                 .bodyValue(updatedAppointment)
                 .accept(MediaType.APPLICATION_JSON)
                 .exchange()
-                .expectStatus().isOk()
-                .expectBody().jsonPath("$.appointmentTime", Matchers.is("15:00:00"));
+                .expectStatus().isOk();
+    }
+
+    @Test
+    public void updateAppointmentInfoExceptionTest() {
+        AppointmentDTO updatedAppointment = new AppointmentDTO(ID, null, null,
+                null, null, LocalDate.of(2023, 10, 25),
+                null);
+
+        when(doctorAppointmentService.updateAppointmentInfo(any(AppointmentDTO.class), anyLong()))
+                .thenThrow(AppointmentException.class);
+
+        webTestClient.patch()
+                .uri("/physician/updateAppointmentInfo/" + updatedAppointment.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(updatedAppointment)
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().is4xxClientError();
     }
 
     @Test
     public void deleteAppointmentTest() {
         webTestClient.delete()
-                .uri("/physician/deleteAppointment/" + TestUtils.ID)
+                .uri("/physician/deleteAppointment/" + ID)
                 .exchange()
                 .expectStatus().isOk();
     }

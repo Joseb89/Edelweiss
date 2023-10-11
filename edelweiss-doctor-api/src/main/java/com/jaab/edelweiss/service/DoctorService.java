@@ -28,8 +28,8 @@ public class DoctorService {
     /**
      * Saves a new doctor to the doctor database
      *
-     * @param doctor - the Doctor payload
-     * @return - the new Doctor
+     * @param doctor - the Doctor object
+     * @return - the new doctor
      */
     public Doctor createDoctor(Doctor doctor) {
         doctor.setRole(Role.PHYSICIAN);
@@ -39,26 +39,27 @@ public class DoctorService {
     }
 
     /**
-     * Updates the information of the doctor via a Doctor payload and merges it to the doctor database
+     * Updates the information of the doctor and merges it to the doctor database
      *
      * @param physicianId - the ID of the doctor
-     * @param fields      - the Doctor payload
+     * @param fields      - the updated information
+     * @return - the updated doctor
      */
-    public void updateDoctorInfo(Long physicianId, Map<String, Object> fields) {
-        Optional<Doctor> doctor = doctorRepository.findById(physicianId);
+    public Doctor updateDoctorInfo(Long physicianId, Map<String, Object> fields) {
+        Doctor doctor = getDoctorById(physicianId);
 
-        if (doctor.isPresent()) {
-            fields.forEach((key, value) -> {
-                Field field = ReflectionUtils.findField(Doctor.class, key);
+        fields.forEach((key, value) -> {
+            Field field = ReflectionUtils.findField(Doctor.class, key);
 
-                if (field != null) {
-                    field.setAccessible(true);
-                    ReflectionUtils.setField(field, doctor.get(), value);
-                }
-            });
+            if (field != null) {
+                field.setAccessible(true);
+                ReflectionUtils.setField(field, doctor, value);
+            }
+        });
 
-            doctorRepository.save(doctor.get());
-        }
+        doctorRepository.save(doctor);
+
+        return doctor;
     }
 
     /**
@@ -68,11 +69,24 @@ public class DoctorService {
      * @throws DoctorNotFoundException if the doctor with the specified ID is not found
      */
     public void deleteDoctor(Long physicianId) throws DoctorNotFoundException {
+        Doctor doctor = getDoctorById(physicianId);
+
+        doctorRepository.deleteById(doctor.getId());
+    }
+
+    /**
+     * Retrieves a doctor from the doctor database based on their ID
+     *
+     * @param physicianId - the ID of the doctor
+     * @return - the doctor if found
+     * @throws DoctorNotFoundException if the doctor with the specified ID is not found
+     */
+    private Doctor getDoctorById(Long physicianId) throws DoctorNotFoundException {
         Optional<Doctor> doctor = doctorRepository.findById(physicianId);
 
         if (doctor.isEmpty())
             throw new DoctorNotFoundException("No doctor with the specified ID found.");
 
-        doctorRepository.deleteById(doctor.get().getId());
+        return doctor.get();
     }
 }

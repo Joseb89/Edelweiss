@@ -21,14 +21,14 @@ public class DoctorPatientService {
     private final WebClient webClient;
 
     public DoctorPatientService(WebClient.Builder builder) {
-        this.webClient = builder.baseUrl("http://localhost:8082/physician").build();
+        this.webClient = builder.baseUrl("http://localhost:8083/physician").build();
     }
 
     /**
      * Retrieves a patient from the patient API based on the patient's ID
      *
      * @param patientId - the ID of the patient
-     * @return - the patient's information from the patient API
+     * @return - the patient's information
      */
     public Mono<PatientDTO> getPatientById(Long patientId) {
         return webClient.get()
@@ -42,37 +42,37 @@ public class DoctorPatientService {
     }
 
     /**
-     * Retrieves a list of patients from the patient API based on their first name
+     * Retrieves a list of patients from the patient API based on the patient's first name
      *
      * @param firstName - the first name of the patient
-     * @return - the PatientDTO List from the patient API
+     * @return - the list of patients matching the criteria
      */
     public Flux<PatientDTO> getPatientsByFirstName(String firstName) {
         return getPatientRequest("/getPatientsByFirstName/", firstName);
     }
 
     /**
-     * Retrieves a list of patients from the patient API based on their last name
+     * Retrieves a list of patients from the patient API based on the patient's last name
      *
      * @param lastName - the last name of the patient
-     * @return - the PatientDTO List from the patient API
+     * @return - the list of patients matching the criteria
      */
     public Flux<PatientDTO> getPatientsByLastName(String lastName) {
         return getPatientRequest("/getPatientsByLastName/", lastName);
     }
 
     /**
-     * Retrieves a list of patients from the patient API based on their blood type
+     * Retrieves a list of patients from the patient API based on the patient's blood type
      *
      * @param bloodType - the blood type of the patient
-     * @return - the PatientDTO List from the patient API
+     * @return - the list of patients matching the criteria
      */
     public Flux<PatientDTO> getPatientsByBloodType(String bloodType) {
         return getPatientRequest("/getPatientsByBloodType/", bloodType);
     }
 
     /**
-     * Retrieves the address of the patient with the corresponding ID from the patient API
+     * Retrieves the address of the patient with the specified ID from the patient API
      *
      * @param patientId - the ID of the patient
      * @return - the patient's address

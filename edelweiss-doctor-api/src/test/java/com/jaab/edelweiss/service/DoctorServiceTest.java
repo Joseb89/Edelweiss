@@ -32,7 +32,7 @@ public class DoctorServiceTest {
     private Doctor doctor;
 
     @BeforeEach
-    public void init() {
+    void init() {
         doctor = TestUtils.createDoctor(TestUtils.ID);
     }
 
@@ -46,6 +46,9 @@ public class DoctorServiceTest {
 
     @Test
     public void updateDoctorInfoTest() {
+        assertEquals("seniorenchanter@aol.com", doctor.getEmail());
+        assertEquals("spiritoffaith", doctor.getPassword());
+
         Map<String, Object> updatedInfo = new HashMap<>();
         updatedInfo.put("email", "archmage@aol.com");
         updatedInfo.put("password", "aneirin");
@@ -61,6 +64,7 @@ public class DoctorServiceTest {
     @Test
     public void deleteDoctorTest() {
         when(doctorRepository.findById(anyLong())).thenReturn(Optional.of(doctor));
+
         doctorService.deleteDoctor(doctor.getId());
 
         verify(doctorRepository, times(1)).deleteById(doctor.getId());
@@ -68,6 +72,6 @@ public class DoctorServiceTest {
 
     @Test
     public void deleteDoctorExceptionTest() {
-        assertThrows(DoctorNotFoundException.class, () -> doctorService.deleteDoctor(1L));
+        assertThrows(DoctorNotFoundException.class, () -> doctorService.deleteDoctor(doctor.getId()));
     }
 }

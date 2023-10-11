@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jaab.edelweiss.dto.AddressDTO;
 import com.jaab.edelweiss.dto.PatientDTO;
-import com.jaab.edelweiss.utils.TestUtils;
 import jakarta.transaction.Transactional;
 import mockwebserver3.MockResponse;
 import mockwebserver3.MockWebServer;
@@ -19,6 +18,9 @@ import reactor.test.StepVerifier;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
+
+import static com.jaab.edelweiss.utils.TestUtils.*;
 
 @SpringBootTest
 @Transactional
@@ -32,22 +34,22 @@ public class DoctorPatientServiceTest {
 
     private static MockWebServer mockWebServer;
 
-    private static final int PATIENT_API_PORT = 8082;
+    private static final int PATIENT_API_PORT = 8083;
 
     @BeforeAll
-    public static void init() throws IOException {
+    static void init() throws IOException {
         mockWebServer = new MockWebServer();
         mockWebServer.start(PATIENT_API_PORT);
     }
 
     @AfterAll
-    public static void cleanup() throws IOException {
+    static void cleanup() throws IOException {
         mockWebServer.shutdown();
     }
 
     @Test
     public void getPatientByIdTest() throws JsonProcessingException {
-        PatientDTO patientDTO = new PatientDTO(1L, "Dane", "Cousland",
+        PatientDTO patientDTO = new PatientDTO(ID, "Dane", "Cousland",
                 "heroofferelden@gmail.com", 8853694771L,
                 "Wynne Langrene", "B+");
 
@@ -58,20 +60,21 @@ public class DoctorPatientServiceTest {
         Mono<PatientDTO> getPatient = doctorPatientService.getPatientById(patientDTO.id());
 
         StepVerifier.create(getPatient)
-                .expectNextMatches(p -> p.firstName().equals("Dane") &&
-                        p.lastName().equals("Cousland"))
+                .expectNextMatches(p -> Objects.equals(p.firstName(), "Dane") &&
+                        Objects.equals(p.lastName(), "Cousland"))
                 .verifyComplete();
     }
 
     @Test
     public void getPatientsByFirstNameTest() throws JsonProcessingException {
-        List<PatientDTO> patients = TestUtils.getPatientsByFirstName();
+        List<PatientDTO> patients = getPatientsByFirstName();
 
         mockWebServer.enqueue(new MockResponse()
                 .addHeader("Content-Type", "application/json")
                 .setBody(objectMapper.writeValueAsString(patients)));
 
-        Flux<PatientDTO> getPatients = doctorPatientService.getPatientsByFirstName(TestUtils.firstNameTestParameter);
+        Flux<PatientDTO> getPatients =
+                doctorPatientService.getPatientsByFirstName(firstNameTestParameter);
 
         StepVerifier.create(getPatients)
                 .expectNextCount(1)
@@ -80,13 +83,14 @@ public class DoctorPatientServiceTest {
 
     @Test
     public void getPatientsByLastNameTest() throws JsonProcessingException {
-        List<PatientDTO> patients = TestUtils.getPatientsByLastName();
+        List<PatientDTO> patients = getPatientsByLastName();
 
         mockWebServer.enqueue(new MockResponse()
                 .addHeader("Content-Type", "application/json")
                 .setBody(objectMapper.writeValueAsString(patients)));
 
-        Flux<PatientDTO> getPatients = doctorPatientService.getPatientsByLastName(TestUtils.lastNameTestParameter);
+        Flux<PatientDTO> getPatients =
+                doctorPatientService.getPatientsByLastName(lastNameTestParameter);
 
         StepVerifier.create(getPatients)
                 .expectNextCount(3)
@@ -95,13 +99,14 @@ public class DoctorPatientServiceTest {
 
     @Test
     public void getPatientsByBloodTypeTest() throws JsonProcessingException {
-        List<PatientDTO> patients = TestUtils.getPatientsByBloodType();
+        List<PatientDTO> patients = getPatientsByBloodType();
 
         mockWebServer.enqueue(new MockResponse()
                 .addHeader("Content-Type", "application/json")
                 .setBody(objectMapper.writeValueAsString(patients)));
 
-        Flux<PatientDTO> getPatients = doctorPatientService.getPatientsByBloodType(TestUtils.bloodTypeTestParameter);
+        Flux<PatientDTO> getPatients =
+                doctorPatientService.getPatientsByBloodType(bloodTypeTestParameter);
 
         StepVerifier.create(getPatients)
                 .expectNextCount(2)
@@ -117,11 +122,11 @@ public class DoctorPatientServiceTest {
                 .addHeader("Content-Type", "application/json")
                 .setBody(objectMapper.writeValueAsString(addressDTO)));
 
-        Mono<AddressDTO> patientAddress = doctorPatientService.getPatientAddress(1L);
+        Mono<AddressDTO> patientAddress = doctorPatientService.getPatientAddress(ID);
 
         StepVerifier.create(patientAddress)
-                .expectNextMatches(a -> a.city().equals("Cleveland") &&
-                        a.state().equals("OH"))
+                .expectNextMatches(a -> Objects.equals(a.city(), "Cleveland") &&
+                        Objects.equals(a.state(), "OH"))
                 .verifyComplete();
     }
 
@@ -129,7 +134,7 @@ public class DoctorPatientServiceTest {
     public void deletePatientTest() {
         mockWebServer.enqueue(new MockResponse().setResponseCode(200));
 
-        Mono<Void> deletePatient = doctorPatientService.deletePatient(1L);
+        Mono<Void> deletePatient = doctorPatientService.deletePatient(ID);
 
         StepVerifier.create(deletePatient)
                 .verifyComplete();

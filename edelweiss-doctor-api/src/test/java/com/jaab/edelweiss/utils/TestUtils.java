@@ -15,6 +15,10 @@ import java.util.Objects;
 
 public abstract class TestUtils {
 
+    public static String doctorFirstName = "Wynne";
+
+    public static String doctorLastName = "Langrene";
+
     public static String firstNameTestParameter = "James";
 
     public static String lastNameTestParameter = "Hawke";
@@ -27,12 +31,8 @@ public abstract class TestUtils {
 
     private static final List<PatientDTO> PATIENTS = createPatients();
 
-    private static final List<PrescriptionDTO> PRESCRIPTIONS = createPrescriptions();
-
-    private static final List<AppointmentDTO> APPOINTMENTS = createAppointments();
-
     public static Doctor createDoctor(Long physicianId) {
-        return new Doctor(physicianId, "Wynne", "Langrene", "seniorenchanter@aol.com",
+        return new Doctor(physicianId, doctorFirstName, doctorLastName, "seniorenchanter@aol.com",
                 "spiritoffaith", 6687412012L, "Hematology", Role.PHYSICIAN);
     }
 
@@ -55,16 +55,20 @@ public abstract class TestUtils {
     }
 
     public static List<PrescriptionDTO> getPrescriptions() {
-        return PRESCRIPTIONS.stream()
-                .filter(p -> Objects.equals(p.getDoctorFirstName(), "Wynne") &&
-                        Objects.equals(p.getDoctorLastName(), "Langrene"))
+        List<PrescriptionDTO> prescriptions = createPrescriptions();
+
+        return prescriptions.stream()
+                .filter(p -> Objects.equals(p.getDoctorFirstName(), doctorFirstName) &&
+                        Objects.equals(p.getDoctorLastName(), doctorLastName))
                 .toList();
     }
 
     public static List<AppointmentDTO> getAppointments() {
-        return APPOINTMENTS.stream()
-                .filter(a -> a.getDoctorFirstName().equals("Wynne") &&
-                        a.getDoctorLastName().equals("Langrene"))
+        List<AppointmentDTO> appointments = createAppointments();
+
+        return appointments.stream()
+                .filter(a -> a.getDoctorFirstName().equals(doctorFirstName) &&
+                        a.getDoctorLastName().equals(doctorLastName))
                 .toList();
     }
 
@@ -91,10 +95,10 @@ public abstract class TestUtils {
     }
 
     private static List<PrescriptionDTO> createPrescriptions() {
-        PrescriptionDTO felandris = new PrescriptionDTO(1L, "Wynne", "Langrene",
+        PrescriptionDTO felandris = new PrescriptionDTO(1L, doctorFirstName, doctorLastName,
                 "Felandris", (byte) 50, Status.PENDING);
 
-        PrescriptionDTO ambrosia = new PrescriptionDTO(2L, "Wynne", "Langrene",
+        PrescriptionDTO ambrosia = new PrescriptionDTO(2L, doctorFirstName, doctorLastName,
                 "Ambrosia", (byte) 60, Status.PENDING);
 
         PrescriptionDTO lyrium = new PrescriptionDTO(3L, "Solas", "Wolffe",
@@ -110,7 +114,7 @@ public abstract class TestUtils {
     }
 
     private static List<AppointmentDTO> createAppointments() {
-        AppointmentDTO firstAppointment = new AppointmentDTO(1L, "Wynne", "Langrene",
+        AppointmentDTO firstAppointment = new AppointmentDTO(1L, doctorFirstName, doctorLastName,
                 "Dane", "Cousland", LocalDate.of((YEAR + 1), 10, 5),
                 LocalTime.of(10, 30));
 
@@ -118,7 +122,7 @@ public abstract class TestUtils {
                 "Evelyn", "Trevelyan", LocalDate.of((YEAR + 1), 10, 5),
                 LocalTime.of(10, 30));
 
-        AppointmentDTO thirdAppointment = new AppointmentDTO(3L, "Wynne", "Langrene",
+        AppointmentDTO thirdAppointment = new AppointmentDTO(3L, doctorFirstName, doctorLastName,
                 "Alistair", "Theirin", LocalDate.of((YEAR + 1), 10, 8),
                 LocalTime.of(13, 45));
 

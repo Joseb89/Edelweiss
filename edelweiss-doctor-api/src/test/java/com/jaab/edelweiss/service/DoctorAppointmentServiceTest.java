@@ -1,5 +1,6 @@
 package com.jaab.edelweiss.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jaab.edelweiss.dto.AppointmentDTO;
 import com.jaab.edelweiss.exception.AppointmentException;
@@ -22,9 +23,9 @@ import reactor.test.StepVerifier;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.List;
 import java.util.Objects;
 
+import static com.jaab.edelweiss.utils.TestUtils.*;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
@@ -38,7 +39,7 @@ public class DoctorAppointmentServiceTest {
     private ObjectMapper objectMapper;
 
     @Autowired
-    private EntityManager manager;
+    private EntityManager entityManager;
 
     private Doctor doctor;
 
@@ -47,26 +48,26 @@ public class DoctorAppointmentServiceTest {
     private static final int APPOINTMENT_API_PORT = 8085;
 
     @BeforeAll
-    public static void setup() throws IOException {
+    static void setup() throws IOException {
         mockWebServer = new MockWebServer();
         mockWebServer.start(APPOINTMENT_API_PORT);
     }
 
     @AfterAll
-    public static void cleanup() throws IOException {
+    static void cleanup() throws IOException {
         mockWebServer.shutdown();
     }
 
     @BeforeEach
-    public void init() {
-        doctor = TestUtils.createDoctor(null);
+    void init() {
+        doctor = createDoctor(null);
 
-        manager.persist(doctor);
+        entityManager.persist(doctor);
     }
 
     @Test
-    public void createAppointmentTest() throws IOException {
-        AppointmentDTO appointmentDTO = new AppointmentDTO(1L, doctor.getFirstName(), doctor.getLastName(),
+    public void createAppointmentTest() throws JsonProcessingException {
+        AppointmentDTO appointmentDTO = new AppointmentDTO(ID, doctor.getFirstName(), doctor.getLastName(),
                 "Dane", "Cousland",
                 LocalDate.of(TestUtils.YEAR, 10, 25), LocalTime.of(14, 30));
 
@@ -78,15 +79,16 @@ public class DoctorAppointmentServiceTest {
                 doctorAppointmentService.createAppointment(appointmentDTO, doctor.getId());
 
         StepVerifier.create(newAppointment)
-                .expectNextMatches(a -> a.getAppointmentDate()
-                        .equals(LocalDate.of(TestUtils.YEAR, 10, 25)) &&
-                        a.getAppointmentTime().equals(LocalTime.of(14, 30)))
+                .expectNextMatches(a ->
+                        Objects.equals(a.getAppointmentDate(), LocalDate.of(YEAR, 10, 25))
+                                &&
+                                Objects.equals(a.getAppointmentTime(), LocalTime.of(14, 30)))
                 .verifyComplete();
     }
 
     @Test
     public void createAppointmentDateTimeExceptionTest() {
-        AppointmentDTO appointmentDTO = new AppointmentDTO(2L, doctor.getFirstName(), doctor.getLastName(),
+        AppointmentDTO appointmentDTO = new AppointmentDTO(ID, doctor.getFirstName(), doctor.getLastName(),
                 "Dane", "Cousland", LocalDate.of(2023, 6, 10),
                 LocalTime.of(13, 30));
 
@@ -95,12 +97,10 @@ public class DoctorAppointmentServiceTest {
     }
 
     @Test
-    public void getAppointmentsTest() throws IOException {
-        List<AppointmentDTO> appointments = TestUtils.getAppointments();
-
+    public void getAppointmentsTest() throws JsonProcessingException {
         mockWebServer.enqueue(new MockResponse()
                 .addHeader("Content-Type", "application/json")
-                .setBody(objectMapper.writeValueAsString(appointments)));
+                .setBody(objectMapper.writeValueAsString(getAppointments())));
 
         Flux<AppointmentDTO> getAppointments = doctorAppointmentService.getAppointments(doctor.getId());
 
@@ -110,9 +110,9 @@ public class DoctorAppointmentServiceTest {
     }
 
     @Test
-    public void updateAppointmentInfoTest() throws IOException {
-        AppointmentDTO appointmentDTO = new AppointmentDTO(1L, null, null,
-                null, null, LocalDate.of(TestUtils.YEAR, 9, 4),
+    public void updateAppointmentInfoTest() throws JsonProcessingException {
+        AppointmentDTO appointmentDTO = new AppointmentDTO(ID, null, null,
+                null, null, LocalDate.of(YEAR, 9, 4),
                 LocalTime.of(11, 30));
 
         mockWebServer.enqueue(new MockResponse()
@@ -123,14 +123,14 @@ public class DoctorAppointmentServiceTest {
                 doctorAppointmentService.updateAppointmentInfo(appointmentDTO, appointmentDTO.getId());
 
         StepVerifier.create(updatedAppointment)
-                .expectNextMatches(a -> Objects.equals(appointmentDTO.getAppointmentDate(),
-                        LocalDate.of(TestUtils.YEAR, 9, 4)))
+                .expectNextMatches(a -> Objects.equals(a.getAppointmentDate(),
+                        LocalDate.of(YEAR, 9, 4)))
                 .verifyComplete();
     }
 
     @Test
     public void updateAppointmentInfoDateTimeExceptionTest() {
-        AppointmentDTO appointmentDTO = new AppointmentDTO(1L, null, null,
+        AppointmentDTO appointmentDTO = new AppointmentDTO(ID, null, null,
                 null, null, LocalDate.of(2023, 5, 4),
                 null);
 
@@ -142,7 +142,7 @@ public class DoctorAppointmentServiceTest {
     public void deleteAppointmentTest() {
         mockWebServer.enqueue(new MockResponse().setResponseCode(200));
 
-        Mono<Void> deleteAppointment = doctorAppointmentService.deleteAppointment(1L);
+        Mono<Void> deleteAppointment = doctorAppointmentService.deleteAppointment(ID);
 
         StepVerifier.create(deleteAppointment)
                 .verifyComplete();

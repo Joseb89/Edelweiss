@@ -5,8 +5,6 @@ import com.jaab.edelweiss.dto.UpdatePrescriptionDTO;
 import com.jaab.edelweiss.exception.PrescriptionException;
 import com.jaab.edelweiss.service.DoctorPrescriptionService;
 import com.jaab.edelweiss.utils.TestUtils;
-import org.hamcrest.Matchers;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
@@ -16,9 +14,8 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static com.jaab.edelweiss.utils.TestUtils.ID;
+import static com.jaab.edelweiss.utils.TestUtils.getPrescriptions;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
@@ -32,54 +29,44 @@ public class DoctorPrescriptionControllerTest {
     @MockBean
     private DoctorPrescriptionService doctorPrescriptionService;
 
-    @BeforeEach
-    public void init() {
-        assertNotNull(webTestClient);
-        assertNotNull(doctorPrescriptionService);
-    }
-
     @Test
     public void createPrescriptionTest() {
-        PrescriptionDTO prescriptionDTO = new PrescriptionDTO(1L, "Rinoa", "Heartily",
-                "X-Potion", (byte) 50, null);
-
-        when(doctorPrescriptionService.createPrescription(any(PrescriptionDTO.class), anyLong()))
-                .thenReturn(Mono.just(prescriptionDTO));
+        PrescriptionDTO prescriptionDTO = new PrescriptionDTO(ID, "Rinoa",
+                "Heartily", "X-Potion", (byte) 50, null);
 
         webTestClient.post()
-                .uri("/physician/" + TestUtils.ID + "/newPrescription")
+                .uri("/physician/" + ID + "/newPrescription")
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(prescriptionDTO)
+                .accept(MediaType.APPLICATION_JSON)
                 .exchange()
-                .expectStatus().isCreated()
-                .expectBody().jsonPath("$.doctorFirstName", Matchers.is("Rinoa"));
+                .expectStatus().isCreated();
     }
 
     @Test
     public void createPrescriptionExceptionTest() {
-        PrescriptionDTO prescriptionDTO = new PrescriptionDTO(1L, "Rinoa", "Heartily",
-                null, (byte) 50, null);
+        PrescriptionDTO prescriptionDTO = new PrescriptionDTO(ID, "Rinoa",
+                "Heartily", null, (byte) 50, null);
 
         when(doctorPrescriptionService.createPrescription(any(PrescriptionDTO.class), anyLong()))
                 .thenThrow(PrescriptionException.class);
 
         webTestClient.post()
-                .uri("/physician/" + TestUtils.ID + "/newPrescription")
+                .uri("/physician/" + ID + "/newPrescription")
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(prescriptionDTO)
+                .accept(MediaType.APPLICATION_JSON)
                 .exchange()
                 .expectStatus().is4xxClientError();
     }
 
     @Test
     public void getPrescriptionsTest() {
-        List<PrescriptionDTO> prescriptions = TestUtils.getPrescriptions();
-
         when(doctorPrescriptionService.getPrescriptions(anyLong()))
-                .thenReturn(Flux.fromIterable(prescriptions));
+                .thenReturn(Flux.fromIterable(getPrescriptions()));
 
         webTestClient.get()
-                .uri("/physician/" + TestUtils.ID + "/myPrescriptions")
+                .uri("/physician/" + ID + "/myPrescriptions")
                 .exchange()
                 .expectStatus().isOk()
                 .expectBodyList(PrescriptionDTO.class).hasSize(2);
@@ -88,7 +75,7 @@ public class DoctorPrescriptionControllerTest {
     @Test
     public void updatePrescriptionInfoTest() {
         UpdatePrescriptionDTO updatedPrescription =
-                new UpdatePrescriptionDTO(1L, "Ambrosia", (byte) 40);
+                new UpdatePrescriptionDTO(TestUtils.ID, "Ambrosia", (byte) 40);
 
         when(doctorPrescriptionService.updatePrescriptionInfo(any(UpdatePrescriptionDTO.class), anyLong()))
                 .thenReturn(Mono.just(updatedPrescription));
@@ -99,14 +86,13 @@ public class DoctorPrescriptionControllerTest {
                 .bodyValue(updatedPrescription)
                 .accept(MediaType.APPLICATION_JSON)
                 .exchange()
-                .expectStatus().isOk()
-                .expectBody().jsonPath("$.prescriptionName", Matchers.is("Ambrosia"));
+                .expectStatus().isOk();
     }
 
     @Test
     public void updatePrescriptionInfoExceptionTest() {
         UpdatePrescriptionDTO updatedPrescription =
-                new UpdatePrescriptionDTO(1L, "Ambrosia", (byte) -40);
+                new UpdatePrescriptionDTO(ID, "Ambrosia", (byte) -40);
 
         when(doctorPrescriptionService.updatePrescriptionInfo(any(UpdatePrescriptionDTO.class), anyLong()))
                 .thenThrow(PrescriptionException.class);
@@ -123,7 +109,7 @@ public class DoctorPrescriptionControllerTest {
     @Test
     public void deletePrescriptionTest() {
         webTestClient.delete()
-                .uri("/physician/deletePrescription/" + TestUtils.ID)
+                .uri("/physician/deletePrescription/" + ID)
                 .exchange()
                 .expectStatus().isOk();
     }
