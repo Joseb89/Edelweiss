@@ -5,8 +5,6 @@ import com.jaab.edelweiss.dto.AddressDTO;
 import com.jaab.edelweiss.dto.PatientDTO;
 import com.jaab.edelweiss.exception.PatientNotFoundException;
 import com.jaab.edelweiss.model.Patient;
-import com.jaab.edelweiss.utils.TestUtils;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -18,8 +16,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
+import static com.jaab.edelweiss.utils.TestUtils.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -31,24 +32,12 @@ public class PatientServiceTest {
     @Mock
     private PatientRepository patientRepository;
 
-    private Patient james, bethany, carver;
-
-    @BeforeEach
-    public void init() {
-        james = TestUtils.james;
-        james.setAddress(TestUtils.jamesAddress);
-
-        bethany = TestUtils.bethany;
-        bethany.setAddress(TestUtils.bethanyAddress);
-
-        carver = TestUtils.carver;
-        carver.setAddress(TestUtils.carverAddress);
-    }
-
     @Test
     public void createPatientTest() {
-        when(patientRepository.save(any(Patient.class))).thenReturn(james);
-        PatientDTO patientDTO = patientService.createPatient(james);
+        Patient patient = james;
+        patient.setAddress(jamesAddress);
+
+        PatientDTO patientDTO = patientService.createPatient(patient);
 
         assertEquals("Varric Tethras", patientDTO.primaryDoctor());
         assertEquals("O+", patientDTO.bloodType());
@@ -57,6 +46,7 @@ public class PatientServiceTest {
     @Test
     public void getPatientByIdTest() {
         when(patientRepository.findById(anyLong())).thenReturn(Optional.of(james));
+
         PatientDTO patientDTO = patientService.getPatientById(james.getId());
 
         assertEquals("James", patientDTO.firstName());
@@ -65,58 +55,79 @@ public class PatientServiceTest {
 
     @Test
     public void getPatientByIdExceptionTest() {
-        assertThrows(PatientNotFoundException.class, () -> patientService.getPatientById(4L));
+        assertThrows(PatientNotFoundException.class, () -> patientService.getPatientById(james.getId()));
     }
 
     @Test
     public void getPatientsByFirstNameTest() {
-        when(patientRepository.getPatientsByFirstName(anyString())).thenReturn(TestUtils.getPatientsByFirstName());
-        List<PatientDTO> patients = patientService.getPatientsByFirstName(TestUtils.firstNameTestParameter);
+        when(patientRepository.getPatientsByFirstName(anyString())).thenReturn(getPatientsByFirstName());
+
+        List<PatientDTO> patients = patientService.getPatientsByFirstName(firstNameTestParameter);
+
         assertEquals(1, patients.size());
     }
 
     @Test
     public void getPatientsByFirstNameExceptionTest() {
-        assertThrows(PatientNotFoundException.class, () -> patientService.getPatientsByFirstName("Fenris"));
+        assertThrows(PatientNotFoundException.class,
+                () -> patientService.getPatientsByFirstName(firstNameTestParameter));
     }
 
     @Test
     public void getPatientsByLastNameTest() {
-        when(patientRepository.getPatientsByLastName(anyString())).thenReturn(TestUtils.getPatientsByLastName());
-        List<PatientDTO> patients = patientService.getPatientsByLastName(TestUtils.lastNameTestParameter);
+        when(patientRepository.getPatientsByLastName(anyString())).thenReturn(getPatientsByLastName());
+
+        List<PatientDTO> patients = patientService.getPatientsByLastName(lastNameTestParameter);
+
         assertEquals(3, patients.size());
     }
 
     @Test
     public void getPatientsByLastNameExceptionTest() {
-        assertThrows(PatientNotFoundException.class, () -> patientService.getPatientsByLastName("Vallen"));
+        assertThrows(PatientNotFoundException.class,
+                () -> patientService.getPatientsByLastName(lastNameTestParameter));
     }
 
     @Test
     public void getPatientsByBloodTypeTest() {
-        when(patientRepository.getPatientsByBloodType(anyString())).thenReturn(TestUtils.getPatientsByBloodType());
-        List<PatientDTO> patients = patientService.getPatientsByBloodType(TestUtils.bloodTypeTestParameter);
+        when(patientRepository.getPatientsByBloodType(anyString())).thenReturn(getPatientsByBloodType());
+
+        List<PatientDTO> patients = patientService.getPatientsByBloodType(bloodTypeTestParameter);
+
         assertEquals(2, patients.size());
     }
 
     @Test
     public void getPatientsByBloodTypeExceptionTest() {
-        assertThrows(PatientNotFoundException.class, () -> patientService.getPatientsByBloodType("B+"));
+        assertThrows(PatientNotFoundException.class,
+                () -> patientService.getPatientsByBloodType(bloodTypeTestParameter));
     }
 
     @Test
     public void getAddressTest() {
-        when(patientRepository.findById(anyLong())).thenReturn(Optional.of(bethany));
-        AddressDTO addressDTO = patientService.getAddress(bethany.getId());
+        Patient patient = bethany;
+        patient.setAddress(bethanyAddress);
+
+        when(patientRepository.findById(anyLong())).thenReturn(Optional.of(patient));
+
+        AddressDTO addressDTO = patientService.getAddress(patient.getId());
 
         assertEquals("59 Gallows St", addressDTO.streetAddress());
         assertEquals("San Antonio", addressDTO.city());
     }
 
     @Test
+    public void getAddressExceptionTest() {
+        assertThrows(PatientNotFoundException.class, () -> patientService.getAddress(bethany.getId()));
+    }
+
+    @Test
     public void updateAddressTest() {
-        assertEquals("San Antonio", carver.getAddress().getCity());
-        assertEquals("TX", carver.getAddress().getState());
+        Patient patient = carver;
+        patient.setAddress(carverAddress);
+
+        assertEquals("San Antonio", patient.getAddress().getCity());
+        assertEquals("TX", patient.getAddress().getState());
 
         Map<String, Object> updatedAddress = new HashMap<>();
         updatedAddress.put("StreetAddress", "515 Weisshaupt Ct");
@@ -124,11 +135,12 @@ public class PatientServiceTest {
         updatedAddress.put("state", "ID");
         updatedAddress.put("zipcode", 33247);
 
-        when(patientRepository.findById(anyLong())).thenReturn(Optional.of(carver));
-        patientService.updateAddress(carver.getId(), updatedAddress);
+        when(patientRepository.findById(anyLong())).thenReturn(Optional.of(patient));
 
-        assertEquals("Boise", carver.getAddress().getCity());
-        assertEquals("ID", carver.getAddress().getState());
+        patientService.updateAddress(patient.getId(), updatedAddress);
+
+        assertEquals("Boise", patient.getAddress().getCity());
+        assertEquals("ID", patient.getAddress().getState());
     }
 
     @Test
@@ -141,6 +153,7 @@ public class PatientServiceTest {
         updatedPatient.put("password", "malcomsheir");
 
         when(patientRepository.findById(anyLong())).thenReturn(Optional.of(bethany));
+
         patientService.updatePatientInfo(bethany.getId(), updatedPatient);
 
         assertEquals("sisterofthechampion@yahoo.com", bethany.getEmail());
@@ -149,9 +162,8 @@ public class PatientServiceTest {
 
     @Test
     public void deletePatientTest() {
-        assertNotNull(james);
-
         when(patientRepository.findById(anyLong())).thenReturn(Optional.of(james));
+
         patientService.deletePatient(james.getId());
 
         verify(patientRepository, times(1)).deleteById(james.getId());

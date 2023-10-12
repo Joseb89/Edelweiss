@@ -28,8 +28,8 @@ public class PatientService {
     /**
      * Saves a new patient to the patient database and the patient's address to the address database
      *
-     * @param patient - the Patient payload
-     * @return - the new Patient
+     * @param patient - the Patient object
+     * @return - the new patient
      */
     public PatientDTO createPatient(Patient patient) {
         Address address = new Address();
@@ -44,10 +44,10 @@ public class PatientService {
     }
 
     /**
-     * Retrieves a patient from the patient database based on the patient ID
+     * Retrieves a patient from the patient database based on the patient's ID
      *
      * @param patientId - the ID of the patient
-     * @return - the patient with the corresponding ID
+     * @return - the patient with the specified ID
      * @throws PatientNotFoundException if the patient with the specified ID is not found
      */
     public PatientDTO getPatientById(Long patientId) throws PatientNotFoundException {
@@ -67,7 +67,7 @@ public class PatientService {
         List<Patient> patients = patientRepository.getPatientsByFirstName(firstName);
 
         if (patients.isEmpty())
-            throw new PatientNotFoundException("No patient with the specified first name found.");
+            throw new PatientNotFoundException("No patients with the specified first name found.");
 
         return patients.stream()
                 .map(PatientDTO::new)
@@ -85,7 +85,7 @@ public class PatientService {
         List<Patient> patients = patientRepository.getPatientsByLastName(lastName);
 
         if (patients.isEmpty())
-            throw new PatientNotFoundException("No patient with the specified last name found.");
+            throw new PatientNotFoundException("No patients with the specified last name found.");
 
         return patients.stream()
                 .map(PatientDTO::new)
@@ -103,7 +103,7 @@ public class PatientService {
         List<Patient> patients = patientRepository.getPatientsByBloodType(bloodType);
 
         if (patients.isEmpty())
-            throw new PatientNotFoundException("No patient with the specified blood type found.");
+            throw new PatientNotFoundException("No patients with the specified blood type found.");
 
         return patients.stream()
                 .map(PatientDTO::new)
@@ -111,7 +111,7 @@ public class PatientService {
     }
 
     /**
-     * Retrieves a patient's address from the address database and stores it to an AddressDTO object
+     * Retrieves a patient's address from the address database and stores it in an AddressDTO object
      *
      * @param patientId - the ID of the patient
      * @return - the AddressDTO object with the address information
@@ -124,10 +124,10 @@ public class PatientService {
     }
 
     /**
-     * Updates the patient's address via an Address payload and merges it to the address database
+     * Updates the patient's address and merges it to the address database
      *
      * @param patientId - the ID of the patient
-     * @param fields    - the Address payload
+     * @param fields    - the object containing the updated information
      * @return - the updated address
      */
     public AddressDTO updateAddress(Long patientId, Map<String, Object> fields) {
@@ -148,10 +148,10 @@ public class PatientService {
     }
 
     /**
-     * Updates the information of the patient via a Patient payload and merges it to the patient database
+     * Updates the patient's information and merges it to the patient database
      *
      * @param patientId - the ID of the patient
-     * @param fields    - the Patient payload
+     * @param fields    - the object containing the updated information
      * @return - the updated patient information
      */
     public PatientDTO updatePatientInfo(Long patientId, Map<String, Object> fields) {
@@ -184,8 +184,7 @@ public class PatientService {
     }
 
     /**
-     * Retrieves a patient from the patient database based on their ID and throws an exception if
-     * the specified patient is not found
+     * Retrieves a patient from the patient database based on the patient's ID
      *
      * @param patientId - the ID of the patient
      * @return - the patient if available

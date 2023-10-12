@@ -25,7 +25,7 @@ public class PatientRepositoryTest {
     private TestEntityManager entityManager;
 
     @BeforeEach
-    public void init() {
+    void init() {
         Patient james = TestUtils.james;
         Patient bethany = TestUtils.bethany;
         Patient carver = TestUtils.carver;

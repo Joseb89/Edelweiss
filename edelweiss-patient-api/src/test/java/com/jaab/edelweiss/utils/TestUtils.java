@@ -40,41 +40,42 @@ public abstract class TestUtils {
 
     private static final List<Patient> PATIENTS = createPatientList();
 
-    private static final List<PatientDTO> PATIENT_DTOs = createPatientDTOList();
-
     public static List<Patient> getPatientsByFirstName() {
         return PATIENTS.stream()
-                .filter(p -> Objects.equals(p.getFirstName(), TestUtils.firstNameTestParameter))
+                .filter(p -> Objects.equals(p.getFirstName(), firstNameTestParameter))
                 .toList();
     }
 
     public static List<Patient> getPatientsByLastName() {
         return PATIENTS.stream()
-                .filter(p -> Objects.equals(p.getLastName(), TestUtils.lastNameTestParameter))
+                .filter(p -> Objects.equals(p.getLastName(), lastNameTestParameter))
                 .toList();
     }
 
     public static List<Patient> getPatientsByBloodType() {
         return PATIENTS.stream()
-                .filter(p -> Objects.equals(p.getBloodType(), TestUtils.bloodTypeTestParameter))
+                .filter(p -> Objects.equals(p.getBloodType(), bloodTypeTestParameter))
                 .toList();
     }
 
     public static List<PatientDTO> getPatientDTOsByFirstName() {
-        return PATIENT_DTOs.stream()
-                .filter(p -> Objects.equals(p.firstName(), TestUtils.firstNameTestParameter))
+        return PATIENTS.stream()
+                .filter(p -> Objects.equals(p.getFirstName(), firstNameTestParameter))
+                .map(PatientDTO::new)
                 .toList();
     }
 
     public static List<PatientDTO> getPatientDTOsByLastName() {
-        return PATIENT_DTOs.stream()
-                .filter(p -> Objects.equals(p.lastName(), TestUtils.lastNameTestParameter))
+        return PATIENTS.stream()
+                .filter(p -> Objects.equals(p.getLastName(), lastNameTestParameter))
+                .map(PatientDTO::new)
                 .toList();
     }
 
     public static List<PatientDTO> getPatientDTOsByBloodType() {
-        return PATIENT_DTOs.stream()
-                .filter(p -> Objects.equals(p.bloodType(), TestUtils.bloodTypeTestParameter))
+        return PATIENTS.stream()
+                .filter(p -> Objects.equals(p.getBloodType(), bloodTypeTestParameter))
+                .map(PatientDTO::new)
                 .toList();
     }
 
@@ -84,20 +85,6 @@ public abstract class TestUtils {
         patients.add(james);
         patients.add(bethany);
         patients.add(carver);
-
-        return patients;
-    }
-
-    private static List<PatientDTO> createPatientDTOList() {
-        PatientDTO jamesDTO = new PatientDTO(TestUtils.james);
-        PatientDTO bethanyDTO = new PatientDTO(TestUtils.bethany);
-        PatientDTO carverDTO = new PatientDTO(TestUtils.carver);
-
-        List<PatientDTO> patients = new ArrayList<>();
-
-        patients.add(jamesDTO);
-        patients.add(bethanyDTO);
-        patients.add(carverDTO);
 
         return patients;
     }
