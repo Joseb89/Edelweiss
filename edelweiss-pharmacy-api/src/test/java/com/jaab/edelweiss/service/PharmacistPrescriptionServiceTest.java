@@ -1,11 +1,11 @@
 package com.jaab.edelweiss.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jaab.edelweiss.dto.PrescriptionDTO;
 import com.jaab.edelweiss.dto.PrescriptionStatusDTO;
 import com.jaab.edelweiss.exception.PrescriptionStatusException;
 import com.jaab.edelweiss.model.Status;
-import com.jaab.edelweiss.utils.TestUtils;
 import jakarta.transaction.Transactional;
 import mockwebserver3.MockResponse;
 import mockwebserver3.MockWebServer;
@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 
+import static com.jaab.edelweiss.utils.TestUtils.pendingPrescriptions;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
@@ -39,19 +40,19 @@ public class PharmacistPrescriptionServiceTest {
     private static final int PRESCRIPTION_API_PORT = 8084;
 
     @BeforeAll
-    public static void init() throws IOException {
+    static void init() throws IOException {
         mockWebServer = new MockWebServer();
         mockWebServer.start(PRESCRIPTION_API_PORT);
     }
 
     @AfterAll
-    public static void cleanup() throws IOException {
+    static void cleanup() throws IOException {
         mockWebServer.shutdown();
     }
 
     @Test
-    public void getPendingPrescriptionsTest() throws IOException {
-        List<PrescriptionDTO> pendingPrescriptions = TestUtils.pendingPrescriptions();
+    public void getPendingPrescriptionsTest() throws JsonProcessingException {
+        List<PrescriptionDTO> pendingPrescriptions = pendingPrescriptions();
 
         mockWebServer.enqueue(new MockResponse()
                 .addHeader("Content-Type", "application/json")
@@ -65,7 +66,7 @@ public class PharmacistPrescriptionServiceTest {
     }
 
     @Test
-    public void approvePrescriptionTest() throws IOException {
+    public void approvePrescriptionTest() throws JsonProcessingException {
         PrescriptionStatusDTO status = new PrescriptionStatusDTO(Status.APPROVED);
 
         mockWebServer.enqueue(new MockResponse()
@@ -76,7 +77,7 @@ public class PharmacistPrescriptionServiceTest {
                 pharmacistPrescriptionService.approvePrescription(status, 1L);
 
         StepVerifier.create(prescriptionStatus)
-                .expectNextMatches(s -> Objects.equals(status.prescriptionStatus(), Status.APPROVED))
+                .expectNextMatches(s -> Objects.equals(s.prescriptionStatus(), Status.APPROVED))
                 .verifyComplete();
     }
 

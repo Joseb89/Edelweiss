@@ -22,5 +22,4 @@ class EdelweissPharmacyApiApplicationTests {
         assertNotNull(pharmacistController);
         assertNotNull(pharmacistService);
     }
-
 }

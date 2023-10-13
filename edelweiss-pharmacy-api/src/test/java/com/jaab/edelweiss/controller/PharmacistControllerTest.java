@@ -1,25 +1,32 @@
 package com.jaab.edelweiss.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jaab.edelweiss.model.Pharmacist;
 import com.jaab.edelweiss.model.Role;
 import com.jaab.edelweiss.service.PharmacistService;
-import com.jaab.edelweiss.utils.TestUtils;
-import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.test.web.servlet.MockMvc;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static com.jaab.edelweiss.utils.TestUtils.createPharmacist;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebFluxTest(controllers = PharmacistController.class)
+@WebMvcTest(controllers = PharmacistController.class)
 public class PharmacistControllerTest {
 
     @Autowired
-    private WebTestClient webTestClient;
+    private MockMvc mockMvc;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @MockBean
     private PharmacistService pharmacistService;
@@ -27,45 +34,41 @@ public class PharmacistControllerTest {
     private Pharmacist pharmacist;
 
     @BeforeEach
-    public void init() {
-        assertNotNull(webTestClient);
-        assertNotNull(pharmacistService);
-
-        pharmacist = TestUtils.createPharmacist();
+    void init() {
+        pharmacist = createPharmacist();
     }
 
     @Test
-    public void createPharmacistTest() {
-        webTestClient.post()
-                .uri("/newPharmacist")
-                .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(pharmacist)
-                .accept(MediaType.APPLICATION_JSON)
-                .exchange()
-                .expectStatus().isCreated()
-                .expectBody().jsonPath("$.role", Matchers.is(Role.PHARMACIST));
+    public void createPharmacistTest() throws Exception {
+        when(pharmacistService.createPharmacist(any(Pharmacist.class))).thenReturn(pharmacist);
+
+        this.mockMvc.perform(post("/newPharmacist")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(pharmacist)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.role").value(Role.PHARMACIST.toString()));
     }
 
     @Test
-    public void updatePharmacistInfoTest() {
-        Pharmacist updatedPharmacist = new Pharmacist(null, null, null,
-                "greywarden@gmail.com", null, null);
+    public void updatePharmacistInfoTest() throws Exception {
+        Pharmacist updatedPharmacist = new Pharmacist(pharmacist.getId(), pharmacist.getFirstName(),
+                pharmacist.getLastName(), "greywarden@gmail.com", pharmacist.getPassword(),
+                pharmacist.getRole());
 
-        webTestClient.patch()
-                .uri("/pharmacy/" + pharmacist.getId() + "/updatePharmacistInfo")
-                .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(updatedPharmacist)
-                .accept(MediaType.APPLICATION_JSON)
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody().jsonPath("$.email", Matchers.is("greywarden@gmail.com"));
+        when(pharmacistService.updatePharmacistInfo(anyLong(), anyMap())).thenReturn(updatedPharmacist);
+
+        this.mockMvc.perform(patch("/pharmacy/" + pharmacist.getId() + "/updatePharmacistInfo")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updatedPharmacist)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.email").value("greywarden@gmail.com"));
     }
 
     @Test
-    public void deletePharmacistTest() {
-        webTestClient.delete()
-                .uri("/pharmacy/deletePharmacist/" + pharmacist.getId())
-                .exchange()
-                .expectStatus().isOk();
+    public void deletePharmacistTest() throws Exception {
+        this.mockMvc.perform(delete("/pharmacy/deletePharmacist/" + pharmacist.getId()))
+                .andExpect(status().isOk());
     }
 }

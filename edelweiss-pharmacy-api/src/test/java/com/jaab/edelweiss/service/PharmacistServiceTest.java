@@ -3,7 +3,6 @@ package com.jaab.edelweiss.service;
 import com.jaab.edelweiss.dao.PharmacistRepository;
 import com.jaab.edelweiss.exception.PharmacistNotFoundException;
 import com.jaab.edelweiss.model.Pharmacist;
-import com.jaab.edelweiss.utils.TestUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,6 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+import static com.jaab.edelweiss.utils.TestUtils.createPharmacist;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -32,8 +32,8 @@ public class PharmacistServiceTest {
     private Pharmacist pharmacist;
 
     @BeforeEach
-    public void init() {
-        pharmacist = TestUtils.createPharmacist();
+    void init() {
+        pharmacist = createPharmacist();
     }
 
     @Test
@@ -64,6 +64,7 @@ public class PharmacistServiceTest {
     @Test
     public void deletePharmacistTest() {
         when(pharmacistRepository.findById(anyLong())).thenReturn(Optional.of(pharmacist));
+
         pharmacistService.deletePharmacist(pharmacist.getId());
 
         verify(pharmacistRepository, times(1)).deleteById(pharmacist.getId());
@@ -72,6 +73,6 @@ public class PharmacistServiceTest {
     @Test
     public void deletePharmacistExceptionTest() {
         assertThrows(PharmacistNotFoundException.class,
-                () -> pharmacistService.deletePharmacist(2L));
+                () -> pharmacistService.deletePharmacist(pharmacist.getId()));
     }
 }

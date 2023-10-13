@@ -13,7 +13,7 @@ import java.rmi.ServerException;
 import java.time.LocalDate;
 
 /**
- * This class serves as a service for creating new appointments and maintaining their information
+ * This class is a service for creating new appointments and maintaining their information
  *
  * @author Joseph Barr
  */

@@ -9,6 +9,11 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
+/**
+ * This class is a controller for the endpoints that create and maintain pharmacist data
+ *
+ * @author Joseph Barr
+ */
 @RestController
 public class PharmacistController {
 
@@ -35,7 +40,7 @@ public class PharmacistController {
      * Updates the pharmacist's information and merges it to the pharmacist database
      *
      * @param pharmacistId - the ID of the pharmacist
-     * @param fields       - the Pharmacist payload
+     * @param fields       - the payload containing the updated information
      * @return - the updated pharmacist
      */
     @PatchMapping(value = "/pharmacy/{pharmacistId}/updatePharmacistInfo",
@@ -49,7 +54,7 @@ public class PharmacistController {
      * Deletes a pharmacist from the pharmacist database
      *
      * @param pharmacistId - the ID of the pharmacist
-     * @return - HTTP response
+     * @return - HTTP status response
      */
     @DeleteMapping(value = "/pharmacy/deletePharmacist/{pharmacistId}")
     public ResponseEntity<String> deletePharmacist(@PathVariable Long pharmacistId) {

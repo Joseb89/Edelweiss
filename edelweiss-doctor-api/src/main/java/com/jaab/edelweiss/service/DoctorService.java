@@ -12,7 +12,7 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * This class serves as a service for creating new physicians and maintaining their data
+ * This class is a service for creating new physicians and maintaining their data
  *
  * @author Joseph Barr
  */

@@ -5,7 +5,6 @@ import com.jaab.edelweiss.dto.PrescriptionStatusDTO;
 import com.jaab.edelweiss.exception.PrescriptionStatusException;
 import com.jaab.edelweiss.model.Status;
 import com.jaab.edelweiss.service.PharmacistPrescriptionService;
-import com.jaab.edelweiss.utils.TestUtils;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +16,7 @@ import reactor.core.publisher.Flux;
 
 import java.util.List;
 
+import static com.jaab.edelweiss.utils.TestUtils.pendingPrescriptions;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
@@ -32,10 +32,10 @@ public class PharmacistPrescriptionControllerTest {
 
     @Test
     public void getPendingPrescriptionsTest() {
-        List<PrescriptionDTO> pendingPrescriptions = TestUtils.pendingPrescriptions();
+        List<PrescriptionDTO> getPendingPrescriptions = pendingPrescriptions();
 
         when(pharmacistPrescriptionService.getPendingPrescriptions())
-                .thenReturn(Flux.fromIterable(pendingPrescriptions));
+                .thenReturn(Flux.fromIterable(getPendingPrescriptions));
 
         webTestClient.get()
                 .uri("/pharmacy/home")
@@ -43,7 +43,6 @@ public class PharmacistPrescriptionControllerTest {
                 .expectStatus().isOk()
                 .expectBodyList(PrescriptionDTO.class).hasSize(2);
     }
-
 
     @Test
     public void approvePrescriptionTest() {
@@ -74,5 +73,4 @@ public class PharmacistPrescriptionControllerTest {
                 .exchange()
                 .expectStatus().is4xxClientError();
     }
-
 }

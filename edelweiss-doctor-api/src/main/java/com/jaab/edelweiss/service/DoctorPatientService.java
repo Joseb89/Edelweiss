@@ -11,7 +11,7 @@ import reactor.core.publisher.Mono;
 import java.rmi.ServerException;
 
 /**
- * This class serves as a service for retrieving patient information from the patient API
+ * This class is a service for retrieving patient information from the patient API
  *
  * @author Joseph Barr
  */

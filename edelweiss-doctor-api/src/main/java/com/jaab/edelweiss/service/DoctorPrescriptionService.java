@@ -13,7 +13,7 @@ import reactor.core.publisher.Mono;
 import java.rmi.ServerException;
 
 /**
- * This class serves as a service for creating new prescriptions and maintaining their information
+ * This class is a service for creating new prescriptions and maintaining their information
  *
  * @author Joseph Barr
  */

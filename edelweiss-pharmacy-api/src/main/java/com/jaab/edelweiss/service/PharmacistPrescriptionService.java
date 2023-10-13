@@ -12,6 +12,12 @@ import reactor.core.publisher.Mono;
 
 import java.rmi.ServerException;
 
+/**
+ * This is a service class that allows pharmacists to communicate with the prescription API
+ * to send and receive data
+ *
+ * @author Joseph Barr
+ */
 @Service
 public class PharmacistPrescriptionService {
 
@@ -60,5 +66,4 @@ public class PharmacistPrescriptionService {
                         response -> response.bodyToMono(String.class).map(ServerException::new))
                 .bodyToMono(PrescriptionStatusDTO.class);
     }
-
 }

@@ -11,6 +11,12 @@ import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.Optional;
 
+/**
+ * This is a service class for creating and maintaining pharmacist data
+ *
+ * @author Joseph Barr
+ */
+
 @Service
 public class PharmacistService {
 
@@ -23,7 +29,7 @@ public class PharmacistService {
     /**
      * Saves a new pharmacist to the pharmacist database
      *
-     * @param pharmacist - the Pharmacist payload
+     * @param pharmacist - the Pharmacist object
      * @return - the new pharmacist
      */
     public Pharmacist createPharmacist(Pharmacist pharmacist) {
@@ -34,12 +40,11 @@ public class PharmacistService {
     }
 
     /**
-     * Updates the information of the Pharmacist via a Pharmacist payload
-     * and merges it to the pharmacist database
+     * Updates the pharmacist's information and merges it to the pharmacist database
      *
      * @param pharmacistId - the ID of the pharmacist
-     * @param fields       - the Pharmacist payload
-     * @return - the updated Pharmacist
+     * @param fields       - the object containing the updated information
+     * @return - the updated pharmacist
      */
     public Pharmacist updatePharmacistInfo(Long pharmacistId, Map<String, Object> fields) {
         Pharmacist pharmacist = getPharmacistById(pharmacistId);
