@@ -2,8 +2,6 @@ package com.jaab.edelweiss.service;
 
 import com.jaab.edelweiss.dto.PrescriptionDTO;
 import com.jaab.edelweiss.dto.PrescriptionStatusDTO;
-import com.jaab.edelweiss.exception.PrescriptionStatusException;
-import com.jaab.edelweiss.model.Status;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -44,18 +42,13 @@ public class PharmacistPrescriptionService {
     }
 
     /**
-     * Sets an APPROVED or DENIED status for a PrescriptionStatusDTO object and sends it to the prescriptionAPI
+     * Sets an APPROVED or DENIED status for a PrescriptionStatusDTO object and sends it to the prescription API
      *
      * @param status         - the new status of the prescription
      * @param prescriptionId - the ID of the prescription
      * @return - the prescription status
-     * @throws PrescriptionStatusException if the status is PENDING
      */
-    public Mono<PrescriptionStatusDTO> approvePrescription(PrescriptionStatusDTO status, Long prescriptionId)
-            throws PrescriptionStatusException {
-        if (status.prescriptionStatus() == Status.PENDING)
-            throw new PrescriptionStatusException("Prescription must be approved or denied.");
-
+    public Mono<PrescriptionDTO> approvePrescription(PrescriptionStatusDTO status, Long prescriptionId) {
         return webClient.patch()
                 .uri("/approvePrescription/" + prescriptionId)
                 .body(Mono.just(status), PrescriptionStatusDTO.class)
@@ -64,6 +57,6 @@ public class PharmacistPrescriptionService {
                         response -> response.bodyToMono(String.class).map(Exception::new))
                 .onStatus(HttpStatusCode::is5xxServerError,
                         response -> response.bodyToMono(String.class).map(ServerException::new))
-                .bodyToMono(PrescriptionStatusDTO.class);
+                .bodyToMono(PrescriptionDTO.class);
     }
 }

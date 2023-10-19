@@ -3,10 +3,8 @@ package com.jaab.edelweiss.controller;
 import com.jaab.edelweiss.dto.PrescriptionDTO;
 import com.jaab.edelweiss.dto.PrescriptionStatusDTO;
 import com.jaab.edelweiss.dto.UpdatePrescriptionDTO;
-import com.jaab.edelweiss.model.Prescription;
 import com.jaab.edelweiss.model.Status;
 import com.jaab.edelweiss.service.PrescriptionService;
-import com.jaab.edelweiss.utils.TestUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
@@ -14,6 +12,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
+import static com.jaab.edelweiss.utils.TestUtils.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
@@ -28,8 +27,6 @@ public class PrescriptionControllerTest {
 
     @Test
     public void createPrescriptionTest() {
-        PrescriptionDTO prescriptionDTO = TestUtils.prescriptionDTO;
-
         when(prescriptionService.createPrescription(any(PrescriptionDTO.class))).thenReturn(prescriptionDTO);
 
         webTestClient.post()
@@ -44,10 +41,10 @@ public class PrescriptionControllerTest {
     @Test
     public void getPrescriptionsByDoctorNameTest() {
         when(prescriptionService.getPrescriptionsByDoctorName(anyString(), anyString()))
-                .thenReturn(TestUtils.getPrescriptionDTOsByDoctorName());
+                .thenReturn(getPrescriptionDTOsByDoctorName());
 
         webTestClient.get()
-                .uri("/physician/myPrescriptions/" + TestUtils.doctorFirstName + "/" + TestUtils.doctorLastName)
+                .uri("/physician/myPrescriptions/" + doctorFirstName + "/" + doctorLastName)
                 .exchange()
                 .expectStatus().isOk()
                 .expectBodyList(PrescriptionDTO.class).hasSize(2);
@@ -56,7 +53,7 @@ public class PrescriptionControllerTest {
     @Test
     public void getPendingPrescriptionsTest() {
         when(prescriptionService.getPrescriptionsByPrescriptionStatus(any(Status.class)))
-                .thenReturn(TestUtils.getPrescriptionDTOsByPendingStatus());
+                .thenReturn(getPrescriptionDTOsByPendingStatus());
 
         webTestClient.get()
                 .uri("/pharmacy/getPendingPrescriptions")
@@ -67,19 +64,15 @@ public class PrescriptionControllerTest {
 
     @Test
     public void updatePrescriptionInfoTest() {
-        Prescription prescription = TestUtils.potion;
-
-        UpdatePrescriptionDTO updatePrescriptionDTO = TestUtils.updatePrescriptionDTO;
-
-        PrescriptionDTO prescriptionDTO = new PrescriptionDTO(prescription.getId(), prescription.getDoctorFirstName(),
-                prescription.getDoctorLastName(), updatePrescriptionDTO.prescriptionName(),
-                updatePrescriptionDTO.prescriptionDosage(), prescription.getPrescriptionStatus());
+        PrescriptionDTO prescriptionDTO = new PrescriptionDTO(potion.getId(), potion.getDoctorFirstName(),
+                potion.getDoctorLastName(), updatePrescriptionDTO.prescriptionName(),
+                updatePrescriptionDTO.prescriptionDosage(), potion.getPrescriptionStatus());
 
         when(prescriptionService.updatePrescriptionInfo(any(UpdatePrescriptionDTO.class), anyLong()))
                 .thenReturn(prescriptionDTO);
 
         webTestClient.patch()
-                .uri("/physician/updatePrescriptionInfo/" + prescription.getId())
+                .uri("/physician/updatePrescriptionInfo/" + prescriptionDTO.id())
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(prescriptionDTO)
                 .accept(MediaType.APPLICATION_JSON)
@@ -89,19 +82,15 @@ public class PrescriptionControllerTest {
 
     @Test
     public void approvePrescriptionTest() {
-        Prescription prescription = TestUtils.phoenixDown;
-
-        PrescriptionStatusDTO status = new PrescriptionStatusDTO(Status.APPROVED);
-
-        PrescriptionDTO prescriptionDTO = new PrescriptionDTO(prescription.getId(), prescription.getDoctorFirstName(),
-                prescription.getDoctorLastName(), prescription.getPrescriptionName(),
-                prescription.getPrescriptionDosage(), status.prescriptionStatus());
+        PrescriptionDTO prescriptionDTO = new PrescriptionDTO(phoenixDown.getId(), phoenixDown.getDoctorFirstName(),
+                phoenixDown.getDoctorLastName(), phoenixDown.getPrescriptionName(),
+                phoenixDown.getPrescriptionDosage(), Status.DENIED);
 
         when(prescriptionService.approvePrescription(any(PrescriptionStatusDTO.class), anyLong()))
                 .thenReturn(prescriptionDTO);
 
         webTestClient.patch()
-                .uri("/pharmacy/approvePrescription/" + prescription.getId())
+                .uri("/pharmacy/approvePrescription/" + prescriptionDTO.id())
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(prescriptionDTO)
                 .accept(MediaType.APPLICATION_JSON)
@@ -112,7 +101,7 @@ public class PrescriptionControllerTest {
     @Test
     public void deletePrescriptionTest() {
         webTestClient.delete()
-                .uri("/physician/deletePrescription/" + 1L)
+                .uri("/physician/deletePrescription/" + darkMatter.getId())
                 .exchange()
                 .expectStatus().isOk();
     }

@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jaab.edelweiss.dto.PrescriptionDTO;
 import com.jaab.edelweiss.dto.PrescriptionStatusDTO;
-import com.jaab.edelweiss.exception.PrescriptionStatusException;
 import com.jaab.edelweiss.model.Status;
 import jakarta.transaction.Transactional;
 import mockwebserver3.MockResponse;
@@ -23,7 +22,6 @@ import java.util.List;
 import java.util.Objects;
 
 import static com.jaab.edelweiss.utils.TestUtils.pendingPrescriptions;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
 @Transactional
@@ -73,19 +71,11 @@ public class PharmacistPrescriptionServiceTest {
                 .addHeader("Content-Type", "application/json")
                 .setBody(objectMapper.writeValueAsString(status)));
 
-        Mono<PrescriptionStatusDTO> prescriptionStatus =
+        Mono<PrescriptionDTO> prescriptionStatus =
                 pharmacistPrescriptionService.approvePrescription(status, 1L);
 
         StepVerifier.create(prescriptionStatus)
                 .expectNextMatches(s -> Objects.equals(s.prescriptionStatus(), Status.APPROVED))
                 .verifyComplete();
-    }
-
-    @Test
-    public void approvePrescriptionExceptionTest() {
-        PrescriptionStatusDTO status = new PrescriptionStatusDTO(Status.PENDING);
-
-        assertThrows(PrescriptionStatusException.class,
-                () -> pharmacistPrescriptionService.approvePrescription(status, 1L).block());
     }
 }

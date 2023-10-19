@@ -43,7 +43,7 @@ public class PharmacistPrescriptionController {
      */
     @PatchMapping(value = "/approvePrescription/{prescriptionId}",
             consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Mono<PrescriptionStatusDTO>> approvePrescription(@RequestBody PrescriptionStatusDTO status,
+    public ResponseEntity<Mono<PrescriptionDTO>> approvePrescription(@RequestBody PrescriptionStatusDTO status,
                                                                            @PathVariable Long prescriptionId) {
         return ResponseEntity.ok(pharmacistPrescriptionService.approvePrescription(status, prescriptionId));
     }

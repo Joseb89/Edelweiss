@@ -21,9 +21,10 @@ public class PrescriptionController {
     }
 
     /**
-     * Saves a new prescription to the prescription database based on a PrescriptionDTO from the doctor API
+     * Saves a new prescription to the prescription database based on a PrescriptionDTO payload
+     * from the doctor API
      *
-     * @param prescriptionDTO - PrescriptionDTO object from the doctor API
+     * @param prescriptionDTO - the PrescriptionDTO payload from the doctor API
      * @return - the new prescription
      */
     @PostMapping(value = "/physician/newPrescription", consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -58,9 +59,9 @@ public class PrescriptionController {
     }
 
     /**
-     * Updates the prescription with the corresponding ID and merges it to the prescription database
+     * Updates the prescription with the specified ID and merges it to the prescription database
      *
-     * @param prescriptionDTO - the PrescriptionDTO payload from the doctor API
+     * @param prescriptionDTO - the UpdatePrescriptionDTO payload from the doctor API
      * @param prescriptionId  - the ID of the prescription
      * @return - the updated prescription
      */

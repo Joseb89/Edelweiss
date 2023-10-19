@@ -11,6 +11,8 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 
 import java.util.List;
 
+import static com.jaab.edelweiss.utils.TestUtils.doctorFirstName;
+import static com.jaab.edelweiss.utils.TestUtils.doctorLastName;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @DataJpaTest
@@ -24,11 +26,11 @@ public class PrescriptionRepositoryTest {
     private TestEntityManager entityManager;
 
     @BeforeEach
-    public void init() {
-        Prescription potion = new Prescription(null, "Rinoa", "Heartily",
+    void init() {
+        Prescription potion = new Prescription(null, doctorFirstName, doctorLastName,
                 "Potion", (byte) 20, Status.PENDING);
 
-        Prescription phoenixDown = new Prescription(null, "Rinoa", "Heartily",
+        Prescription phoenixDown = new Prescription(null, doctorFirstName, doctorLastName,
                 "Phoenix Down", (byte) 50, Status.PENDING);
 
         Prescription darkMatter = new Prescription(null, "Squall", "Heartily",
@@ -41,25 +43,32 @@ public class PrescriptionRepositoryTest {
 
     @Test
     public void getPrescriptionsByDoctorNameTest() {
-        List<Prescription> prescriptions = prescriptionRepository.getPrescriptionsByDoctorName("Rinoa", "Heartily");
-        assertEquals(prescriptions.size(), 2);
+        List<Prescription> prescriptions =
+                prescriptionRepository.getPrescriptionsByDoctorName(doctorFirstName, doctorLastName);
+
+        assertEquals(2, prescriptions.size());
     }
 
     @Test
     public void getPrescriptionsByDoctorNameEmptyListTest() {
         List<Prescription> prescriptions = prescriptionRepository.getPrescriptionsByDoctorName("Doctor", "Cid");
-        assertEquals(prescriptions.size(), 0);
+
+        assertEquals(0, prescriptions.size());
     }
 
     @Test
     public void getPrescriptionsByPrescriptionStatusTest() {
-        List<Prescription> prescriptions = prescriptionRepository.getPrescriptionsByPrescriptionStatus(Status.APPROVED);
-        assertEquals(prescriptions.size(), 1);
+        List<Prescription> prescriptions =
+                prescriptionRepository.getPrescriptionsByPrescriptionStatus(Status.APPROVED);
+
+        assertEquals(1, prescriptions.size());
     }
 
     @Test
     public void getPrescriptionsByPrescriptionStatusEmptyListTest() {
-        List<Prescription> prescriptions = prescriptionRepository.getPrescriptionsByPrescriptionStatus(Status.DENIED);
-        assertEquals(prescriptions.size(), 0);
+        List<Prescription> prescriptions =
+                prescriptionRepository.getPrescriptionsByPrescriptionStatus(Status.DENIED);
+
+        assertEquals(0, prescriptions.size());
     }
 }

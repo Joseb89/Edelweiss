@@ -43,7 +43,7 @@ public class PrescriptionService {
      *
      * @param firstName - the first name of the doctor
      * @param lastName  - the last name of the doctor
-     * @return - the List of prescriptions matching the criteria
+     * @return - the list of prescriptions matching the criteria
      */
     public List<PrescriptionDTO> getPrescriptionsByDoctorName(String firstName, String lastName) {
         List<Prescription> prescriptions = prescriptionRepository.getPrescriptionsByDoctorName(firstName, lastName);
@@ -57,7 +57,7 @@ public class PrescriptionService {
      * Retrieves a list of prescriptions based on their current status
      *
      * @param status - the status of the prescription
-     * @return - the List of prescriptions with the specified status
+     * @return - the list of prescriptions with the specified status
      */
     public List<PrescriptionDTO> getPrescriptionsByPrescriptionStatus(Status status) {
         List<Prescription> prescriptions = prescriptionRepository.getPrescriptionsByPrescriptionStatus(status);
@@ -68,9 +68,9 @@ public class PrescriptionService {
     }
 
     /**
-     * Updates the prescription with the corresponding ID and merges it to the prescription database
+     * Updates the prescription with the specified ID and merges it to the prescription database
      *
-     * @param prescriptionDTO - the UpdatePrescriptionDTO payload from the doctor API
+     * @param prescriptionDTO - the UpdatePrescriptionDTO object from the doctor API
      * @param prescriptionId  - the ID of the prescription
      * @return - the updated prescription
      * @throws PrescriptionNotFoundException if the prescription with the specified ID is not found
@@ -91,10 +91,10 @@ public class PrescriptionService {
     }
 
     /**
-     * Sets an APPROVED or DENIED status to a PENDING prescription based on a PrescriptionStatusDTO payload
+     * Sets an APPROVED or DENIED status to a PENDING prescription based on a PrescriptionStatusDTO object
      * from the pharmacy API and merges it to the prescription database
      *
-     * @param status         - the new status of the prescription
+     * @param status         - the PrescriptionStatusDTO object containing the new status
      * @param prescriptionId - the ID of the prescription
      * @return - the PrescriptionDTO object containing the updated status
      * @throws PrescriptionNotFoundException if the prescription with the specified ID is not found
@@ -122,11 +122,11 @@ public class PrescriptionService {
     }
 
     /**
-     * Retrieves a prescription from the prescription database based on their ID and throws an exception if
-     * the specified prescription is not found
+     * Retrieves a prescription from the prescription database based on their ID
      *
      * @param prescriptionId - the ID of the prescription
      * @return - the prescription if available
+     * @throws PrescriptionNotFoundException if the prescription with the specified ID is not found
      */
     private Prescription getPrescriptionById(Long prescriptionId) throws PrescriptionNotFoundException {
         Optional<Prescription> prescription = prescriptionRepository.findById(prescriptionId);

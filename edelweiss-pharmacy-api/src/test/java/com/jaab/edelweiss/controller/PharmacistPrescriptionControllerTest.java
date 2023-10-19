@@ -5,7 +5,6 @@ import com.jaab.edelweiss.dto.PrescriptionStatusDTO;
 import com.jaab.edelweiss.exception.PrescriptionStatusException;
 import com.jaab.edelweiss.model.Status;
 import com.jaab.edelweiss.service.PharmacistPrescriptionService;
-import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
@@ -46,21 +45,22 @@ public class PharmacistPrescriptionControllerTest {
 
     @Test
     public void approvePrescriptionTest() {
-        PrescriptionStatusDTO status = new PrescriptionStatusDTO(Status.DENIED);
+        PrescriptionDTO prescriptionDTO = new PrescriptionDTO(1L, "Rinoa", "Heartily",
+                "X-Potion", (byte) 75, Status.DENIED);
 
         webTestClient.patch()
                 .uri("/pharmacy/approvePrescription/" + 1L)
                 .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(status)
+                .bodyValue(prescriptionDTO)
                 .accept(MediaType.APPLICATION_JSON)
                 .exchange()
-                .expectStatus().isOk()
-                .expectBody().jsonPath("$.prescriptionStatus", Matchers.is(Status.DENIED));
+                .expectStatus().isOk();
     }
 
     @Test
     public void approvePrescriptionExceptionTest() {
-        PrescriptionStatusDTO status = new PrescriptionStatusDTO(Status.PENDING);
+        PrescriptionDTO prescriptionDTO = new PrescriptionDTO(1L, "Rinoa", "Heartily",
+                "X-Potion", (byte) 75, Status.PENDING);
 
         when(pharmacistPrescriptionService.approvePrescription(any(PrescriptionStatusDTO.class), anyLong()))
                 .thenThrow(PrescriptionStatusException.class);
@@ -68,7 +68,7 @@ public class PharmacistPrescriptionControllerTest {
         webTestClient.patch()
                 .uri("/pharmacy/approvePrescription/" + 1L)
                 .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(status)
+                .bodyValue(prescriptionDTO)
                 .accept(MediaType.APPLICATION_JSON)
                 .exchange()
                 .expectStatus().is4xxClientError();

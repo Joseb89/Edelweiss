@@ -33,8 +33,8 @@ public abstract class TestUtils {
         List<Prescription> prescriptions = createPrescriptionList();
 
         return prescriptions.stream()
-                .filter(p -> Objects.equals(p.getDoctorFirstName(), "Rinoa") &&
-                        Objects.equals(p.getDoctorLastName(), "Heartily"))
+                .filter(p -> Objects.equals(p.getDoctorFirstName(), doctorFirstName) &&
+                        Objects.equals(p.getDoctorLastName(), doctorLastName))
                 .toList();
     }
 
