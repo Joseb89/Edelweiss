@@ -3,8 +3,6 @@ package com.jaab.edelweiss.service;
 import com.jaab.edelweiss.dao.AppointmentRepository;
 import com.jaab.edelweiss.dto.AppointmentDTO;
 import com.jaab.edelweiss.exception.AppointmentNotFoundException;
-import com.jaab.edelweiss.model.Appointment;
-import com.jaab.edelweiss.utils.TestUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -16,6 +14,7 @@ import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 
+import static com.jaab.edelweiss.utils.TestUtils.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -33,8 +32,6 @@ public class AppointmentServiceTest {
 
     @Test
     public void createAppointmentTest() {
-        Appointment mayAppointment = TestUtils.mayAppointment;
-
         AppointmentDTO appointmentDTO = new AppointmentDTO(mayAppointment);
 
         AppointmentDTO newAppointment = appointmentService.createAppointment(appointmentDTO);
@@ -46,58 +43,53 @@ public class AppointmentServiceTest {
     @Test
     public void getAppointmentsByDoctorNameTest() {
         when(appointmentRepository.getAppointmentsByDoctorName(anyString(), anyString()))
-                .thenReturn(TestUtils.getAppointmentsByDoctorName());
+                .thenReturn(getAppointmentsByDoctorName());
 
         List<AppointmentDTO> appointments =
-                appointmentService.getAppointmentsByDoctorName(TestUtils.doctorFirstName, TestUtils.doctorLastName);
+                appointmentService.getAppointmentsByDoctorName(doctorFirstName, doctorLastName);
 
         assertEquals(2, appointments.size());
     }
 
     @Test
     public void updateAppointmentInfoTest() {
-        Appointment appointment = TestUtils.juneAppointment;
+        assertEquals(LocalDate.of(YEAR, 6, 6), juneAppointment.getAppointmentDate());
+        assertEquals(LocalTime.of(10, 30), juneAppointment.getAppointmentTime());
 
-        assertEquals(LocalDate.of(TestUtils.YEAR, 6, 6), appointment.getAppointmentDate());
-        assertEquals(LocalTime.of(10, 30), appointment.getAppointmentTime());
-
-        AppointmentDTO appointmentDTO = new AppointmentDTO(appointment.getId(), null, null,
-                null, null, LocalDate.of(TestUtils.YEAR, 6, 20),
+        AppointmentDTO appointmentDTO = new AppointmentDTO(null, null, null,
+                null, null, LocalDate.of(YEAR, 6, 20),
                 LocalTime.of(11, 30));
 
-        when(appointmentRepository.findById(anyLong())).thenReturn(Optional.of(appointment));
+        when(appointmentRepository.findById(anyLong())).thenReturn(Optional.of(juneAppointment));
 
-        appointmentService.updateAppointmentInfo(appointmentDTO, appointment.getId());
+        appointmentService.updateAppointmentInfo(appointmentDTO, juneAppointment.getId());
 
-        assertEquals(LocalDate.of(TestUtils.YEAR, 6, 20), appointment.getAppointmentDate());
-        assertEquals(LocalTime.of(11, 30), appointment.getAppointmentTime());
+        assertEquals(LocalDate.of(YEAR, 6, 20), juneAppointment.getAppointmentDate());
+        assertEquals(LocalTime.of(11, 30), juneAppointment.getAppointmentTime());
     }
 
     @Test
     public void updateAppointmentInfoExceptionTest() {
-        Appointment appointment = TestUtils.juneAppointment;
-
-        AppointmentDTO appointmentDTO = new AppointmentDTO(appointment.getId(), null, null,
-                null, null, LocalDate.of(TestUtils.YEAR, 6, 20),
+        AppointmentDTO appointmentDTO = new AppointmentDTO(null, null, null,
+                null, null, LocalDate.of(YEAR, 6, 20),
                 LocalTime.of(11, 30));
 
         assertThrows(AppointmentNotFoundException.class,
-                () -> appointmentService.updateAppointmentInfo(appointmentDTO, appointment.getId()));
+                () -> appointmentService.updateAppointmentInfo(appointmentDTO, juneAppointment.getId()));
     }
 
     @Test
     public void deleteAppointmentTest() {
-        Appointment appointment = TestUtils.julyAppointment;
+        when(appointmentRepository.findById(anyLong())).thenReturn(Optional.of(julyAppointment));
 
-        when(appointmentRepository.findById(anyLong())).thenReturn(Optional.of(appointment));
+        appointmentService.deleteAppointment(julyAppointment.getId());
 
-        appointmentService.deleteAppointment(appointment.getId());
-
-        verify(appointmentRepository, times(1)).deleteById(appointment.getId());
+        verify(appointmentRepository, times(1)).deleteById(julyAppointment.getId());
     }
 
     @Test
     public void deleteAppointmentExceptionTest() {
-        assertThrows(AppointmentNotFoundException.class, () -> appointmentService.deleteAppointment(1L));
+        assertThrows(AppointmentNotFoundException.class,
+                () -> appointmentService.deleteAppointment(julyAppointment.getId()));
     }
 }

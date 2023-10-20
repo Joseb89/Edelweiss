@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jaab.edelweiss.dto.AppointmentDTO;
 import com.jaab.edelweiss.exception.AppointmentException;
 import com.jaab.edelweiss.model.Doctor;
-import com.jaab.edelweiss.utils.TestUtils;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import mockwebserver3.MockResponse;
@@ -69,7 +68,7 @@ public class DoctorAppointmentServiceTest {
     public void createAppointmentTest() throws JsonProcessingException {
         AppointmentDTO appointmentDTO = new AppointmentDTO(ID, doctor.getFirstName(), doctor.getLastName(),
                 "Dane", "Cousland",
-                LocalDate.of(TestUtils.YEAR, 10, 25), LocalTime.of(14, 30));
+                LocalDate.of(YEAR, 10, 25), LocalTime.of(14, 30));
 
         mockWebServer.enqueue(new MockResponse()
                 .addHeader("Content-Type", "application/json")

@@ -1,8 +1,6 @@
 package com.jaab.edelweiss.dao;
 
-import com.jaab.edelweiss.model.Address;
 import com.jaab.edelweiss.model.Patient;
-import com.jaab.edelweiss.utils.TestUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +10,8 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static com.jaab.edelweiss.utils.TestUtils.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
@@ -26,17 +25,9 @@ public class PatientRepositoryTest {
 
     @BeforeEach
     void init() {
-        Patient james = TestUtils.james;
-        Patient bethany = TestUtils.bethany;
-        Patient carver = TestUtils.carver;
-
         james.setId(null);
         bethany.setId(null);
         carver.setId(null);
-
-        Address jamesAddress = TestUtils.jamesAddress;
-        Address bethanyAddress = TestUtils.bethanyAddress;
-        Address carverAddress = TestUtils.carverAddress;
 
         entityManager.persist(james);
         entityManager.persist(jamesAddress);
@@ -48,37 +39,43 @@ public class PatientRepositoryTest {
 
     @Test
     public void getPatientsByFirstNameTest() {
-        List<Patient> patients = patientRepository.getPatientsByFirstName(TestUtils.firstNameTestParameter);
-        assertThat(patients.size()).isEqualTo(1);
+        List<Patient> patients = patientRepository.getPatientsByFirstName(firstNameTestParameter);
+
+        assertEquals(1, patients.size());
     }
 
     @Test
     public void getPatientsByFirstNameEmptyListTest() {
         List<Patient> patients = patientRepository.getPatientsByFirstName("Malcolm");
-        assertThat(patients.size()).isEqualTo(0);
+
+        assertEquals(0, patients.size());
     }
 
     @Test
     public void getPatientsByLastNameTest() {
-        List<Patient> patients = patientRepository.getPatientsByLastName(TestUtils.lastNameTestParameter);
-        assertThat(patients.size()).isEqualTo(3);
+        List<Patient> patients = patientRepository.getPatientsByLastName(lastNameTestParameter);
+
+        assertEquals(3, patients.size());
     }
 
     @Test
     public void getPatientsByLastNameEmptyListTest() {
         List<Patient> patients = patientRepository.getPatientsByLastName("Vallen");
-        assertThat(patients.size()).isEqualTo(0);
+
+        assertEquals(0, patients.size());
     }
 
     @Test
     public void getPatientsByBloodTypeTest() {
-        List<Patient> patients = patientRepository.getPatientsByBloodType(TestUtils.bloodTypeTestParameter);
-        assertThat(patients.size()).isEqualTo(2);
+        List<Patient> patients = patientRepository.getPatientsByBloodType(bloodTypeTestParameter);
+
+        assertEquals(2, patients.size());
     }
 
     @Test
     public void getPatientsByBloodTypeEmptyListTest() {
         List<Patient> patients = patientRepository.getPatientsByBloodType("B+");
-        assertThat(patients.size()).isEqualTo(0);
+
+        assertEquals(0, patients.size());
     }
 }

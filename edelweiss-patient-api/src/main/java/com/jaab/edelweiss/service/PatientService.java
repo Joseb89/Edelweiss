@@ -31,7 +31,7 @@ public class PatientService {
      * @param patient - the Patient object
      * @return - the new patient
      */
-    public PatientDTO createPatient(Patient patient) {
+    public Patient createPatient(Patient patient) {
         Address address = new Address();
         BeanUtils.copyProperties(patient.getAddress(), address);
         address.setPatient(patient);
@@ -40,7 +40,7 @@ public class PatientService {
 
         patientRepository.save(patient);
 
-        return new PatientDTO(patient);
+        return patient;
     }
 
     /**
@@ -130,7 +130,7 @@ public class PatientService {
      * @param fields    - the object containing the updated information
      * @return - the updated address
      */
-    public AddressDTO updateAddress(Long patientId, Map<String, Object> fields) {
+    public Address updateAddress(Long patientId, Map<String, Object> fields) {
         Patient patient = getPatientByPatientId(patientId);
 
         fields.forEach((key, value) -> {
@@ -144,7 +144,7 @@ public class PatientService {
 
         patientRepository.save(patient);
 
-        return new AddressDTO(patient.getAddress());
+        return patient.getAddress();
     }
 
     /**
@@ -154,7 +154,7 @@ public class PatientService {
      * @param fields    - the object containing the updated information
      * @return - the updated patient information
      */
-    public PatientDTO updatePatientInfo(Long patientId, Map<String, Object> fields) {
+    public Patient updatePatientInfo(Long patientId, Map<String, Object> fields) {
         Patient patient = getPatientByPatientId(patientId);
 
         fields.forEach((key, value) -> {
@@ -168,7 +168,7 @@ public class PatientService {
 
         patientRepository.save(patient);
 
-        return new PatientDTO(patient);
+        return patient;
     }
 
     /**

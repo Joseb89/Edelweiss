@@ -2,9 +2,7 @@ package com.jaab.edelweiss.controller;
 
 import com.jaab.edelweiss.dto.AppointmentDTO;
 import com.jaab.edelweiss.exception.AppointmentNotFoundException;
-import com.jaab.edelweiss.model.Appointment;
 import com.jaab.edelweiss.service.AppointmentService;
-import com.jaab.edelweiss.utils.TestUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
@@ -15,6 +13,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
+import static com.jaab.edelweiss.utils.TestUtils.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
@@ -29,7 +28,7 @@ public class AppointmentControllerTest {
 
     @Test
     public void createAppointmentTest() {
-        AppointmentDTO appointmentDTO = new AppointmentDTO(TestUtils.mayAppointment);
+        AppointmentDTO appointmentDTO = new AppointmentDTO(mayAppointment);
 
         when(appointmentService.createAppointment(any(AppointmentDTO.class))).thenReturn(appointmentDTO);
 
@@ -45,10 +44,10 @@ public class AppointmentControllerTest {
     @Test
     public void getAppointmentsByDoctorNameTest() {
         when(appointmentService.getAppointmentsByDoctorName(anyString(), anyString()))
-                .thenReturn(TestUtils.getAppointmentDTOsByDoctorName());
+                .thenReturn(getAppointmentDTOsByDoctorName());
 
         webTestClient.get()
-                .uri("/physician/myAppointments/" + TestUtils.doctorFirstName + "/" + TestUtils.doctorLastName)
+                .uri("/physician/myAppointments/" + doctorFirstName + "/" + doctorLastName)
                 .exchange()
                 .expectStatus().isOk()
                 .expectBodyList(AppointmentDTO.class).hasSize(2);
@@ -56,17 +55,16 @@ public class AppointmentControllerTest {
 
     @Test
     public void updateAppointmentInfoTest() {
-        Appointment appointment = TestUtils.juneAppointment;
-
-        AppointmentDTO appointmentDTO = new AppointmentDTO(appointment.getId(), appointment.getDoctorFirstName(),
-                appointment.getDoctorLastName(), appointment.getPatientFirstName(), appointment.getPatientLastName(),
-                LocalDate.of(TestUtils.YEAR, 6, 20), LocalTime.of(11, 30));
+        AppointmentDTO appointmentDTO = new AppointmentDTO(juneAppointment.getId(),
+                juneAppointment.getDoctorFirstName(), juneAppointment.getDoctorLastName(),
+                juneAppointment.getPatientFirstName(), juneAppointment.getPatientLastName(),
+                LocalDate.of(YEAR, 6, 20), LocalTime.of(11, 30));
 
         when(appointmentService.updateAppointmentInfo(any(AppointmentDTO.class), anyLong()))
                 .thenReturn(appointmentDTO);
 
         webTestClient.patch()
-                .uri("/physician//updateAppointmentInfo/" + appointment.getId())
+                .uri("/physician//updateAppointmentInfo/" + appointmentDTO.id())
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(appointmentDTO)
                 .accept(MediaType.APPLICATION_JSON)
@@ -76,17 +74,16 @@ public class AppointmentControllerTest {
 
     @Test
     public void updateAppointmentInfoExceptionTest() {
-        Appointment appointment = TestUtils.juneAppointment;
-
-        AppointmentDTO appointmentDTO = new AppointmentDTO(appointment.getId(), appointment.getDoctorFirstName(),
-                appointment.getDoctorLastName(), appointment.getPatientFirstName(), appointment.getPatientLastName(),
-                LocalDate.of(TestUtils.YEAR, 6, 20), LocalTime.of(11, 30));
+        AppointmentDTO appointmentDTO = new AppointmentDTO(juneAppointment.getId(),
+                juneAppointment.getDoctorFirstName(), juneAppointment.getDoctorLastName(),
+                juneAppointment.getPatientFirstName(), juneAppointment.getPatientLastName(),
+                LocalDate.of(YEAR, 6, 20), LocalTime.of(11, 30));
 
         when(appointmentService.updateAppointmentInfo(any(AppointmentDTO.class), anyLong()))
                 .thenThrow(AppointmentNotFoundException.class);
 
         webTestClient.patch()
-                .uri("/physician//updateAppointmentInfo/" + appointment.getId())
+                .uri("/physician//updateAppointmentInfo/" + appointmentDTO.id())
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(appointmentDTO)
                 .accept(MediaType.APPLICATION_JSON)
@@ -97,7 +94,7 @@ public class AppointmentControllerTest {
     @Test
     public void deleteAppointmentTest() {
         webTestClient.delete()
-                .uri("/physician/deleteAppointment/" + 1L)
+                .uri("/physician/deleteAppointment/" + julyAppointment.getId())
                 .exchange()
                 .expectStatus().isOk();
     }

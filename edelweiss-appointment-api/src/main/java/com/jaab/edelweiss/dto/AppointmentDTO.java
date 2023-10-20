@@ -13,5 +13,4 @@ public record AppointmentDTO(Long id, String doctorFirstName, String doctorLastN
                 appointment.getPatientFirstName(), appointment.getPatientLastName(),
                 appointment.getAppointmentDate(), appointment.getAppointmentTime());
     }
-
 }

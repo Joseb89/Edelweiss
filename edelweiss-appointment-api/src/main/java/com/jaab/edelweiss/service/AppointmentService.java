@@ -23,9 +23,9 @@ public class AppointmentService {
     }
 
     /**
-     * Creates a new appointment based on an AppointmentDTO payload from the doctor API
+     * Creates a new appointment based on an AppointmentDTO object from the doctor API
      *
-     * @param appointmentDTO - the AppointmentDTO payload from the doctor API
+     * @param appointmentDTO - the AppointmentDTO object from the doctor API
      * @return - the appointment data
      */
     public AppointmentDTO createAppointment(AppointmentDTO appointmentDTO) {
@@ -42,7 +42,7 @@ public class AppointmentService {
      *
      * @param firstName - the first name of the doctor
      * @param lastName  - the last name of the doctor
-     * @return - the List of appointments
+     * @return - the list of appointments
      */
     public List<AppointmentDTO> getAppointmentsByDoctorName(String firstName, String lastName) {
         List<Appointment> appointments = appointmentRepository.getAppointmentsByDoctorName(firstName, lastName);
@@ -53,9 +53,9 @@ public class AppointmentService {
     }
 
     /**
-     * Updates the appointment with the corresponding ID and merges it to the appointment database
+     * Updates the appointment with the specified ID and merges it to the appointment database
      *
-     * @param appointmentDTO - the AppointmentDTO payload from the doctor API
+     * @param appointmentDTO - the AppointmentDTO object from the doctor API
      * @param appointmentId  - the ID of the appointment
      * @return - the updated appointment
      * @throws AppointmentNotFoundException if the appointment with the specified ID is not found
@@ -94,24 +94,24 @@ public class AppointmentService {
     }
 
     /**
-     * Checks the fields of a payload object and updates the specified entity if the specified field
+     * Checks the fields of an Appointment payload object and updates the specified object if the specified field
      * is not null and does not equal the current value of the field
      *
-     * @param attribute - the field attribute to check
-     * @param supplier  - the entity to check
-     * @param entity    - the entity to update if the requirements are met
-     * @param <T>       - the type of the attribute
+     * @param attribute           - the field attribute to check
+     * @param appointmentSupplier - the Appointment entity to check
+     * @param appointmentConsumer - the Appointment entity to update if the requirements are met
+     * @param <T>                 - the type of the attribute
      */
-    private <T> void updateAppointmentIfNotNull(T attribute, Supplier<T> supplier, Consumer<T> entity) {
+    private <T> void updateAppointmentIfNotNull(T attribute, Supplier<T> appointmentSupplier,
+                                                Consumer<T> appointmentConsumer) {
         Predicate<T> predicate = input -> !input.equals(attribute);
 
-        if (attribute != null && predicate.test(supplier.get()))
-            entity.accept(attribute);
+        if (attribute != null && predicate.test(appointmentSupplier.get()))
+            appointmentConsumer.accept(attribute);
     }
 
     /**
-     * Retrieves an appointment from the appointment database based on its ID and throws an exception if the
-     * specified appointment is not found
+     * Retrieves an appointment from the appointment database based on its ID
      *
      * @param appointmentId - the ID of the appointment
      * @return - the appointment if available

@@ -86,18 +86,9 @@ public class DoctorPrescriptionService {
      * @param prescriptionDTO - the UpdatePrescriptionDTO object containing the updated information
      * @param prescriptionId  - the ID of the prescription
      * @return - the updated prescription
-     * @throws PrescriptionException if the doctor inputs invalid data for the prescription
      */
     public Mono<UpdatePrescriptionDTO> updatePrescriptionInfo(UpdatePrescriptionDTO prescriptionDTO,
-                                                              Long prescriptionId) throws PrescriptionException {
-        if (prescriptionDTO.prescriptionName() != null &&
-                doctorUtils.prescriptionNameIsNotValid(prescriptionDTO))
-            throw new PrescriptionException("Please specify prescription name.");
-
-        if (prescriptionDTO.prescriptionDosage() != null &&
-                doctorUtils.prescriptionDosageIsNotValid(prescriptionDTO))
-            throw new PrescriptionException("Prescription dosage must be between 1cc and 127cc.");
-
+                                                              Long prescriptionId) {
         return webClient.patch()
                 .uri("/updatePrescriptionInfo/" + prescriptionId)
                 .body(Mono.just(prescriptionDTO), UpdatePrescriptionDTO.class)

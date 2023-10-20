@@ -12,7 +12,7 @@ import java.util.List;
 public interface AppointmentRepository extends JpaRepository<Appointment, Long> {
 
     @Query("FROM Appointment a WHERE a.doctorFirstName = :firstName AND a.doctorLastName = :lastName " +
-            "order by a.appointmentDate")
+            "ORDER BY a.appointmentDate")
     List<Appointment> getAppointmentsByDoctorName(@Param("firstName") String firstName,
                                                   @Param("lastName") String lastName);
 }

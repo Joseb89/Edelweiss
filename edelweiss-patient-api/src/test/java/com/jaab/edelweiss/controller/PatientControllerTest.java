@@ -1,8 +1,7 @@
 package com.jaab.edelweiss.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jaab.edelweiss.dto.AddressDTO;
-import com.jaab.edelweiss.dto.PatientDTO;
+import com.jaab.edelweiss.model.Address;
 import com.jaab.edelweiss.model.Patient;
 import com.jaab.edelweiss.service.PatientService;
 import org.junit.jupiter.api.Test;
@@ -34,22 +33,20 @@ public class PatientControllerTest {
 
     @Test
     public void createPatientTest() throws Exception {
-        PatientDTO patientDTO = new PatientDTO(james);
-
-        when(patientService.createPatient(any(Patient.class))).thenReturn(patientDTO);
+        when(patientService.createPatient(any(Patient.class))).thenReturn(james);
 
         this.mockMvc.perform(post("/newPatient")
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(patientDTO)))
+                        .content(objectMapper.writeValueAsString(james)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.firstName").value("James"));
     }
 
     @Test
     public void updateAddressTest() throws Exception {
-        AddressDTO updatedAddress =
-                new AddressDTO("654 Adamant Ave", "Boise", "ID", 96521);
+        Address updatedAddress = new Address(carver.getId(), carver, "654 Adamant Ave", "Boise",
+                "ID", 96521);
 
         when(patientService.updateAddress(anyLong(), anyMap())).thenReturn(updatedAddress);
 
@@ -63,8 +60,9 @@ public class PatientControllerTest {
 
     @Test
     public void updatePatientInfoTest() throws Exception {
-        PatientDTO updatedInfo = new PatientDTO(bethany.getId(), bethany.getFirstName(), "Amell",
-                bethany.getEmail(), bethany.getPhoneNumber(), bethany.getPrimaryDoctor(), bethany.getBloodType());
+        Patient updatedInfo = new Patient(bethany.getId(), bethany.getFirstName(), "Amell",
+                bethany.getEmail(), bethany.getPassword(), bethany.getAddress(), bethany.getPhoneNumber(),
+                bethany.getPrimaryDoctor(), bethany.getBloodType(), bethany.getRole());
 
         when(patientService.updatePatientInfo(anyLong(), anyMap())).thenReturn(updatedInfo);
 

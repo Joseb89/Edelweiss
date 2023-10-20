@@ -3,7 +3,6 @@ package com.jaab.edelweiss.utils;
 import com.jaab.edelweiss.dao.DoctorRepository;
 import com.jaab.edelweiss.dto.AppointmentDTO;
 import com.jaab.edelweiss.dto.PrescriptionDTO;
-import com.jaab.edelweiss.dto.UpdatePrescriptionDTO;
 import com.jaab.edelweiss.model.Doctor;
 import org.springframework.stereotype.Component;
 
@@ -47,16 +46,6 @@ public class DoctorUtils {
     }
 
     /**
-     * Checks to see if a prescription name is empty
-     *
-     * @param prescriptionDTO - the UpdatePrescriptionDTO object containing the prescription name
-     * @return - true if the prescription name is empty
-     */
-    public boolean prescriptionNameIsNotValid(UpdatePrescriptionDTO prescriptionDTO) {
-        return prescriptionDTO.prescriptionName().isEmpty();
-    }
-
-    /**
      * Checks to see if a prescription dosage is null or less than 1cc
      *
      * @param prescriptionDTO - the PrescriptionDTO object containing the prescription dosage
@@ -65,16 +54,6 @@ public class DoctorUtils {
     public boolean prescriptionDosageIsNotValid(PrescriptionDTO prescriptionDTO) {
         return prescriptionDTO.getPrescriptionDosage() == null ||
                 prescriptionDTO.getPrescriptionDosage() < 1;
-    }
-
-    /**
-     * Checks to see if a prescription dosage is less than 1cc
-     *
-     * @param prescriptionDTO - the UpdatePrescriptionDTO object containing the prescription dosage
-     * @return - true if the prescription dosage is less than 1cc
-     */
-    public boolean prescriptionDosageIsNotValid(UpdatePrescriptionDTO prescriptionDTO) {
-        return prescriptionDTO.prescriptionDosage() < 1;
     }
 
     /**

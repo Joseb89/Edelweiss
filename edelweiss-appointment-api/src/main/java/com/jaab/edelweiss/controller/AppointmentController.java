@@ -46,7 +46,7 @@ public class AppointmentController {
     }
 
     /**
-     * Updates the appointment with the corresponding ID and merges it to the appointment database
+     * Updates the appointment with the specified ID and merges it to the appointment database
      *
      * @param appointmentDTO - the AppointmentDTO payload from the doctor API
      * @param appointmentId  - the ID of the appointment

@@ -34,13 +34,11 @@ public class PatientServiceTest {
 
     @Test
     public void createPatientTest() {
-        Patient patient = james;
-        patient.setAddress(jamesAddress);
+        james.setAddress(jamesAddress);
+        Patient patient = patientService.createPatient(james);
 
-        PatientDTO patientDTO = patientService.createPatient(patient);
-
-        assertEquals("Varric Tethras", patientDTO.primaryDoctor());
-        assertEquals("O+", patientDTO.bloodType());
+        assertEquals("Varric Tethras", patient.getPrimaryDoctor());
+        assertEquals("O+", patient.getBloodType());
     }
 
     @Test
@@ -105,12 +103,11 @@ public class PatientServiceTest {
 
     @Test
     public void getAddressTest() {
-        Patient patient = bethany;
-        patient.setAddress(bethanyAddress);
+        bethany.setAddress(bethanyAddress);
 
-        when(patientRepository.findById(anyLong())).thenReturn(Optional.of(patient));
+        when(patientRepository.findById(anyLong())).thenReturn(Optional.of(bethany));
 
-        AddressDTO addressDTO = patientService.getAddress(patient.getId());
+        AddressDTO addressDTO = patientService.getAddress(bethany.getId());
 
         assertEquals("59 Gallows St", addressDTO.streetAddress());
         assertEquals("San Antonio", addressDTO.city());
