@@ -1,6 +1,7 @@
 package com.jaab.edelweiss.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jaab.edelweiss.dto.PatientDTO;
 import com.jaab.edelweiss.model.Address;
 import com.jaab.edelweiss.model.Patient;
 import com.jaab.edelweiss.service.PatientService;
@@ -33,12 +34,14 @@ public class PatientControllerTest {
 
     @Test
     public void createPatientTest() throws Exception {
-        when(patientService.createPatient(any(Patient.class))).thenReturn(james);
+        PatientDTO patientDTO = new PatientDTO(james);
+
+        when(patientService.createPatient(any(Patient.class))).thenReturn(patientDTO);
 
         this.mockMvc.perform(post("/newPatient")
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(james)))
+                        .content(objectMapper.writeValueAsString(patientDTO)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.firstName").value("James"));
     }

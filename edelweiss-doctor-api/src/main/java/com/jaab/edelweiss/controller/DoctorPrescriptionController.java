@@ -4,7 +4,6 @@ import com.jaab.edelweiss.dto.PrescriptionDTO;
 import com.jaab.edelweiss.dto.UpdatePrescriptionDTO;
 import com.jaab.edelweiss.service.DoctorPrescriptionService;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
@@ -32,8 +31,7 @@ public class DoctorPrescriptionController {
      * @param physicianId  - the ID of the doctor
      * @return - HTTP status response with the new prescription
      */
-    @PostMapping(value = "/{physicianId}/newPrescription", consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/{physicianId}/newPrescription")
     public ResponseEntity<Mono<PrescriptionDTO>> createPrescription(
             @RequestBody PrescriptionDTO prescription, @PathVariable Long physicianId) {
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -58,8 +56,7 @@ public class DoctorPrescriptionController {
      * @param prescriptionId  - the ID of the prescription
      * @return - HTTP status response with the updated information
      */
-    @PatchMapping(value = "/updatePrescriptionInfo/{prescriptionId}",
-            consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PatchMapping(value = "/updatePrescriptionInfo/{prescriptionId}")
     public ResponseEntity<Mono<UpdatePrescriptionDTO>> updatePrescriptionInfo(
             @RequestBody UpdatePrescriptionDTO prescriptionDTO, @PathVariable Long prescriptionId) {
         return ResponseEntity.ok(doctorPrescriptionService.updatePrescriptionInfo(prescriptionDTO, prescriptionId));

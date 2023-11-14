@@ -5,6 +5,7 @@ import com.jaab.edelweiss.dto.UpdatePrescriptionDTO;
 import com.jaab.edelweiss.exception.PrescriptionException;
 import com.jaab.edelweiss.utils.DoctorUtils;
 import org.springframework.http.HttpStatusCode;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
@@ -52,7 +53,9 @@ public class DoctorPrescriptionService {
 
         return webClient.post()
                 .uri("/newPrescription")
+                .contentType(MediaType.APPLICATION_JSON)
                 .body(Mono.just(newPrescription), PrescriptionDTO.class)
+                .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
                 .onStatus(HttpStatusCode::is4xxClientError,
                         response -> response.bodyToMono(String.class).map(Exception::new))
@@ -72,6 +75,7 @@ public class DoctorPrescriptionService {
 
         return webClient.get()
                 .uri("/myPrescriptions/" + doctorName[0] + "/" + doctorName[1])
+                .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
                 .onStatus(HttpStatusCode::is4xxClientError,
                         response -> response.bodyToMono(String.class).map(Exception::new))
@@ -91,7 +95,9 @@ public class DoctorPrescriptionService {
                                                               Long prescriptionId) {
         return webClient.patch()
                 .uri("/updatePrescriptionInfo/" + prescriptionId)
+                .contentType(MediaType.APPLICATION_JSON)
                 .body(Mono.just(prescriptionDTO), UpdatePrescriptionDTO.class)
+                .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
                 .onStatus(HttpStatusCode::is4xxClientError,
                         response -> response.bodyToMono(String.class).map(Exception::new))

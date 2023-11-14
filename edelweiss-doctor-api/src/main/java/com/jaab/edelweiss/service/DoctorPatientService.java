@@ -3,6 +3,7 @@ package com.jaab.edelweiss.service;
 import com.jaab.edelweiss.dto.AddressDTO;
 import com.jaab.edelweiss.dto.PatientDTO;
 import org.springframework.http.HttpStatusCode;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
@@ -33,9 +34,10 @@ public class DoctorPatientService {
     public Mono<PatientDTO> getPatientById(Long patientId) {
         return webClient.get()
                 .uri("/getPatientById/" + patientId)
+                .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
                 .onStatus(HttpStatusCode::is4xxClientError,
-                        response -> response.bodyToMono(String.class).map(Exception::new))
+                        response -> response.bodyToMono(Exception.class).flatMap(Mono::error))
                 .onStatus(HttpStatusCode::is5xxServerError,
                         response -> response.bodyToMono(String.class).map(ServerException::new))
                 .bodyToMono(PatientDTO.class);
@@ -80,9 +82,10 @@ public class DoctorPatientService {
     public Mono<AddressDTO> getPatientAddress(Long patientId) {
         return webClient.get()
                 .uri("/getPatientAddress/" + patientId)
+                .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
                 .onStatus(HttpStatusCode::is4xxClientError,
-                        response -> response.bodyToMono(String.class).map(Exception::new))
+                        response -> response.bodyToMono(Exception.class).flatMap(Mono::error))
                 .onStatus(HttpStatusCode::is5xxServerError,
                         response -> response.bodyToMono(String.class).map(ServerException::new))
                 .bodyToMono(AddressDTO.class);
@@ -99,7 +102,7 @@ public class DoctorPatientService {
                 .uri("/deletePatient/" + patientId)
                 .retrieve()
                 .onStatus(HttpStatusCode::is4xxClientError,
-                        response -> response.bodyToMono(String.class).map(Exception::new))
+                        response -> response.bodyToMono(Exception.class).flatMap(Mono::error))
                 .onStatus(HttpStatusCode::is5xxServerError,
                         response -> response.bodyToMono(String.class).map(ServerException::new))
                 .bodyToMono(Void.class);
@@ -115,9 +118,10 @@ public class DoctorPatientService {
     private Flux<PatientDTO> getPatientRequest(String uri, String parameter) {
         return webClient.get()
                 .uri(uri + parameter)
+                .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
                 .onStatus(HttpStatusCode::is4xxClientError,
-                        response -> response.bodyToMono(String.class).map(Exception::new))
+                        response -> response.bodyToMono(Exception.class).flatMap(Mono::error))
                 .onStatus(HttpStatusCode::is5xxServerError,
                         response -> response.bodyToMono(String.class).map(ServerException::new))
                 .bodyToFlux(PatientDTO.class);

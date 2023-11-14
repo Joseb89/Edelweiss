@@ -9,6 +9,15 @@ create table if not exists doctors (
     role VARCHAR(9) not null
 );
 
+create table if not exists pharmacists (
+    pharmacist_id serial primary key,
+    first_name VARCHAR(20) not null,
+    last_name VARCHAR(30) not null,
+    pharmacist_email VARCHAR(30) not null,
+    pharmacist_password VARCHAR(100) not null,
+    role VARCHAR(10) not null
+);
+
 create table if not exists patients (
     patient_id serial primary key,
     first_name VARCHAR(20) not null,
@@ -30,15 +39,6 @@ create table if not exists address (
     CONSTRAINT fk_patient
         FOREIGN KEY(patient_id)
             REFERENCES patients(patient_id)
-);
-
-create table if not exists pharmacists (
-    pharmacist_id serial primary key,
-    first_name VARCHAR(20) not null,
-    last_name VARCHAR(30) not null,
-    pharmacist_email VARCHAR(30) not null,
-    pharmacist_password VARCHAR(100) not null,
-    role VARCHAR(10) not null
 );
 
 create table if not exists prescriptions (

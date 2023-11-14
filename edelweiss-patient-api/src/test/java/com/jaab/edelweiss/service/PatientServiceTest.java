@@ -35,10 +35,11 @@ public class PatientServiceTest {
     @Test
     public void createPatientTest() {
         james.setAddress(jamesAddress);
-        Patient patient = patientService.createPatient(james);
 
-        assertEquals("Varric Tethras", patient.getPrimaryDoctor());
-        assertEquals("O+", patient.getBloodType());
+        PatientDTO patientDTO = patientService.createPatient(james);
+
+        assertEquals("Varric Tethras", patientDTO.primaryDoctor());
+        assertEquals("O+", patientDTO.bloodType());
     }
 
     @Test

@@ -18,7 +18,7 @@ public class Address {
     @Column(name = "patient_id", nullable = false, updatable = false, unique = true)
     private Long id;
 
-    @OneToOne(optional = false, cascade = CascadeType.ALL)
+    @OneToOne(optional = false, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "patient_id")
     @MapsId
     private Patient patient;

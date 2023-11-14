@@ -9,7 +9,6 @@ import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Field;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * This class is a service for creating new physicians and maintaining their data
@@ -82,11 +81,7 @@ public class DoctorService {
      * @throws DoctorNotFoundException if the doctor with the specified ID is not found
      */
     private Doctor getDoctorById(Long physicianId) throws DoctorNotFoundException {
-        Optional<Doctor> doctor = doctorRepository.findById(physicianId);
-
-        if (doctor.isEmpty())
-            throw new DoctorNotFoundException("No doctor with the specified ID found.");
-
-        return doctor.get();
+        return doctorRepository.findById(physicianId)
+                .orElseThrow(() -> new DoctorNotFoundException("No doctor with the specified ID found."));
     }
 }

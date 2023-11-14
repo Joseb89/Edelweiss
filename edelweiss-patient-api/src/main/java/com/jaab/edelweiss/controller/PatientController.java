@@ -1,5 +1,6 @@
 package com.jaab.edelweiss.controller;
 
+import com.jaab.edelweiss.dto.PatientDTO;
 import com.jaab.edelweiss.model.Address;
 import com.jaab.edelweiss.model.Patient;
 import com.jaab.edelweiss.service.PatientService;
@@ -32,7 +33,7 @@ public class PatientController {
     @PostMapping(value = "/newPatient", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
-    public Patient createPatient(@RequestBody Patient patient) {
+    public PatientDTO createPatient(@RequestBody Patient patient) {
         return patientService.createPatient(patient);
     }
 

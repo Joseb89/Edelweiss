@@ -14,7 +14,6 @@ import org.springframework.util.ReflectionUtils;
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @Service
 public class PatientService {
@@ -31,16 +30,17 @@ public class PatientService {
      * @param patient - the Patient object
      * @return - the new patient
      */
-    public Patient createPatient(Patient patient) {
+    public PatientDTO createPatient(Patient patient) {
+        patient.setRole(Role.PATIENT);
+
         Address address = new Address();
         BeanUtils.copyProperties(patient.getAddress(), address);
         address.setPatient(patient);
-        patient.setAddress(patient.getAddress());
-        patient.setRole(Role.PATIENT);
+        patient.setAddress(address);
 
         patientRepository.save(patient);
 
-        return patient;
+        return new PatientDTO(patient);
     }
 
     /**
@@ -64,14 +64,8 @@ public class PatientService {
      * @throws PatientNotFoundException if any patients with the specified first name are not found
      */
     public List<PatientDTO> getPatientsByFirstName(String firstName) throws PatientNotFoundException {
-        List<Patient> patients = patientRepository.getPatientsByFirstName(firstName);
-
-        if (patients.isEmpty())
-            throw new PatientNotFoundException("No patients with the specified first name found.");
-
-        return patients.stream()
-                .map(PatientDTO::new)
-                .toList();
+        return getPatientData(patientRepository.getPatientsByFirstName(firstName),
+                "No patients with the specified first name found.");
     }
 
     /**
@@ -82,14 +76,8 @@ public class PatientService {
      * @throws PatientNotFoundException if any patients with the specified last name are not found
      */
     public List<PatientDTO> getPatientsByLastName(String lastName) throws PatientNotFoundException {
-        List<Patient> patients = patientRepository.getPatientsByLastName(lastName);
-
-        if (patients.isEmpty())
-            throw new PatientNotFoundException("No patients with the specified last name found.");
-
-        return patients.stream()
-                .map(PatientDTO::new)
-                .toList();
+        return getPatientData(patientRepository.getPatientsByLastName(lastName),
+                "No patients with the specified last name found.");
     }
 
     /**
@@ -100,14 +88,8 @@ public class PatientService {
      * @throws PatientNotFoundException if any patients with the specified blood type are not found
      */
     public List<PatientDTO> getPatientsByBloodType(String bloodType) throws PatientNotFoundException {
-        List<Patient> patients = patientRepository.getPatientsByBloodType(bloodType);
-
-        if (patients.isEmpty())
-            throw new PatientNotFoundException("No patients with the specified blood type found.");
-
-        return patients.stream()
-                .map(PatientDTO::new)
-                .toList();
+        return getPatientData(patientRepository.getPatientsByBloodType(bloodType),
+                "No patients with the specified blood type found.");
     }
 
     /**
@@ -191,11 +173,25 @@ public class PatientService {
      * @throws PatientNotFoundException if the patient with the specified ID is not found
      */
     private Patient getPatientByPatientId(Long patientId) throws PatientNotFoundException {
-        Optional<Patient> patient = patientRepository.findById(patientId);
+        return patientRepository.findById(patientId)
+                .orElseThrow(() -> new PatientNotFoundException("No patient with the specified ID found."));
+    }
 
-        if (patient.isEmpty())
-            throw new PatientNotFoundException("No patient with the specified ID found.");
+    /**
+     * Retrieves a list of patients from the patient database and saves the data to a PatientDTO list
+     *
+     * @param patientList  - the list of patients from the patient database
+     * @param errorMessage - the error message to display if the returned list is empty
+     * @return - the PatientDTO list containing the patients
+     * @throws PatientNotFoundException if the returned list of patients is empty
+     */
+    private List<PatientDTO> getPatientData(List<Patient> patientList, String errorMessage)
+            throws PatientNotFoundException {
+        if (patientList.isEmpty())
+            throw new PatientNotFoundException(errorMessage);
 
-        return patient.get();
+        return patientList.stream()
+                .map(PatientDTO::new)
+                .toList();
     }
 }
