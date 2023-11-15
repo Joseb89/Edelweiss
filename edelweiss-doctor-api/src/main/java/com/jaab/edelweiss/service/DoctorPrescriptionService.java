@@ -112,7 +112,7 @@ public class DoctorPrescriptionService {
      * @param prescriptionId - the ID of the prescription
      * @return - the DELETE request
      */
-    public Mono<Void> deletePrescription(Long prescriptionId) {
+    public Mono<String> deletePrescription(Long prescriptionId) {
         return webClient.delete()
                 .uri("/deletePrescription/" + prescriptionId)
                 .retrieve()
@@ -120,6 +120,6 @@ public class DoctorPrescriptionService {
                         response -> response.bodyToMono(String.class).map(Exception::new))
                 .onStatus(HttpStatusCode::is5xxServerError,
                         response -> response.bodyToMono(String.class).map(ServerException::new))
-                .bodyToMono(Void.class);
+                .bodyToMono(String.class);
     }
 }

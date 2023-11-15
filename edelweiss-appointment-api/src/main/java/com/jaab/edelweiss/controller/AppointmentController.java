@@ -2,8 +2,6 @@ package com.jaab.edelweiss.controller;
 
 import com.jaab.edelweiss.dto.AppointmentDTO;
 import com.jaab.edelweiss.service.AppointmentService;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -24,9 +22,7 @@ public class AppointmentController {
      * @param appointmentDTO - the AppointmentDTO payload from the doctor API
      * @return - the appointment data
      */
-    @PostMapping(value = "/newAppointment", consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseStatus(HttpStatus.CREATED)
+    @PostMapping(value = "/newAppointment")
     public Mono<AppointmentDTO> createAppointment(@RequestBody AppointmentDTO appointmentDTO) {
         return Mono.just(appointmentService.createAppointment(appointmentDTO));
     }
@@ -52,8 +48,7 @@ public class AppointmentController {
      * @param appointmentId  - the ID of the appointment
      * @return - the updated appointment
      */
-    @PatchMapping(value = "/updateAppointmentInfo/{appointmentId}", consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE)
+    @PatchMapping(value = "/updateAppointmentInfo/{appointmentId}")
     public Mono<AppointmentDTO> updateAppointmentInfo(@RequestBody AppointmentDTO appointmentDTO,
                                                       @PathVariable Long appointmentId) {
         return Mono.just(appointmentService.updateAppointmentInfo(appointmentDTO, appointmentId));
@@ -65,7 +60,9 @@ public class AppointmentController {
      * @param appointmentId - the ID of the appointment
      */
     @DeleteMapping(value = "/deleteAppointment/{appointmentId}")
-    public void deleteAppointment(@PathVariable Long appointmentId) {
+    public String deleteAppointment(@PathVariable Long appointmentId) {
         appointmentService.deleteAppointment(appointmentId);
+
+        return "Appointment successfully deleted.";
     }
 }

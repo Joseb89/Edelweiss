@@ -1,9 +1,9 @@
 package com.jaab.edelweiss.controller;
 
 import com.jaab.edelweiss.dto.AppointmentDTO;
+import com.jaab.edelweiss.exception.AppointmentException;
 import com.jaab.edelweiss.service.DoctorAppointmentService;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
@@ -31,8 +31,7 @@ public class DoctorAppointmentController {
      * @param physicianId - the ID of the doctor
      * @return - HTTP status response with the new appointment
      */
-    @PostMapping(value = "/{physicianId}/newAppointment", consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/{physicianId}/newAppointment")
     public ResponseEntity<Mono<AppointmentDTO>> createAppointment(@RequestBody AppointmentDTO appointment,
                                                                   @PathVariable Long physicianId) {
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -57,8 +56,7 @@ public class DoctorAppointmentController {
      * @param appointmentId  - the ID of the appointment
      * @return - HTTP status response with the updated information
      */
-    @PatchMapping(value = "/updateAppointmentInfo/{appointmentId}",
-            consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PatchMapping(value = "/updateAppointmentInfo/{appointmentId}")
     public ResponseEntity<Mono<AppointmentDTO>> updateAppointmentInfo(@RequestBody AppointmentDTO appointmentDTO,
                                                                       @PathVariable Long appointmentId) {
         return ResponseEntity.ok(doctorAppointmentService.updateAppointmentInfo(appointmentDTO, appointmentId));
@@ -71,7 +69,18 @@ public class DoctorAppointmentController {
      * @return - HTTP status response
      */
     @DeleteMapping(value = "/deleteAppointment/{appointmentId}")
-    public ResponseEntity<Mono<Void>> deleteAppointment(@PathVariable Long appointmentId) {
+    public ResponseEntity<Mono<String>> deleteAppointment(@PathVariable Long appointmentId) {
         return ResponseEntity.ok(doctorAppointmentService.deleteAppointment(appointmentId));
+    }
+
+    /**
+     * Handles AppointmentException errors when creating and updating appointment data
+     *
+     * @param e - the AppointmentException object
+     * @return - HTTP status response containing the error message
+     */
+    @ExceptionHandler(AppointmentException.class)
+    private ResponseEntity<String> handleAppointmentError(AppointmentException e) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
     }
 }

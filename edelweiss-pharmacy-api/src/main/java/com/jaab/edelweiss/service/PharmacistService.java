@@ -9,7 +9,6 @@ import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Field;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * This is a service class for creating and maintaining pharmacist data
@@ -83,11 +82,7 @@ public class PharmacistService {
      * @throws PharmacistNotFoundException if the pharmacist with the specified ID is not found
      */
     private Pharmacist getPharmacistById(Long pharmacistId) throws PharmacistNotFoundException {
-        Optional<Pharmacist> pharmacist = pharmacistRepository.findById(pharmacistId);
-
-        if (pharmacist.isEmpty())
-            throw new PharmacistNotFoundException("No pharmacist with the specified ID found.");
-
-        return pharmacist.get();
+        return pharmacistRepository.findById(pharmacistId)
+                .orElseThrow(()-> new PharmacistNotFoundException("No pharmacist with the specified ID found."));
     }
 }

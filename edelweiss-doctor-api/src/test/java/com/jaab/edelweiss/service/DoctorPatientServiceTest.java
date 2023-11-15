@@ -134,7 +134,7 @@ public class DoctorPatientServiceTest {
     public void deletePatientTest() {
         mockWebServer.enqueue(new MockResponse().setResponseCode(200));
 
-        Mono<Void> deletePatient = doctorPatientService.deletePatient(ID);
+        Mono<String> deletePatient = doctorPatientService.deletePatient(ID);
 
         StepVerifier.create(deletePatient)
                 .verifyComplete();

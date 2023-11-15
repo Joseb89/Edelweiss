@@ -131,29 +131,21 @@ public class DoctorPrescriptionServiceTest {
 
     @Test
     public void updatePrescriptionInfoNameExceptionTest() {
-        UpdatePrescriptionDTO updatedPrescription = new UpdatePrescriptionDTO(ID,
-                "", null);
-
         assertThrows(PrescriptionException.class,
-                () -> doctorPrescriptionService
-                        .updatePrescriptionInfo(updatedPrescription, updatedPrescription.id()).block());
+                () -> new UpdatePrescriptionDTO(ID,"", null));
     }
 
     @Test
     public void updatePrescriptionInfoDosageExceptionTest() {
-        UpdatePrescriptionDTO updatedPrescription = new UpdatePrescriptionDTO(ID,
-                "Dragon's Blood", (byte) -30);
-
         assertThrows(PrescriptionException.class,
-                () -> doctorPrescriptionService
-                        .updatePrescriptionInfo(updatedPrescription, updatedPrescription.id()).block());
+                () -> new UpdatePrescriptionDTO(ID,null, (byte) -30));
     }
 
     @Test
     public void deletePrescriptionTest() {
         mockWebServer.enqueue(new MockResponse().setResponseCode(200));
 
-        Mono<Void> deletePrescription = doctorPrescriptionService.deletePrescription(ID);
+        Mono<String> deletePrescription = doctorPrescriptionService.deletePrescription(ID);
 
         StepVerifier.create(deletePrescription)
                 .verifyComplete();

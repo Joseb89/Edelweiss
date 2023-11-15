@@ -2,8 +2,9 @@ package com.jaab.edelweiss.controller;
 
 import com.jaab.edelweiss.dto.PrescriptionDTO;
 import com.jaab.edelweiss.dto.PrescriptionStatusDTO;
+import com.jaab.edelweiss.exception.PrescriptionStatusException;
 import com.jaab.edelweiss.service.PharmacistPrescriptionService;
-import org.springframework.http.MediaType;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
@@ -41,10 +42,20 @@ public class PharmacistPrescriptionController {
      * @param prescriptionId - the ID of the prescription
      * @return - HTTP status response containing the updated prescription status
      */
-    @PatchMapping(value = "/approvePrescription/{prescriptionId}",
-            consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PatchMapping(value = "/approvePrescription/{prescriptionId}")
     public ResponseEntity<Mono<PrescriptionDTO>> approvePrescription(@RequestBody PrescriptionStatusDTO status,
-                                                                           @PathVariable Long prescriptionId) {
+                                                                     @PathVariable Long prescriptionId) {
         return ResponseEntity.ok(pharmacistPrescriptionService.approvePrescription(status, prescriptionId));
+    }
+
+    /**
+     * Handles PrescriptionStatusException errors when approving prescriptions
+     *
+     * @param e - the PrescriptionStatusException object
+     * @return - HTTP status response containing the error message
+     */
+    @ExceptionHandler(PrescriptionStatusException.class)
+    private ResponseEntity<String> handlePrescriptionStatustError(PrescriptionStatusException e) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
     }
 }

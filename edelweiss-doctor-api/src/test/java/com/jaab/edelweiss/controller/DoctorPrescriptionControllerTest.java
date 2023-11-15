@@ -90,23 +90,6 @@ public class DoctorPrescriptionControllerTest {
     }
 
     @Test
-    public void updatePrescriptionInfoExceptionTest() {
-        UpdatePrescriptionDTO updatedPrescription =
-                new UpdatePrescriptionDTO(ID, "Ambrosia", (byte) -40);
-
-        when(doctorPrescriptionService.updatePrescriptionInfo(any(UpdatePrescriptionDTO.class), anyLong()))
-                .thenThrow(PrescriptionException.class);
-
-        webTestClient.patch()
-                .uri("/physician/updatePrescriptionInfo/" + updatedPrescription.id())
-                .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(updatedPrescription)
-                .accept(MediaType.APPLICATION_JSON)
-                .exchange()
-                .expectStatus().is4xxClientError();
-    }
-
-    @Test
     public void deletePrescriptionTest() {
         webTestClient.delete()
                 .uri("/physician/deletePrescription/" + ID)

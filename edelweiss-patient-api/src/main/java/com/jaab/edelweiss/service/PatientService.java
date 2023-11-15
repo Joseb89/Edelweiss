@@ -112,7 +112,7 @@ public class PatientService {
      * @param fields    - the object containing the updated information
      * @return - the updated address
      */
-    public Address updateAddress(Long patientId, Map<String, Object> fields) {
+    public AddressDTO updateAddress(Long patientId, Map<String, Object> fields) {
         Patient patient = getPatientByPatientId(patientId);
 
         fields.forEach((key, value) -> {
@@ -126,7 +126,7 @@ public class PatientService {
 
         patientRepository.save(patient);
 
-        return patient.getAddress();
+        return new AddressDTO(patient.getAddress());
     }
 
     /**
@@ -136,7 +136,7 @@ public class PatientService {
      * @param fields    - the object containing the updated information
      * @return - the updated patient information
      */
-    public Patient updatePatientInfo(Long patientId, Map<String, Object> fields) {
+    public PatientDTO updatePatientInfo(Long patientId, Map<String, Object> fields) {
         Patient patient = getPatientByPatientId(patientId);
 
         fields.forEach((key, value) -> {
@@ -150,7 +150,7 @@ public class PatientService {
 
         patientRepository.save(patient);
 
-        return patient;
+        return new PatientDTO(patient);
     }
 
     /**

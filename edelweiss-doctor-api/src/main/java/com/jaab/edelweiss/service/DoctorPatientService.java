@@ -97,7 +97,7 @@ public class DoctorPatientService {
      * @param patientId - the ID of the patient
      * @return - the DELETE request
      */
-    public Mono<Void> deletePatient(Long patientId) {
+    public Mono<String> deletePatient(Long patientId) {
         return webClient.delete()
                 .uri("/deletePatient/" + patientId)
                 .retrieve()
@@ -105,7 +105,7 @@ public class DoctorPatientService {
                         response -> response.bodyToMono(Exception.class).flatMap(Mono::error))
                 .onStatus(HttpStatusCode::is5xxServerError,
                         response -> response.bodyToMono(String.class).map(ServerException::new))
-                .bodyToMono(Void.class);
+                .bodyToMono(String.class);
     }
 
     /**

@@ -5,8 +5,6 @@ import com.jaab.edelweiss.dto.PrescriptionStatusDTO;
 import com.jaab.edelweiss.dto.UpdatePrescriptionDTO;
 import com.jaab.edelweiss.model.Status;
 import com.jaab.edelweiss.service.PrescriptionService;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -27,9 +25,7 @@ public class PrescriptionController {
      * @param prescriptionDTO - the PrescriptionDTO payload from the doctor API
      * @return - the new prescription
      */
-    @PostMapping(value = "/physician/newPrescription", consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseStatus(HttpStatus.CREATED)
+    @PostMapping(value = "/physician/newPrescription")
     public Mono<PrescriptionDTO> createPrescription(@RequestBody PrescriptionDTO prescriptionDTO) {
         return Mono.just(prescriptionService.createPrescription(prescriptionDTO));
     }
@@ -65,8 +61,7 @@ public class PrescriptionController {
      * @param prescriptionId  - the ID of the prescription
      * @return - the updated prescription
      */
-    @PatchMapping(value = "/physician/updatePrescriptionInfo/{prescriptionId}",
-            consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PatchMapping(value = "/physician/updatePrescriptionInfo/{prescriptionId}")
     public Mono<PrescriptionDTO> updatePrescriptionInfo(@RequestBody UpdatePrescriptionDTO prescriptionDTO,
                                                         @PathVariable Long prescriptionId) {
         return Mono.just(prescriptionService.updatePrescriptionInfo(prescriptionDTO, prescriptionId));
@@ -80,8 +75,7 @@ public class PrescriptionController {
      * @param prescriptionId - the ID of the prescription
      * @return - the PrescriptionDTO object containing the updated status
      */
-    @PatchMapping(value = "/pharmacy/approvePrescription/{prescriptionId}",
-            consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PatchMapping(value = "/pharmacy/approvePrescription/{prescriptionId}")
     public Mono<PrescriptionDTO> approvePrescription(@RequestBody PrescriptionStatusDTO status,
                                                      @PathVariable Long prescriptionId) {
         return Mono.just(prescriptionService.approvePrescription(status, prescriptionId));
@@ -93,7 +87,9 @@ public class PrescriptionController {
      * @param prescriptionId - the ID of the prescription
      */
     @DeleteMapping(value = "/physician/deletePrescription/{prescriptionId}")
-    public void deletePrescription(@PathVariable Long prescriptionId) {
+    public String deletePrescription(@PathVariable Long prescriptionId) {
         prescriptionService.deletePrescription(prescriptionId);
+
+        return "Prescription successfully deleted.";
     }
 }

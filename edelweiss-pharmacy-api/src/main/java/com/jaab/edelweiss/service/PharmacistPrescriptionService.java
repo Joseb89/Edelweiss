@@ -3,6 +3,7 @@ package com.jaab.edelweiss.service;
 import com.jaab.edelweiss.dto.PrescriptionDTO;
 import com.jaab.edelweiss.dto.PrescriptionStatusDTO;
 import org.springframework.http.HttpStatusCode;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
@@ -33,6 +34,7 @@ public class PharmacistPrescriptionService {
     public Flux<PrescriptionDTO> getPendingPrescriptions() {
         return webClient.get()
                 .uri("/getPendingPrescriptions")
+                .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
                 .onStatus(HttpStatusCode::is4xxClientError,
                         response -> response.bodyToMono(String.class).map(Exception::new))
@@ -51,7 +53,9 @@ public class PharmacistPrescriptionService {
     public Mono<PrescriptionDTO> approvePrescription(PrescriptionStatusDTO status, Long prescriptionId) {
         return webClient.patch()
                 .uri("/approvePrescription/" + prescriptionId)
+                .contentType(MediaType.APPLICATION_JSON)
                 .body(Mono.just(status), PrescriptionStatusDTO.class)
+                .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
                 .onStatus(HttpStatusCode::is4xxClientError,
                         response -> response.bodyToMono(String.class).map(Exception::new))

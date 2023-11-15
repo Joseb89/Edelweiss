@@ -4,6 +4,7 @@ import com.jaab.edelweiss.dto.AppointmentDTO;
 import com.jaab.edelweiss.exception.AppointmentException;
 import com.jaab.edelweiss.utils.DoctorUtils;
 import org.springframework.http.HttpStatusCode;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
@@ -49,7 +50,9 @@ public class DoctorAppointmentService {
 
         return webClient.post()
                 .uri("/newAppointment")
+                .contentType(MediaType.APPLICATION_JSON)
                 .body(Mono.just(newAppointment), AppointmentDTO.class)
+                .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
                 .onStatus(HttpStatusCode::is4xxClientError,
                         response -> response.bodyToMono(String.class).map(Exception::new))
@@ -69,6 +72,7 @@ public class DoctorAppointmentService {
 
         return webClient.get()
                 .uri("/myAppointments/" + doctorName[0] + "/" + doctorName[1])
+                .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
                 .onStatus(HttpStatusCode::is4xxClientError,
                         response -> response.bodyToMono(String.class).map(Exception::new))
@@ -93,7 +97,9 @@ public class DoctorAppointmentService {
 
         return webClient.patch()
                 .uri("/updateAppointmentInfo/" + appointmentId)
+                .contentType(MediaType.APPLICATION_JSON)
                 .body(Mono.just(appointmentDTO), AppointmentDTO.class)
+                .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
                 .onStatus(HttpStatusCode::is4xxClientError,
                         response -> response.bodyToMono(String.class).map(Exception::new))
@@ -108,7 +114,7 @@ public class DoctorAppointmentService {
      * @param appointmentId - the ID of the appointment
      * @return - the DELETE request
      */
-    public Mono<Void> deleteAppointment(Long appointmentId) {
+    public Mono<String> deleteAppointment(Long appointmentId) {
         return webClient.delete()
                 .uri("/deleteAppointment/" + appointmentId)
                 .retrieve()
@@ -116,6 +122,6 @@ public class DoctorAppointmentService {
                         response -> response.bodyToMono(String.class).map(Exception::new))
                 .onStatus(HttpStatusCode::is5xxServerError,
                         response -> response.bodyToMono(String.class).map(ServerException::new))
-                .bodyToMono(Void.class);
+                .bodyToMono(String.class);
     }
 }

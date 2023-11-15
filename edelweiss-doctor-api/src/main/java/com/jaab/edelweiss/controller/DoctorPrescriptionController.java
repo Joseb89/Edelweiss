@@ -2,6 +2,7 @@ package com.jaab.edelweiss.controller;
 
 import com.jaab.edelweiss.dto.PrescriptionDTO;
 import com.jaab.edelweiss.dto.UpdatePrescriptionDTO;
+import com.jaab.edelweiss.exception.PrescriptionException;
 import com.jaab.edelweiss.service.DoctorPrescriptionService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -69,7 +70,18 @@ public class DoctorPrescriptionController {
      * @return - the DELETE request
      */
     @DeleteMapping(value = "/deletePrescription/{prescriptionId}")
-    public ResponseEntity<Mono<Void>> deletePrescription(@PathVariable Long prescriptionId) {
+    public ResponseEntity<Mono<String>> deletePrescription(@PathVariable Long prescriptionId) {
         return ResponseEntity.ok(doctorPrescriptionService.deletePrescription(prescriptionId));
+    }
+
+    /**
+     * Handles PrescriptionException errors when creating and updating prescription data
+     *
+     * @param e - the PrescriptionException object
+     * @return - HTTP status response containing the error message
+     */
+    @ExceptionHandler(PrescriptionException.class)
+    private ResponseEntity<String> handlePrescriptionError(PrescriptionException e) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
     }
 }

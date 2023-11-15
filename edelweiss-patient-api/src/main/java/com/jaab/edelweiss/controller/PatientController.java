@@ -1,7 +1,7 @@
 package com.jaab.edelweiss.controller;
 
+import com.jaab.edelweiss.dto.AddressDTO;
 import com.jaab.edelweiss.dto.PatientDTO;
-import com.jaab.edelweiss.model.Address;
 import com.jaab.edelweiss.model.Patient;
 import com.jaab.edelweiss.service.PatientService;
 import org.springframework.http.HttpStatus;
@@ -46,8 +46,8 @@ public class PatientController {
      */
     @PatchMapping(value = "/patient/{patientId}/updateAddress", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public Address updateAddress(@PathVariable Long patientId,
-                                 @RequestBody Map<String, Object> fields) {
+    public AddressDTO updateAddress(@PathVariable Long patientId,
+                                    @RequestBody Map<String, Object> fields) {
         return patientService.updateAddress(patientId, fields);
     }
 
@@ -60,7 +60,7 @@ public class PatientController {
      */
     @PatchMapping(value = "/patient/{patientId}/updatePatientInfo", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public Patient updatePatientInfo(@PathVariable Long patientId,
+    public PatientDTO updatePatientInfo(@PathVariable Long patientId,
                                      @RequestBody Map<String, Object> fields) {
         return patientService.updatePatientInfo(patientId, fields);
     }

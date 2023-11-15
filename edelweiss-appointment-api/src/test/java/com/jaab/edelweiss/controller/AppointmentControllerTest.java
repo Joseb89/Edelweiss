@@ -38,7 +38,7 @@ public class AppointmentControllerTest {
                 .bodyValue(appointmentDTO)
                 .accept(MediaType.APPLICATION_JSON)
                 .exchange()
-                .expectStatus().isCreated();
+                .expectStatus().isOk();
     }
 
     @Test

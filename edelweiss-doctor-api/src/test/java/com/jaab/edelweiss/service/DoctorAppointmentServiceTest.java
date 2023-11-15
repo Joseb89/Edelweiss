@@ -141,7 +141,7 @@ public class DoctorAppointmentServiceTest {
     public void deleteAppointmentTest() {
         mockWebServer.enqueue(new MockResponse().setResponseCode(200));
 
-        Mono<Void> deleteAppointment = doctorAppointmentService.deleteAppointment(ID);
+        Mono<String> deleteAppointment = doctorAppointmentService.deleteAppointment(ID);
 
         StepVerifier.create(deleteAppointment)
                 .verifyComplete();

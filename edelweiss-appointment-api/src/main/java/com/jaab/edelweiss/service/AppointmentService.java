@@ -8,7 +8,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -118,11 +117,7 @@ public class AppointmentService {
      * @throws AppointmentNotFoundException if the appointment with the specified ID is not found
      */
     private Appointment getAppointmentById(Long appointmentId) throws AppointmentNotFoundException {
-        Optional<Appointment> appointment = appointmentRepository.findById(appointmentId);
-
-        if (appointment.isEmpty())
-            throw new AppointmentNotFoundException("No appointment with the specified ID found.");
-
-        return appointment.get();
+        return appointmentRepository.findById(appointmentId)
+                .orElseThrow(()-> new AppointmentNotFoundException("No appointment with the specified ID found."));
     }
 }

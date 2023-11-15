@@ -11,7 +11,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class PrescriptionService {
@@ -46,11 +45,7 @@ public class PrescriptionService {
      * @return - the list of prescriptions matching the criteria
      */
     public List<PrescriptionDTO> getPrescriptionsByDoctorName(String firstName, String lastName) {
-        List<Prescription> prescriptions = prescriptionRepository.getPrescriptionsByDoctorName(firstName, lastName);
-
-        return prescriptions.stream()
-                .map(PrescriptionDTO::new)
-                .toList();
+        return getPrescriptions(prescriptionRepository.getPrescriptionsByDoctorName(firstName, lastName));
     }
 
     /**
@@ -60,11 +55,7 @@ public class PrescriptionService {
      * @return - the list of prescriptions with the specified status
      */
     public List<PrescriptionDTO> getPrescriptionsByPrescriptionStatus(Status status) {
-        List<Prescription> prescriptions = prescriptionRepository.getPrescriptionsByPrescriptionStatus(status);
-
-        return prescriptions.stream()
-                .map(PrescriptionDTO::new)
-                .toList();
+        return getPrescriptions(prescriptionRepository.getPrescriptionsByPrescriptionStatus(status));
     }
 
     /**
@@ -129,11 +120,13 @@ public class PrescriptionService {
      * @throws PrescriptionNotFoundException if the prescription with the specified ID is not found
      */
     private Prescription getPrescriptionById(Long prescriptionId) throws PrescriptionNotFoundException {
-        Optional<Prescription> prescription = prescriptionRepository.findById(prescriptionId);
+        return prescriptionRepository.findById(prescriptionId)
+                .orElseThrow(()-> new PrescriptionNotFoundException("No prescription with the specified ID found."));
+    }
 
-        if (prescription.isEmpty())
-            throw new PrescriptionNotFoundException("No prescription with the specified ID found.");
-
-        return prescription.get();
+    private List<PrescriptionDTO> getPrescriptions(List<Prescription> prescriptionList) {
+        return prescriptionList.stream()
+                .map(PrescriptionDTO::new)
+                .toList();
     }
 }

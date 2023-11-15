@@ -84,7 +84,9 @@ public class DoctorPatientController {
      * @param patientId - the ID of the patient
      */
     @DeleteMapping(value = "/deletePatient/{patientId}")
-    public void deletePatient(@PathVariable Long patientId) {
+    public String deletePatient(@PathVariable Long patientId) {
         patientService.deletePatient(patientId);
+
+        return "Patient successfully deleted.";
     }
 }

@@ -3,6 +3,7 @@ package com.jaab.edelweiss.controller;
 import com.jaab.edelweiss.dto.AddressDTO;
 import com.jaab.edelweiss.dto.PatientDTO;
 import com.jaab.edelweiss.service.DoctorPatientService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
@@ -85,7 +86,18 @@ public class DoctorPatientController {
      * @return - the DELETE request
      */
     @DeleteMapping(value = "/deletePatient/{patientId}")
-    public ResponseEntity<Mono<Void>> deletePatient(@PathVariable Long patientId) {
+    public ResponseEntity<Mono<String>> deletePatient(@PathVariable Long patientId) {
         return ResponseEntity.ok(doctorPatientService.deletePatient(patientId));
+    }
+
+    /**
+     * Handles exceptions from the patient API
+     *
+     * @param e - the Exception object from the patient API
+     * @return - HTTP status response containing the error message
+     */
+    @ExceptionHandler(Exception.class)
+    private ResponseEntity<String> handlePatientNotFoundError(Exception e) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
     }
 }
