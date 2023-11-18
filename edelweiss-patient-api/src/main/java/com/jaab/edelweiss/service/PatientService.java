@@ -6,7 +6,6 @@ import com.jaab.edelweiss.dto.PatientDTO;
 import com.jaab.edelweiss.exception.PatientNotFoundException;
 import com.jaab.edelweiss.model.Address;
 import com.jaab.edelweiss.model.Patient;
-import com.jaab.edelweiss.model.Role;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ReflectionUtils;
@@ -31,10 +30,9 @@ public class PatientService {
      * @return - the new patient
      */
     public PatientDTO createPatient(Patient patient) {
-        patient.setRole(Role.PATIENT);
-
         Address address = new Address();
         BeanUtils.copyProperties(patient.getAddress(), address);
+
         address.setPatient(patient);
         patient.setAddress(address);
 

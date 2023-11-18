@@ -3,7 +3,6 @@ package com.jaab.edelweiss.utils;
 import com.jaab.edelweiss.dto.PatientDTO;
 import com.jaab.edelweiss.model.Address;
 import com.jaab.edelweiss.model.Patient;
-import com.jaab.edelweiss.model.Role;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,15 +12,15 @@ public abstract class TestUtils {
 
     public static Patient james = new Patient(1L, "James", "Hawke",
             "championofkirkwall@gmail.com", "magerebellion", null, 7130042356L,
-            "Varric Tethras", "O+", Role.PATIENT);
+            "Varric Tethras", "O+");
 
     public static Patient bethany = new Patient(2L, "Bethany", "Hawke",
             "circlemage@gmail.com", "daughterofamell", null, 7130042357L,
-            "Varric Tethras", "O-", Role.PATIENT);
+            "Varric Tethras", "O-");
 
     public static Patient carver = new Patient(3L, "Carver", "Hawke",
             "templarknight@gmail.com", "sonofamell", null, 7130042357L,
-            "Varric Tethras", "O-", Role.PATIENT);
+            "Varric Tethras", "O-");
 
     public static Address jamesAddress = new Address(james.getId(), james, "58 Hightown Court",
             "San Antonio", "TX", 78615);

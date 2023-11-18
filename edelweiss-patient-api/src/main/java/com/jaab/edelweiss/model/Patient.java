@@ -40,8 +40,4 @@ public class Patient {
 
     @Column(name = "blood_type", nullable = false, updatable = false, length = 3)
     private String bloodType;
-
-    @Column(name = "role", nullable = false, updatable = false, length = 7)
-    @Enumerated(EnumType.STRING)
-    private Role role;
 }

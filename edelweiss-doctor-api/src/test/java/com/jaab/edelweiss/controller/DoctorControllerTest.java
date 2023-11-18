@@ -52,8 +52,7 @@ public class DoctorControllerTest {
     @Test
     public void updateDoctorInfoTest() throws Exception {
         Doctor updatedInfo = new Doctor(doctor.getId(), doctor.getFirstName(), doctor.getLastName(),
-                "archmage@aol.com", doctor.getPassword(), doctor.getPhoneNumber(), doctor.getPractice(),
-                doctor.getRole());
+                "archmage@aol.com", doctor.getPassword(), doctor.getPhoneNumber(), doctor.getPractice());
 
         when(doctorService.updateDoctorInfo(anyLong(), anyMap())).thenReturn(updatedInfo);
 

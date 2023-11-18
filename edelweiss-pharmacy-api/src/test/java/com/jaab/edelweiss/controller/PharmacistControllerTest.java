@@ -2,7 +2,6 @@ package com.jaab.edelweiss.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jaab.edelweiss.model.Pharmacist;
-import com.jaab.edelweiss.model.Role;
 import com.jaab.edelweiss.service.PharmacistService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -47,14 +46,13 @@ public class PharmacistControllerTest {
                         .accept(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(pharmacist)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.role").value(Role.PHARMACIST.toString()));
+                .andExpect(jsonPath("$.lastName").value("Theirin"));
     }
 
     @Test
     public void updatePharmacistInfoTest() throws Exception {
         Pharmacist updatedPharmacist = new Pharmacist(pharmacist.getId(), pharmacist.getFirstName(),
-                pharmacist.getLastName(), "greywarden@gmail.com", pharmacist.getPassword(),
-                pharmacist.getRole());
+                pharmacist.getLastName(), "greywarden@gmail.com", pharmacist.getPassword());
 
         when(pharmacistService.updatePharmacistInfo(anyLong(), anyMap())).thenReturn(updatedPharmacist);
 

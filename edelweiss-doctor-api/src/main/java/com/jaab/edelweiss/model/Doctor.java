@@ -33,8 +33,4 @@ public class Doctor {
 
     @Column(name = "practice", nullable = false, updatable = false, length = 25)
     private String practice;
-
-    @Column(name = "role", nullable = false, updatable = false, length = 9)
-    @Enumerated(EnumType.STRING)
-    private Role role;
 }

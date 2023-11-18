@@ -3,7 +3,6 @@ package com.jaab.edelweiss.service;
 import com.jaab.edelweiss.dao.DoctorRepository;
 import com.jaab.edelweiss.exception.DoctorNotFoundException;
 import com.jaab.edelweiss.model.Doctor;
-import com.jaab.edelweiss.model.Role;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ReflectionUtils;
 
@@ -31,7 +30,6 @@ public class DoctorService {
      * @return - the new doctor
      */
     public Doctor createDoctor(Doctor doctor) {
-        doctor.setRole(Role.PHYSICIAN);
         doctorRepository.save(doctor);
 
         return doctor;

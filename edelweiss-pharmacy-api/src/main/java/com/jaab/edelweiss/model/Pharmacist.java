@@ -30,8 +30,4 @@ public class Pharmacist {
 
     @Column(name = "pharmacist_password", nullable = false, length = 100)
     private String password;
-
-    @Column(name = "role", nullable = false, length = 10)
-    @Enumerated(EnumType.STRING)
-    private Role role;
 }

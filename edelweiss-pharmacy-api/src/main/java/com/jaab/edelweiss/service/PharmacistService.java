@@ -3,7 +3,6 @@ package com.jaab.edelweiss.service;
 import com.jaab.edelweiss.dao.PharmacistRepository;
 import com.jaab.edelweiss.exception.PharmacistNotFoundException;
 import com.jaab.edelweiss.model.Pharmacist;
-import com.jaab.edelweiss.model.Role;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ReflectionUtils;
 
@@ -32,7 +31,6 @@ public class PharmacistService {
      * @return - the new pharmacist
      */
     public Pharmacist createPharmacist(Pharmacist pharmacist) {
-        pharmacist.setRole(Role.PHARMACIST);
         pharmacistRepository.save(pharmacist);
 
         return pharmacist;

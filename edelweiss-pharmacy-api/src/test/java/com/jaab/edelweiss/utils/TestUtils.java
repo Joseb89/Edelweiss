@@ -2,7 +2,6 @@ package com.jaab.edelweiss.utils;
 
 import com.jaab.edelweiss.dto.PrescriptionDTO;
 import com.jaab.edelweiss.model.Pharmacist;
-import com.jaab.edelweiss.model.Role;
 import com.jaab.edelweiss.model.Status;
 
 import java.util.ArrayList;
@@ -12,8 +11,8 @@ import java.util.Objects;
 public abstract class TestUtils {
 
     public static Pharmacist createPharmacist() {
-        return new Pharmacist(1L, "Alistair", "Theirin",
-                "kingofferelden@yahoo.com", "sonofmaric", Role.PHARMACIST);
+        return new Pharmacist(1L, "Alistair", "Theirin", "kingofferelden@yahoo.com",
+                "sonofmaric");
     }
 
     public static List<PrescriptionDTO> pendingPrescriptions() {

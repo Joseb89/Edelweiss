@@ -5,8 +5,7 @@ create table if not exists doctors (
     doctor_email VARCHAR(30) not null,
     doctor_password VARCHAR(100) not null,
     phone_number BIGINT not null,
-    practice VARCHAR(25) not null,
-    role VARCHAR(9) not null
+    practice VARCHAR(25) not null
 );
 
 create table if not exists pharmacists (
@@ -14,8 +13,7 @@ create table if not exists pharmacists (
     first_name VARCHAR(20) not null,
     last_name VARCHAR(30) not null,
     pharmacist_email VARCHAR(30) not null,
-    pharmacist_password VARCHAR(100) not null,
-    role VARCHAR(10) not null
+    pharmacist_password VARCHAR(100) not null
 );
 
 create table if not exists patients (
@@ -26,8 +24,7 @@ create table if not exists patients (
     patient_password VARCHAR(100) not null,
     phone_number BIGINT not null,
     primary_doctor VARCHAR(50),
-    blood_type VARCHAR(3) not null,
-    role VARCHAR(7) not null
+    blood_type VARCHAR(3) not null
 );
 
 create table if not exists address (
