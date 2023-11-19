@@ -3,11 +3,13 @@ package com.jaab.edelweiss.service;
 import com.jaab.edelweiss.dao.PharmacistRepository;
 import com.jaab.edelweiss.exception.PharmacistNotFoundException;
 import com.jaab.edelweiss.model.Pharmacist;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Field;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * This is a service class for creating and maintaining pharmacist data
@@ -20,8 +22,11 @@ public class PharmacistService {
 
     private final PharmacistRepository pharmacistRepository;
 
-    public PharmacistService(PharmacistRepository pharmacistRepository) {
+    private final PasswordEncoder passwordEncoder;
+
+    public PharmacistService(PharmacistRepository pharmacistRepository, PasswordEncoder passwordEncoder) {
         this.pharmacistRepository = pharmacistRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     /**
@@ -31,9 +36,20 @@ public class PharmacistService {
      * @return - the new pharmacist
      */
     public Pharmacist createPharmacist(Pharmacist pharmacist) {
+        pharmacist.setPassword(passwordEncoder.encode(pharmacist.getPassword()));
         pharmacistRepository.save(pharmacist);
 
         return pharmacist;
+    }
+
+    /**
+     * Retrieves a pharmacist from the pharmacist database based on their email
+     *
+     * @param email - the pharmacist's email
+     * @return - the pharmacist if available
+     */
+    public Optional<Pharmacist> getPharmacistByEmail(String email) {
+        return pharmacistRepository.getPharmacistByEmail(email);
     }
 
     /**
@@ -81,6 +97,6 @@ public class PharmacistService {
      */
     private Pharmacist getPharmacistById(Long pharmacistId) throws PharmacistNotFoundException {
         return pharmacistRepository.findById(pharmacistId)
-                .orElseThrow(()-> new PharmacistNotFoundException("No pharmacist with the specified ID found."));
+                .orElseThrow(() -> new PharmacistNotFoundException("No pharmacist with the specified ID found."));
     }
 }

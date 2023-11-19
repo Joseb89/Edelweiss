@@ -7,9 +7,13 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface PatientRepository extends JpaRepository<Patient, Long> {
+
+    @Query("FROM Patient p WHERE p.email = :email")
+    Optional<Patient> getPatientByEmail(@Param("email") String email);
 
     @Query("FROM Patient p WHERE p.firstName = :firstName ORDER BY p.lastName")
     List<Patient> getPatientsByFirstName(@Param("firstName") String firstName);

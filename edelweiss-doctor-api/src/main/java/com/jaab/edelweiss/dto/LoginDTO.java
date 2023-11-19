@@ -7,7 +7,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
-import java.util.List;
+import java.util.Set;
 
 public record LoginDTO(Long id, String firstName, String lastName,
                        String email, String password, Role role) implements UserDetails {
@@ -19,7 +19,7 @@ public record LoginDTO(Long id, String firstName, String lastName,
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority(Role.PHYSICIAN.name()));
+        return Set.of(new SimpleGrantedAuthority(Role.PHYSICIAN.name()));
     }
 
     @Override

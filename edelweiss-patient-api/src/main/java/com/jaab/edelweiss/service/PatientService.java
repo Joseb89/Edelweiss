@@ -7,20 +7,25 @@ import com.jaab.edelweiss.exception.PatientNotFoundException;
 import com.jaab.edelweiss.model.Address;
 import com.jaab.edelweiss.model.Patient;
 import org.springframework.beans.BeanUtils;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class PatientService {
 
     private final PatientRepository patientRepository;
 
-    public PatientService(PatientRepository patientRepository) {
+    private final PasswordEncoder passwordEncoder;
+
+    public PatientService(PatientRepository patientRepository, PasswordEncoder passwordEncoder) {
         this.patientRepository = patientRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     /**
@@ -30,6 +35,8 @@ public class PatientService {
      * @return - the new patient
      */
     public PatientDTO createPatient(Patient patient) {
+        patient.setPassword(passwordEncoder.encode(patient.getPassword()));
+
         Address address = new Address();
         BeanUtils.copyProperties(patient.getAddress(), address);
 
@@ -39,6 +46,16 @@ public class PatientService {
         patientRepository.save(patient);
 
         return new PatientDTO(patient);
+    }
+
+    /**
+     * Retrieves a patient from the patient database based on their email
+     *
+     * @param email - the patient's email
+     * @return - the patient if available
+     */
+    public Optional<Patient> getPatientByEmail(String email) {
+        return patientRepository.getPatientByEmail(email);
     }
 
     /**
