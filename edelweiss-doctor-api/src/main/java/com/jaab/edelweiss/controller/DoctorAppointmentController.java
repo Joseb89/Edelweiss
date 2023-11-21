@@ -28,25 +28,22 @@ public class DoctorAppointmentController {
      * Sends an AppointmentDTO payload to the appointment API
      *
      * @param appointment - the AppointmentDTO payload
-     * @param physicianId - the ID of the doctor
      * @return - HTTP status response with the new appointment
      */
-    @PostMapping(value = "/{physicianId}/newAppointment")
-    public ResponseEntity<Mono<AppointmentDTO>> createAppointment(@RequestBody AppointmentDTO appointment,
-                                                                  @PathVariable Long physicianId) {
+    @PostMapping(value = "/newAppointment")
+    public ResponseEntity<Mono<AppointmentDTO>> createAppointment(@RequestBody AppointmentDTO appointment) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(doctorAppointmentService.createAppointment(appointment, physicianId));
+                .body(doctorAppointmentService.createAppointment(appointment));
     }
 
     /**
      * Retrieves the specified doctor's appointments from the appointment API
      *
-     * @param physicianId - the ID of the doctor
      * @return - HTTP status response with the list of the doctor's appointments
      */
-    @GetMapping(value = "/{physicianId}/myAppointments")
-    public ResponseEntity<Flux<AppointmentDTO>> getAppointments(@PathVariable Long physicianId) {
-        return ResponseEntity.ok(doctorAppointmentService.getAppointments(physicianId));
+    @GetMapping(value = "/myAppointments")
+    public ResponseEntity<Flux<AppointmentDTO>> getAppointments() {
+        return ResponseEntity.ok(doctorAppointmentService.getAppointments());
     }
 
     /**

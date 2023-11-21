@@ -40,28 +40,24 @@ public class PatientController {
     /**
      * Updates the patient's address and merges it to the address database
      *
-     * @param patientId - the ID of the patient
-     * @param fields    - the payload containing the updated information
+     * @param fields - the payload containing the updated information
      * @return - the updated address
      */
-    @PatchMapping(value = "/patient/{patientId}/updateAddress", consumes = MediaType.APPLICATION_JSON_VALUE,
+    @PatchMapping(value = "/patient/updateAddress", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public AddressDTO updateAddress(@PathVariable Long patientId,
-                                    @RequestBody Map<String, Object> fields) {
-        return patientService.updateAddress(patientId, fields);
+    public AddressDTO updateAddress(@RequestBody Map<String, Object> fields) {
+        return patientService.updateAddress(fields);
     }
 
     /**
      * Updates the patient's information and merges it to the patient database
      *
-     * @param patientId - the ID of the patient
-     * @param fields    - the payload containing the updated information
+     * @param fields - the payload containing the updated information
      * @return - the updated patient information
      */
-    @PatchMapping(value = "/patient/{patientId}/updatePatientInfo", consumes = MediaType.APPLICATION_JSON_VALUE,
+    @PatchMapping(value = "/patient/updatePatientInfo", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public PatientDTO updatePatientInfo(@PathVariable Long patientId,
-                                     @RequestBody Map<String, Object> fields) {
-        return patientService.updatePatientInfo(patientId, fields);
+    public PatientDTO updatePatientInfo(@RequestBody Map<String, Object> fields) {
+        return patientService.updatePatientInfo(fields);
     }
 }

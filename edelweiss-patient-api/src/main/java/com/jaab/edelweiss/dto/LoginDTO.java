@@ -20,8 +20,8 @@ public record LoginDTO(Long id, String email, String password, Role role) implem
     public Collection<? extends GrantedAuthority> getAuthorities() {
         Set<GrantedAuthority> authorities = new HashSet<>();
 
-        authorities.add(new SimpleGrantedAuthority(Role.PATIENT.name()));
-        authorities.add(new SimpleGrantedAuthority(Role.PHYSICIAN.name()));
+        authorities.add(new SimpleGrantedAuthority("ROLE_" + Role.PATIENT.name()));
+        authorities.add(new SimpleGrantedAuthority("ROLE_" + Role.PHYSICIAN.name()));
 
         return authorities;
     }

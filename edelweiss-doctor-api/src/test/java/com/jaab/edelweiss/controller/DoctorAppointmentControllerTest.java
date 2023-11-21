@@ -36,7 +36,7 @@ public class DoctorAppointmentControllerTest {
                 LocalDate.of(YEAR, 10, 25), LocalTime.of(14, 30));
 
         webTestClient.post()
-                .uri("/physician/" + ID + "/newAppointment")
+                .uri("/physician/newAppointment")
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(appointmentDTO)
                 .accept(MediaType.APPLICATION_JSON)
@@ -50,11 +50,11 @@ public class DoctorAppointmentControllerTest {
                 "Squall", "Leonheart",
                 LocalDate.of(2023, 10, 25), LocalTime.of(14, 30));
 
-        when(doctorAppointmentService.createAppointment(any(AppointmentDTO.class), anyLong()))
+        when(doctorAppointmentService.createAppointment(any(AppointmentDTO.class)))
                 .thenThrow(AppointmentException.class);
 
         webTestClient.post()
-                .uri("/physician/" + ID + "/newAppointment")
+                .uri("/physician/newAppointment")
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(appointmentDTO)
                 .accept(MediaType.APPLICATION_JSON)
@@ -64,11 +64,11 @@ public class DoctorAppointmentControllerTest {
 
     @Test
     public void getAppointmentsTest() {
-        when(doctorAppointmentService.getAppointments(anyLong()))
+        when(doctorAppointmentService.getAppointments())
                 .thenReturn(Flux.fromIterable(getAppointments()));
 
         webTestClient.get()
-                .uri("/physician/" + ID + "/myAppointments")
+                .uri("/physician/myAppointments")
                 .exchange()
                 .expectStatus().isOk()
                 .expectBodyList(AppointmentDTO.class).hasSize(2);

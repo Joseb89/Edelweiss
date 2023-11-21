@@ -55,7 +55,7 @@ public class DoctorServiceTest {
 
         when(doctorRepository.findById(anyLong())).thenReturn(Optional.of(doctor));
 
-        doctorService.updateDoctorInfo(doctor.getId(), updatedInfo);
+        doctorService.updateDoctorInfo(updatedInfo);
 
         assertEquals("archmage@aol.com", doctor.getEmail());
         assertEquals("aneirin", doctor.getPassword());

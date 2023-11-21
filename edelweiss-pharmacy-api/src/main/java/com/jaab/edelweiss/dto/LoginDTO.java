@@ -17,7 +17,7 @@ public record LoginDTO(Long id, String email, String password, Role role) implem
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Set.of(new SimpleGrantedAuthority(Role.PHARMACIST.name()));
+        return Set.of(new SimpleGrantedAuthority("ROLE_" + Role.PHARMACIST.name()));
     }
 
     @Override

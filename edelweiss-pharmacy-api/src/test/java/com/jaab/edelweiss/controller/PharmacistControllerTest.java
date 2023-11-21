@@ -54,9 +54,9 @@ public class PharmacistControllerTest {
         Pharmacist updatedPharmacist = new Pharmacist(pharmacist.getId(), pharmacist.getFirstName(),
                 pharmacist.getLastName(), "greywarden@gmail.com", pharmacist.getPassword());
 
-        when(pharmacistService.updatePharmacistInfo(anyLong(), anyMap())).thenReturn(updatedPharmacist);
+        when(pharmacistService.updatePharmacistInfo(anyMap())).thenReturn(updatedPharmacist);
 
-        this.mockMvc.perform(patch("/pharmacy/" + pharmacist.getId() + "/updatePharmacistInfo")
+        this.mockMvc.perform(patch("/pharmacy/updatePharmacistInfo")
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updatedPharmacist)))

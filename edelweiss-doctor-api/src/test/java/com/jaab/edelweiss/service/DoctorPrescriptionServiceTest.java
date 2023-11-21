@@ -73,7 +73,7 @@ public class DoctorPrescriptionServiceTest {
                 .setBody(objectMapper.writeValueAsString(prescriptionDTO)));
 
         Mono<PrescriptionDTO> newPrescription =
-                doctorPrescriptionService.createPrescription(prescriptionDTO, doctor.getId());
+                doctorPrescriptionService.createPrescription(prescriptionDTO);
 
         StepVerifier.create(newPrescription)
                 .expectNextMatches(p -> Objects.equals(p.getDoctorFirstName(), doctorFirstName) &&
@@ -87,7 +87,7 @@ public class DoctorPrescriptionServiceTest {
                 null, (byte) 20, null);
 
         assertThrows(PrescriptionException.class, () ->
-                doctorPrescriptionService.createPrescription(prescriptionDTO, doctor.getId()).block());
+                doctorPrescriptionService.createPrescription(prescriptionDTO).block());
     }
 
     @Test
@@ -96,7 +96,7 @@ public class DoctorPrescriptionServiceTest {
                 "Felandris", null, null);
 
         assertThrows(PrescriptionException.class, () ->
-                doctorPrescriptionService.createPrescription(prescriptionDTO, doctor.getId()).block());
+                doctorPrescriptionService.createPrescription(prescriptionDTO).block());
     }
 
     @Test
@@ -105,7 +105,7 @@ public class DoctorPrescriptionServiceTest {
                 .addHeader("Content-Type", "application/json")
                 .setBody(objectMapper.writeValueAsString(getPrescriptions())));
 
-        Flux<PrescriptionDTO> getPrescriptions = doctorPrescriptionService.getPrescriptions(doctor.getId());
+        Flux<PrescriptionDTO> getPrescriptions = doctorPrescriptionService.getPrescriptions();
 
         StepVerifier.create(getPrescriptions)
                 .expectNextCount(2)

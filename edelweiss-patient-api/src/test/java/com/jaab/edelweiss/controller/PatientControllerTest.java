@@ -48,11 +48,11 @@ public class PatientControllerTest {
 
     @Test
     public void updateAddressTest() throws Exception {
-        AddressDTO updatedAddress = new AddressDTO("654 Adamant Ave", "Boise","ID", 96521);
+        AddressDTO updatedAddress = new AddressDTO("654 Adamant Ave", "Boise", "ID", 96521);
 
-        when(patientService.updateAddress(anyLong(), anyMap())).thenReturn(updatedAddress);
+        when(patientService.updateAddress(anyMap())).thenReturn(updatedAddress);
 
-        this.mockMvc.perform(patch("/patient/" + carver.getId() + "/updateAddress")
+        this.mockMvc.perform(patch("/patient/updateAddress")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updatedAddress))
                         .accept(MediaType.APPLICATION_JSON))
@@ -62,12 +62,12 @@ public class PatientControllerTest {
 
     @Test
     public void updatePatientInfoTest() throws Exception {
-        PatientDTO updatedInfo = new PatientDTO(bethany.getId(), bethany.getFirstName(),"Amell",
+        PatientDTO updatedInfo = new PatientDTO(bethany.getId(), bethany.getFirstName(), "Amell",
                 bethany.getEmail(), bethany.getPhoneNumber(), bethany.getPrimaryDoctor(), bethany.getBloodType());
 
-        when(patientService.updatePatientInfo(anyLong(), anyMap())).thenReturn(updatedInfo);
+        when(patientService.updatePatientInfo(anyMap())).thenReturn(updatedInfo);
 
-        this.mockMvc.perform(patch("/patient/" + bethany.getId() + "/updatePatientInfo")
+        this.mockMvc.perform(patch("/patient/updatePatientInfo")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content((objectMapper.writeValueAsString(updatedInfo)))
                         .accept(MediaType.APPLICATION_JSON))

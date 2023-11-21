@@ -29,25 +29,22 @@ public class DoctorPrescriptionController {
      * Sends a PrescriptionDTO payload to the prescription API
      *
      * @param prescription - the PrescriptionDTO payload
-     * @param physicianId  - the ID of the doctor
      * @return - HTTP status response with the new prescription
      */
-    @PostMapping(value = "/{physicianId}/newPrescription")
-    public ResponseEntity<Mono<PrescriptionDTO>> createPrescription(
-            @RequestBody PrescriptionDTO prescription, @PathVariable Long physicianId) {
+    @PostMapping(value = "/newPrescription")
+    public ResponseEntity<Mono<PrescriptionDTO>> createPrescription(@RequestBody PrescriptionDTO prescription) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(doctorPrescriptionService.createPrescription(prescription, physicianId));
+                .body(doctorPrescriptionService.createPrescription(prescription));
     }
 
     /**
      * Retrieves the specified doctor's prescriptions from the prescription API
      *
-     * @param physicianId - the ID of the doctor
      * @return - HTTP status response with the list of the doctor's prescriptions
      */
-    @GetMapping(value = "/{physicianId}/myPrescriptions")
-    public ResponseEntity<Flux<PrescriptionDTO>> getPrescriptions(@PathVariable Long physicianId) {
-        return ResponseEntity.ok(doctorPrescriptionService.getPrescriptions(physicianId));
+    @GetMapping(value = "/myPrescriptions")
+    public ResponseEntity<Flux<PrescriptionDTO>> getPrescriptions() {
+        return ResponseEntity.ok(doctorPrescriptionService.getPrescriptions());
     }
 
     /**

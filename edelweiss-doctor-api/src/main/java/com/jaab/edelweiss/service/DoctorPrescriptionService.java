@@ -1,9 +1,10 @@
 package com.jaab.edelweiss.service;
 
+import com.jaab.edelweiss.dto.LoginDTO;
 import com.jaab.edelweiss.dto.PrescriptionDTO;
 import com.jaab.edelweiss.dto.UpdatePrescriptionDTO;
 import com.jaab.edelweiss.exception.PrescriptionException;
-import com.jaab.edelweiss.utils.DoctorUtils;
+import com.jaab.edelweiss.utils.AuthUtils;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -21,12 +22,12 @@ import java.rmi.ServerException;
 @Service
 public class DoctorPrescriptionService {
 
-    private final DoctorUtils doctorUtils;
+    private final AuthUtils authUtils;
 
     private final WebClient webClient;
 
-    public DoctorPrescriptionService(DoctorUtils doctorUtils, WebClient.Builder builder) {
-        this.doctorUtils = doctorUtils;
+    public DoctorPrescriptionService(AuthUtils authUtils, WebClient.Builder builder) {
+        this.authUtils = authUtils;
         this.webClient = builder.baseUrl("http://localhost:8084/physician").build();
     }
 
@@ -34,22 +35,21 @@ public class DoctorPrescriptionService {
      * Creates a new prescription and sends it to the prescription API
      *
      * @param newPrescription - the PrescriptionDTO object
-     * @param physicianId     - the ID of the doctor
      * @return - the new prescription
      * @throws PrescriptionException if the doctor inputs invalid data for the prescription
      */
-    public Mono<PrescriptionDTO> createPrescription(PrescriptionDTO newPrescription, Long physicianId)
+    public Mono<PrescriptionDTO> createPrescription(PrescriptionDTO newPrescription)
             throws PrescriptionException {
-        if (doctorUtils.prescriptionNameIsNotValid(newPrescription))
+        if (prescriptionNameIsNotValid(newPrescription))
             throw new PrescriptionException("Please specify prescription name.");
 
-        if (doctorUtils.prescriptionDosageIsNotValid(newPrescription))
+        if (prescriptionDosageIsNotValid(newPrescription))
             throw new PrescriptionException("Prescription dosage must be between 1cc and 127cc.");
 
-        String[] doctorName = doctorUtils.setDoctorName(physicianId);
+        LoginDTO loginDTO = authUtils.getUserDetails();
 
-        newPrescription.setDoctorFirstName(doctorName[0]);
-        newPrescription.setDoctorLastName(doctorName[1]);
+        newPrescription.setDoctorFirstName(loginDTO.firstName());
+        newPrescription.setDoctorLastName(loginDTO.lastName());
 
         return webClient.post()
                 .uri("/newPrescription")
@@ -67,14 +67,13 @@ public class DoctorPrescriptionService {
     /**
      * Retrieves the prescriptions from the prescription API for the doctor with the specified ID
      *
-     * @param physicianId - the ID of the doctor
      * @return - the list of the doctor's prescriptions
      */
-    public Flux<PrescriptionDTO> getPrescriptions(Long physicianId) {
-        String[] doctorName = doctorUtils.setDoctorName(physicianId);
+    public Flux<PrescriptionDTO> getPrescriptions() {
+        LoginDTO loginDTO = authUtils.getUserDetails();
 
         return webClient.get()
-                .uri("/myPrescriptions/" + doctorName[0] + "/" + doctorName[1])
+                .uri("/myPrescriptions/" + loginDTO.firstName() + "/" + loginDTO.lastName())
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
                 .onStatus(HttpStatusCode::is4xxClientError,
@@ -121,5 +120,27 @@ public class DoctorPrescriptionService {
                 .onStatus(HttpStatusCode::is5xxServerError,
                         response -> response.bodyToMono(String.class).map(ServerException::new))
                 .bodyToMono(String.class);
+    }
+
+    /**
+     * Checks to see if a prescription name is null or empty
+     *
+     * @param prescriptionDTO - the PrescriptionDTO object containing the prescription name
+     * @return - true if the prescription name is null or empty
+     */
+    private boolean prescriptionNameIsNotValid(PrescriptionDTO prescriptionDTO) {
+        return prescriptionDTO.getPrescriptionName() == null ||
+                prescriptionDTO.getPrescriptionName().isEmpty();
+    }
+
+    /**
+     * Checks to see if a prescription dosage is null or less than 1cc
+     *
+     * @param prescriptionDTO - the PrescriptionDTO object containing the prescription dosage
+     * @return - true if the prescription dosage is null or less than 1cc
+     */
+    private boolean prescriptionDosageIsNotValid(PrescriptionDTO prescriptionDTO) {
+        return prescriptionDTO.getPrescriptionDosage() == null ||
+                prescriptionDTO.getPrescriptionDosage() < 1;
     }
 }

@@ -1,8 +1,9 @@
 package com.jaab.edelweiss.service;
 
 import com.jaab.edelweiss.dto.AppointmentDTO;
+import com.jaab.edelweiss.dto.LoginDTO;
 import com.jaab.edelweiss.exception.AppointmentException;
-import com.jaab.edelweiss.utils.DoctorUtils;
+import com.jaab.edelweiss.utils.AuthUtils;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -21,12 +22,12 @@ import java.time.LocalDate;
 @Service
 public class DoctorAppointmentService {
 
-    private final DoctorUtils doctorUtils;
+    private final AuthUtils authUtils;
 
     private final WebClient webClient;
 
-    public DoctorAppointmentService(DoctorUtils doctorUtils, WebClient.Builder builder) {
-        this.doctorUtils = doctorUtils;
+    public DoctorAppointmentService(AuthUtils authUtils, WebClient.Builder builder) {
+        this.authUtils = authUtils;
         this.webClient = builder.baseUrl("http://localhost:8085/physician").build();
     }
 
@@ -34,19 +35,18 @@ public class DoctorAppointmentService {
      * Creates a new appointment and sends it to the appointment API
      *
      * @param newAppointment - the AppointmentDTO object
-     * @param physicianId    - the ID of the doctor
      * @return - the new appointment
      * @throws AppointmentException if the doctor inputs an invalid date for the appointment
      */
-    public Mono<AppointmentDTO> createAppointment(AppointmentDTO newAppointment, Long physicianId)
+    public Mono<AppointmentDTO> createAppointment(AppointmentDTO newAppointment)
             throws AppointmentException {
-        if (doctorUtils.appointmentDateIsNotValid(newAppointment))
+        if (appointmentDateIsNotValid(newAppointment))
             throw new AppointmentException("Appointment date must be today or later date.");
 
-        String[] doctorName = doctorUtils.setDoctorName(physicianId);
+        LoginDTO loginDTO = authUtils.getUserDetails();
 
-        newAppointment.setDoctorFirstName(doctorName[0]);
-        newAppointment.setDoctorLastName(doctorName[1]);
+        newAppointment.setDoctorFirstName(loginDTO.firstName());
+        newAppointment.setDoctorLastName(loginDTO.lastName());
 
         return webClient.post()
                 .uri("/newAppointment")
@@ -64,14 +64,13 @@ public class DoctorAppointmentService {
     /**
      * Retrieves the appointments from the appointment API for the doctor with the specified ID
      *
-     * @param physicianId - the ID of the doctor
      * @return - the list of the doctor's appointments
      */
-    public Flux<AppointmentDTO> getAppointments(Long physicianId) {
-        String[] doctorName = doctorUtils.setDoctorName(physicianId);
+    public Flux<AppointmentDTO> getAppointments() {
+        LoginDTO loginDTO = authUtils.getUserDetails();
 
         return webClient.get()
-                .uri("/myAppointments/" + doctorName[0] + "/" + doctorName[1])
+                .uri("/myAppointments/" + loginDTO.firstName() + "/" + loginDTO.lastName())
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
                 .onStatus(HttpStatusCode::is4xxClientError,
@@ -123,5 +122,16 @@ public class DoctorAppointmentService {
                 .onStatus(HttpStatusCode::is5xxServerError,
                         response -> response.bodyToMono(String.class).map(ServerException::new))
                 .bodyToMono(String.class);
+    }
+
+    /**
+     * Checks to see if an appointment date is null or before the current date
+     *
+     * @param appointmentDTO - the AppointmentDTO object containing the appointment date
+     * @return - true if the appointment date is null or before the current date
+     */
+    private boolean appointmentDateIsNotValid(AppointmentDTO appointmentDTO) {
+        return appointmentDTO.getAppointmentDate() == null ||
+                appointmentDTO.getAppointmentDate().isBefore(LocalDate.now());
     }
 }

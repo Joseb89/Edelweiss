@@ -135,7 +135,7 @@ public class PatientServiceTest {
 
         when(patientRepository.findById(anyLong())).thenReturn(Optional.of(patient));
 
-        patientService.updateAddress(patient.getId(), updatedAddress);
+        patientService.updateAddress(updatedAddress);
 
         assertEquals("Boise", patient.getAddress().getCity());
         assertEquals("ID", patient.getAddress().getState());
@@ -152,7 +152,7 @@ public class PatientServiceTest {
 
         when(patientRepository.findById(anyLong())).thenReturn(Optional.of(bethany));
 
-        patientService.updatePatientInfo(bethany.getId(), updatedPatient);
+        patientService.updatePatientInfo(updatedPatient);
 
         assertEquals("sisterofthechampion@yahoo.com", bethany.getEmail());
         assertEquals("malcomsheir", bethany.getPassword());

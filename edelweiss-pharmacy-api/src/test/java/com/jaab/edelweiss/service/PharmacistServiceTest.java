@@ -55,7 +55,7 @@ public class PharmacistServiceTest {
 
         when(pharmacistRepository.findById(anyLong())).thenReturn(Optional.of(pharmacist));
 
-        Pharmacist updatedPharmacist = pharmacistService.updatePharmacistInfo(pharmacist.getId(), fields);
+        Pharmacist updatedPharmacist = pharmacistService.updatePharmacistInfo(fields);
 
         assertEquals("greywarden@gmail.com", updatedPharmacist.getEmail());
         assertEquals("duncansheir", updatedPharmacist.getPassword());

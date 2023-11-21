@@ -19,7 +19,7 @@ public record LoginDTO(Long id, String firstName, String lastName,
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Set.of(new SimpleGrantedAuthority(Role.PHYSICIAN.name()));
+        return Set.of(new SimpleGrantedAuthority("ROLE_" + Role.PHYSICIAN.name()));
     }
 
     @Override

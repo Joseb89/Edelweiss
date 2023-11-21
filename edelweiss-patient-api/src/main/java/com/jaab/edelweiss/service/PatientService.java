@@ -2,11 +2,14 @@ package com.jaab.edelweiss.service;
 
 import com.jaab.edelweiss.dao.PatientRepository;
 import com.jaab.edelweiss.dto.AddressDTO;
+import com.jaab.edelweiss.dto.LoginDTO;
 import com.jaab.edelweiss.dto.PatientDTO;
 import com.jaab.edelweiss.exception.PatientNotFoundException;
 import com.jaab.edelweiss.model.Address;
 import com.jaab.edelweiss.model.Patient;
 import org.springframework.beans.BeanUtils;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ReflectionUtils;
@@ -123,12 +126,13 @@ public class PatientService {
     /**
      * Updates the patient's address and merges it to the address database
      *
-     * @param patientId - the ID of the patient
-     * @param fields    - the object containing the updated information
+     * @param fields - the object containing the updated information
      * @return - the updated address
      */
-    public AddressDTO updateAddress(Long patientId, Map<String, Object> fields) {
-        Patient patient = getPatientByPatientId(patientId);
+    public AddressDTO updateAddress(Map<String, Object> fields) {
+        LoginDTO loginDTO = getUserDetails();
+
+        Patient patient = getPatientByPatientId(loginDTO.id());
 
         fields.forEach((key, value) -> {
             Field field = ReflectionUtils.findField(Address.class, key);
@@ -147,12 +151,13 @@ public class PatientService {
     /**
      * Updates the patient's information and merges it to the patient database
      *
-     * @param patientId - the ID of the patient
-     * @param fields    - the object containing the updated information
+     * @param fields - the object containing the updated information
      * @return - the updated patient information
      */
-    public PatientDTO updatePatientInfo(Long patientId, Map<String, Object> fields) {
-        Patient patient = getPatientByPatientId(patientId);
+    public PatientDTO updatePatientInfo(Map<String, Object> fields) {
+        LoginDTO loginDTO = getUserDetails();
+
+        Patient patient = getPatientByPatientId(loginDTO.id());
 
         fields.forEach((key, value) -> {
             Field field = ReflectionUtils.findField(Patient.class, key);
@@ -162,6 +167,9 @@ public class PatientService {
                 ReflectionUtils.setField(field, patient, value);
             }
         });
+
+        if (fields.get("password") != null)
+            patient.setPassword(passwordEncoder.encode(fields.get("password").toString()));
 
         patientRepository.save(patient);
 
@@ -208,5 +216,16 @@ public class PatientService {
         return patientList.stream()
                 .map(PatientDTO::new)
                 .toList();
+    }
+
+    /**
+     * Retrieves the UserDetails information of an authenticated user
+     *
+     * @return - the UserDetails stored within the LoginDTO object
+     */
+    private LoginDTO getUserDetails() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        return (LoginDTO) authentication.getPrincipal();
     }
 }

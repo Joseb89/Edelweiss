@@ -48,11 +48,11 @@ public class DoctorPrescriptionControllerTest {
         PrescriptionDTO prescriptionDTO = new PrescriptionDTO(ID, "Rinoa",
                 "Heartily", null, (byte) 50, null);
 
-        when(doctorPrescriptionService.createPrescription(any(PrescriptionDTO.class), anyLong()))
+        when(doctorPrescriptionService.createPrescription(any(PrescriptionDTO.class)))
                 .thenThrow(PrescriptionException.class);
 
         webTestClient.post()
-                .uri("/physician/" + ID + "/newPrescription")
+                .uri("/physician/newPrescription")
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(prescriptionDTO)
                 .accept(MediaType.APPLICATION_JSON)
@@ -62,11 +62,11 @@ public class DoctorPrescriptionControllerTest {
 
     @Test
     public void getPrescriptionsTest() {
-        when(doctorPrescriptionService.getPrescriptions(anyLong()))
+        when(doctorPrescriptionService.getPrescriptions())
                 .thenReturn(Flux.fromIterable(getPrescriptions()));
 
         webTestClient.get()
-                .uri("/physician/" + ID + "/myPrescriptions")
+                .uri("/physician/myPrescriptions")
                 .exchange()
                 .expectStatus().isOk()
                 .expectBodyList(PrescriptionDTO.class).hasSize(2);

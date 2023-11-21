@@ -39,15 +39,13 @@ public class PharmacistController {
     /**
      * Updates the pharmacist's information and merges it to the pharmacist database
      *
-     * @param pharmacistId - the ID of the pharmacist
-     * @param fields       - the payload containing the updated information
+     * @param fields - the payload containing the updated information
      * @return - the updated pharmacist
      */
-    @PatchMapping(value = "/pharmacy/{pharmacistId}/updatePharmacistInfo",
+    @PatchMapping(value = "/pharmacy/updatePharmacistInfo",
             consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public Pharmacist updatePharmacistInfo(@PathVariable Long pharmacistId,
-                                           @RequestBody Map<String, Object> fields) {
-        return pharmacistService.updatePharmacistInfo(pharmacistId, fields);
+    public Pharmacist updatePharmacistInfo(@RequestBody Map<String, Object> fields) {
+        return pharmacistService.updatePharmacistInfo(fields);
     }
 
     /**

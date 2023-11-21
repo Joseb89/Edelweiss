@@ -54,7 +54,7 @@ public class DoctorControllerTest {
         Doctor updatedInfo = new Doctor(doctor.getId(), doctor.getFirstName(), doctor.getLastName(),
                 "archmage@aol.com", doctor.getPassword(), doctor.getPhoneNumber(), doctor.getPractice());
 
-        when(doctorService.updateDoctorInfo(anyLong(), anyMap())).thenReturn(updatedInfo);
+        when(doctorService.updateDoctorInfo(anyMap())).thenReturn(updatedInfo);
 
         this.mockMvc.perform(patch("/physician/" + doctor.getId() + "/updatePhysicianInfo")
                         .contentType(MediaType.APPLICATION_JSON)

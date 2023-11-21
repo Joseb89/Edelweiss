@@ -1,8 +1,10 @@
 package com.jaab.edelweiss.service;
 
 import com.jaab.edelweiss.dao.DoctorRepository;
+import com.jaab.edelweiss.dto.LoginDTO;
 import com.jaab.edelweiss.exception.DoctorNotFoundException;
 import com.jaab.edelweiss.model.Doctor;
+import com.jaab.edelweiss.utils.AuthUtils;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ReflectionUtils;
@@ -21,10 +23,13 @@ public class DoctorService {
 
     private final DoctorRepository doctorRepository;
 
+    private final AuthUtils authUtils;
+
     private final PasswordEncoder passwordEncoder;
 
-    public DoctorService(DoctorRepository doctorRepository, PasswordEncoder passwordEncoder) {
+    public DoctorService(DoctorRepository doctorRepository, AuthUtils authUtils, PasswordEncoder passwordEncoder) {
         this.doctorRepository = doctorRepository;
+        this.authUtils = authUtils;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -54,12 +59,13 @@ public class DoctorService {
     /**
      * Updates the information of the doctor and merges it to the doctor database
      *
-     * @param physicianId - the ID of the doctor
-     * @param fields      - the updated information
+     * @param fields - the updated information
      * @return - the updated doctor
      */
-    public Doctor updateDoctorInfo(Long physicianId, Map<String, Object> fields) {
-        Doctor doctor = getDoctorById(physicianId);
+    public Doctor updateDoctorInfo(Map<String, Object> fields) {
+        LoginDTO loginDTO = authUtils.getUserDetails();
+
+        Doctor doctor = getDoctorById(loginDTO.id());
 
         fields.forEach((key, value) -> {
             Field field = ReflectionUtils.findField(Doctor.class, key);
@@ -69,6 +75,9 @@ public class DoctorService {
                 ReflectionUtils.setField(field, doctor, value);
             }
         });
+
+        if (fields.get("password") != null)
+            doctor.setPassword(passwordEncoder.encode(fields.get("password").toString()));
 
         doctorRepository.save(doctor);
 

@@ -1,8 +1,11 @@
 package com.jaab.edelweiss.service;
 
 import com.jaab.edelweiss.dao.PharmacistRepository;
+import com.jaab.edelweiss.dto.LoginDTO;
 import com.jaab.edelweiss.exception.PharmacistNotFoundException;
 import com.jaab.edelweiss.model.Pharmacist;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ReflectionUtils;
@@ -55,12 +58,13 @@ public class PharmacistService {
     /**
      * Updates the pharmacist's information and merges it to the pharmacist database
      *
-     * @param pharmacistId - the ID of the pharmacist
-     * @param fields       - the object containing the updated information
+     * @param fields - the object containing the updated information
      * @return - the updated pharmacist
      */
-    public Pharmacist updatePharmacistInfo(Long pharmacistId, Map<String, Object> fields) {
-        Pharmacist pharmacist = getPharmacistById(pharmacistId);
+    public Pharmacist updatePharmacistInfo(Map<String, Object> fields) {
+        LoginDTO loginDTO = getUserDetails();
+
+        Pharmacist pharmacist = getPharmacistById(loginDTO.id());
 
         fields.forEach((key, value) -> {
             Field field = ReflectionUtils.findField(Pharmacist.class, key);
@@ -70,6 +74,9 @@ public class PharmacistService {
                 ReflectionUtils.setField(field, pharmacist, value);
             }
         });
+
+        if (fields.get("password") != null)
+            pharmacist.setPassword(passwordEncoder.encode(fields.get("password").toString()));
 
         pharmacistRepository.save(pharmacist);
 
@@ -98,5 +105,16 @@ public class PharmacistService {
     private Pharmacist getPharmacistById(Long pharmacistId) throws PharmacistNotFoundException {
         return pharmacistRepository.findById(pharmacistId)
                 .orElseThrow(() -> new PharmacistNotFoundException("No pharmacist with the specified ID found."));
+    }
+
+    /**
+     * Retrieves the UserDetails information of an authenticated user
+     *
+     * @return - the UserDetails stored within the LoginDTO object
+     */
+    private LoginDTO getUserDetails() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        return (LoginDTO) authentication.getPrincipal();
     }
 }

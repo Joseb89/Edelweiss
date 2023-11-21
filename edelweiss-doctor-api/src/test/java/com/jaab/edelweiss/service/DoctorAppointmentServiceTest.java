@@ -75,7 +75,7 @@ public class DoctorAppointmentServiceTest {
                 .setBody(objectMapper.writeValueAsString(appointmentDTO)));
 
         Mono<AppointmentDTO> newAppointment =
-                doctorAppointmentService.createAppointment(appointmentDTO, doctor.getId());
+                doctorAppointmentService.createAppointment(appointmentDTO);
 
         StepVerifier.create(newAppointment)
                 .expectNextMatches(a ->
@@ -92,7 +92,7 @@ public class DoctorAppointmentServiceTest {
                 LocalTime.of(13, 30));
 
         assertThrows(AppointmentException.class, () ->
-                doctorAppointmentService.createAppointment(appointmentDTO, doctor.getId()).block());
+                doctorAppointmentService.createAppointment(appointmentDTO).block());
     }
 
     @Test
@@ -101,7 +101,7 @@ public class DoctorAppointmentServiceTest {
                 .addHeader("Content-Type", "application/json")
                 .setBody(objectMapper.writeValueAsString(getAppointments())));
 
-        Flux<AppointmentDTO> getAppointments = doctorAppointmentService.getAppointments(doctor.getId());
+        Flux<AppointmentDTO> getAppointments = doctorAppointmentService.getAppointments();
 
         StepVerifier.create(getAppointments)
                 .expectNextCount(2)
