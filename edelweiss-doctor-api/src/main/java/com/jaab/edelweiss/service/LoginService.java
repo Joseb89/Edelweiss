@@ -23,9 +23,7 @@ public class LoginService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Optional<Doctor> doctor = doctorRepository.findByEmail(username);
 
-        if (doctor.isEmpty())
-            throw new UsernameNotFoundException("Physician with specified email is not found.");
-
-        return new LoginDTO(doctor.get());
+        return doctor.map(LoginDTO::new)
+                .orElseThrow(()-> new UsernameNotFoundException("Physician with specified email is not found."));
     }
 }

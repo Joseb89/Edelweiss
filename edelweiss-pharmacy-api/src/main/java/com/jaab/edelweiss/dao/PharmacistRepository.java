@@ -13,4 +13,6 @@ public interface PharmacistRepository extends JpaRepository<Pharmacist, Long> {
 
     @Query("FROM Pharmacist p WHERE p.email = :email")
     Optional<Pharmacist> getPharmacistByEmail(@Param("email") String email);
+
+    Optional<Pharmacist> findByEmail(String email);
 }

@@ -12,7 +12,6 @@ import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Field;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * This is a service class for creating and maintaining pharmacist data
@@ -43,16 +42,6 @@ public class PharmacistService {
         pharmacistRepository.save(pharmacist);
 
         return pharmacist;
-    }
-
-    /**
-     * Retrieves a pharmacist from the pharmacist database based on their email
-     *
-     * @param email - the pharmacist's email
-     * @return - the pharmacist if available
-     */
-    public Optional<Pharmacist> getPharmacistByEmail(String email) {
-        return pharmacistRepository.getPharmacistByEmail(email);
     }
 
     /**
