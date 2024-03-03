@@ -1,5 +1,6 @@
 package com.jaab.edelweiss.service;
 
+import com.jaab.edelweiss.dao.DoctorRepository;
 import com.jaab.edelweiss.dto.LoginDTO;
 import com.jaab.edelweiss.model.Doctor;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -12,15 +13,15 @@ import java.util.Optional;
 @Service
 public class LoginService implements UserDetailsService {
 
-    private final DoctorService doctorService;
+    private final DoctorRepository doctorRepository;
 
-    public LoginService(DoctorService doctorService) {
-        this.doctorService = doctorService;
+    public LoginService(DoctorRepository doctorRepository) {
+        this.doctorRepository = doctorRepository;
     }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Optional<Doctor> doctor = doctorService.getDoctorByEmail(username);
+        Optional<Doctor> doctor = doctorRepository.findByEmail(username);
 
         if (doctor.isEmpty())
             throw new UsernameNotFoundException("Physician with specified email is not found.");

@@ -1,0 +1,15 @@
+spring:
+  application:
+    name: edelweiss-api-gateway
+  cloud:
+    gateway:
+      routes:
+        - id: doctor-api
+          uri: http://localhost:8081
+          predicates:
+            Path=/physician/**
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/

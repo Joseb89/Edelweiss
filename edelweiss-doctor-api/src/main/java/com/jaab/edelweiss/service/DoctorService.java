@@ -5,13 +5,13 @@ import com.jaab.edelweiss.dto.LoginDTO;
 import com.jaab.edelweiss.exception.DoctorNotFoundException;
 import com.jaab.edelweiss.model.Doctor;
 import com.jaab.edelweiss.utils.AuthUtils;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Field;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * This class is a service for creating new physicians and maintaining their data
@@ -19,6 +19,7 @@ import java.util.Optional;
  * @author Joseph Barr
  */
 @Service
+@RequiredArgsConstructor
 public class DoctorService {
 
     private final DoctorRepository doctorRepository;
@@ -26,12 +27,6 @@ public class DoctorService {
     private final AuthUtils authUtils;
 
     private final PasswordEncoder passwordEncoder;
-
-    public DoctorService(DoctorRepository doctorRepository, AuthUtils authUtils, PasswordEncoder passwordEncoder) {
-        this.doctorRepository = doctorRepository;
-        this.authUtils = authUtils;
-        this.passwordEncoder = passwordEncoder;
-    }
 
     /**
      * Saves a new doctor to the doctor database
@@ -44,16 +39,6 @@ public class DoctorService {
         doctorRepository.save(doctor);
 
         return doctor;
-    }
-
-    /**
-     * Retrieves a doctor from the doctor database based on their email
-     *
-     * @param email - the doctor's email
-     * @return - the doctor if available
-     */
-    public Optional<Doctor> getDoctorByEmail(String email) {
-        return doctorRepository.getDoctorByEmail(email);
     }
 
     /**
