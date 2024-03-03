@@ -12,6 +12,8 @@ spring:
           uri: http://localhost:8082
           predicates:
             Path=/pharmacy/**
+        - id: patient-api
+          uri: http://localhost:8083
 
 eureka:
   client:

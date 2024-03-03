@@ -59,7 +59,7 @@ public class PatientServiceTest {
 
     @Test
     public void getPatientsByFirstNameTest() {
-        when(patientRepository.getPatientsByFirstName(anyString())).thenReturn(getPatientsByFirstName());
+        when(patientRepository.findByFirstNameOrderByLastName(anyString())).thenReturn(getPatientsByFirstName());
 
         List<PatientDTO> patients = patientService.getPatientsByFirstName(firstNameTestParameter);
 
@@ -74,7 +74,7 @@ public class PatientServiceTest {
 
     @Test
     public void getPatientsByLastNameTest() {
-        when(patientRepository.getPatientsByLastName(anyString())).thenReturn(getPatientsByLastName());
+        when(patientRepository.findByLastNameOrderByFirstName(anyString())).thenReturn(getPatientsByLastName());
 
         List<PatientDTO> patients = patientService.getPatientsByLastName(lastNameTestParameter);
 
@@ -89,7 +89,7 @@ public class PatientServiceTest {
 
     @Test
     public void getPatientsByBloodTypeTest() {
-        when(patientRepository.getPatientsByBloodType(anyString())).thenReturn(getPatientsByBloodType());
+        when(patientRepository.findByBloodType(anyString())).thenReturn(getPatientsByBloodType());
 
         List<PatientDTO> patients = patientService.getPatientsByBloodType(bloodTypeTestParameter);
 

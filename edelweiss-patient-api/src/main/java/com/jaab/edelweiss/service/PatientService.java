@@ -17,7 +17,6 @@ import org.springframework.util.ReflectionUtils;
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @Service
 public class PatientService {
@@ -52,16 +51,6 @@ public class PatientService {
     }
 
     /**
-     * Retrieves a patient from the patient database based on their email
-     *
-     * @param email - the patient's email
-     * @return - the patient if available
-     */
-    public Optional<Patient> getPatientByEmail(String email) {
-        return patientRepository.getPatientByEmail(email);
-    }
-
-    /**
      * Retrieves a patient from the patient database based on the patient's ID
      *
      * @param patientId - the ID of the patient
@@ -82,7 +71,7 @@ public class PatientService {
      * @throws PatientNotFoundException if any patients with the specified first name are not found
      */
     public List<PatientDTO> getPatientsByFirstName(String firstName) throws PatientNotFoundException {
-        return getPatientData(patientRepository.getPatientsByFirstName(firstName),
+        return getPatientData(patientRepository.findByFirstNameOrderByLastName(firstName),
                 "No patients with the specified first name found.");
     }
 
@@ -94,7 +83,7 @@ public class PatientService {
      * @throws PatientNotFoundException if any patients with the specified last name are not found
      */
     public List<PatientDTO> getPatientsByLastName(String lastName) throws PatientNotFoundException {
-        return getPatientData(patientRepository.getPatientsByLastName(lastName),
+        return getPatientData(patientRepository.findByLastNameOrderByFirstName(lastName),
                 "No patients with the specified last name found.");
     }
 
@@ -106,7 +95,7 @@ public class PatientService {
      * @throws PatientNotFoundException if any patients with the specified blood type are not found
      */
     public List<PatientDTO> getPatientsByBloodType(String bloodType) throws PatientNotFoundException {
-        return getPatientData(patientRepository.getPatientsByBloodType(bloodType),
+        return getPatientData(patientRepository.findByBloodType(bloodType),
                 "No patients with the specified blood type found.");
     }
 

@@ -39,42 +39,42 @@ public class PatientRepositoryTest {
 
     @Test
     public void getPatientsByFirstNameTest() {
-        List<Patient> patients = patientRepository.getPatientsByFirstName(firstNameTestParameter);
+        List<Patient> patients = patientRepository.findByFirstNameOrderByLastName(firstNameTestParameter);
 
         assertEquals(1, patients.size());
     }
 
     @Test
     public void getPatientsByFirstNameEmptyListTest() {
-        List<Patient> patients = patientRepository.getPatientsByFirstName("Malcolm");
+        List<Patient> patients = patientRepository.findByFirstNameOrderByLastName("Malcolm");
 
         assertEquals(0, patients.size());
     }
 
     @Test
     public void getPatientsByLastNameTest() {
-        List<Patient> patients = patientRepository.getPatientsByLastName(lastNameTestParameter);
+        List<Patient> patients = patientRepository.findByLastNameOrderByFirstName(lastNameTestParameter);
 
         assertEquals(3, patients.size());
     }
 
     @Test
     public void getPatientsByLastNameEmptyListTest() {
-        List<Patient> patients = patientRepository.getPatientsByLastName("Vallen");
+        List<Patient> patients = patientRepository.findByLastNameOrderByFirstName("Vallen");
 
         assertEquals(0, patients.size());
     }
 
     @Test
     public void getPatientsByBloodTypeTest() {
-        List<Patient> patients = patientRepository.getPatientsByBloodType(bloodTypeTestParameter);
+        List<Patient> patients = patientRepository.findByBloodType(bloodTypeTestParameter);
 
         assertEquals(2, patients.size());
     }
 
     @Test
     public void getPatientsByBloodTypeEmptyListTest() {
-        List<Patient> patients = patientRepository.getPatientsByBloodType("B+");
+        List<Patient> patients = patientRepository.findByBloodType("B+");
 
         assertEquals(0, patients.size());
     }
