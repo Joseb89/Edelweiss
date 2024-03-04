@@ -45,7 +45,7 @@ public class PrescriptionService {
      * @return - the list of prescriptions matching the criteria
      */
     public List<PrescriptionDTO> getPrescriptionsByDoctorName(String firstName, String lastName) {
-        return getPrescriptions(prescriptionRepository.getPrescriptionsByDoctorName(firstName, lastName));
+        return getPrescriptions(prescriptionRepository.findByDoctorFirstNameAndDoctorLastName(firstName, lastName));
     }
 
     /**
@@ -55,7 +55,7 @@ public class PrescriptionService {
      * @return - the list of prescriptions with the specified status
      */
     public List<PrescriptionDTO> getPrescriptionsByPrescriptionStatus(Status status) {
-        return getPrescriptions(prescriptionRepository.getPrescriptionsByPrescriptionStatus(status));
+        return getPrescriptions(prescriptionRepository.findByPrescriptionStatus(status));
     }
 
     /**

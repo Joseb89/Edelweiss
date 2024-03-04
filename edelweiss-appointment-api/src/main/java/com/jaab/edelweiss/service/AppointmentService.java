@@ -44,7 +44,9 @@ public class AppointmentService {
      * @return - the list of appointments
      */
     public List<AppointmentDTO> getAppointmentsByDoctorName(String firstName, String lastName) {
-        List<Appointment> appointments = appointmentRepository.getAppointmentsByDoctorName(firstName, lastName);
+        List<Appointment> appointments =
+                appointmentRepository
+                        .findByDoctorFirstNameAndDoctorLastNameOrderByAppointmentDate(firstName, lastName);
 
         return appointments.stream()
                 .map(AppointmentDTO::new)
@@ -118,6 +120,6 @@ public class AppointmentService {
      */
     private Appointment getAppointmentById(Long appointmentId) throws AppointmentNotFoundException {
         return appointmentRepository.findById(appointmentId)
-                .orElseThrow(()-> new AppointmentNotFoundException("No appointment with the specified ID found."));
+                .orElseThrow(() -> new AppointmentNotFoundException("No appointment with the specified ID found."));
     }
 }

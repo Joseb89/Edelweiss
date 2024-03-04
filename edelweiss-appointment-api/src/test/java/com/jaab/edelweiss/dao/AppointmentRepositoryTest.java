@@ -47,14 +47,17 @@ public class AppointmentRepositoryTest {
     @Test
     public void getAppointmentsByDoctorNameTest() {
         List<Appointment> appointments =
-                appointmentRepository.getAppointmentsByDoctorName(doctorFirstName, doctorLastName);
+                appointmentRepository
+                        .findByDoctorFirstNameAndDoctorLastNameOrderByAppointmentDate(doctorFirstName, doctorLastName);
 
         assertEquals(2, appointments.size());
     }
 
     @Test
     public void getAppointmentsByDoctorNameEmptyListTest() {
-        List<Appointment> appointments = appointmentRepository.getAppointmentsByDoctorName("Solas", "Wolffe");
+        List<Appointment> appointments =
+                appointmentRepository
+                        .findByDoctorFirstNameAndDoctorLastNameOrderByAppointmentDate("Solas", "Wolffe");
 
         assertEquals(0, appointments.size());
     }

@@ -44,30 +44,29 @@ public class PrescriptionRepositoryTest {
     @Test
     public void getPrescriptionsByDoctorNameTest() {
         List<Prescription> prescriptions =
-                prescriptionRepository.getPrescriptionsByDoctorName(doctorFirstName, doctorLastName);
+                prescriptionRepository.findByDoctorFirstNameAndDoctorLastName(doctorFirstName, doctorLastName);
 
         assertEquals(2, prescriptions.size());
     }
 
     @Test
     public void getPrescriptionsByDoctorNameEmptyListTest() {
-        List<Prescription> prescriptions = prescriptionRepository.getPrescriptionsByDoctorName("Doctor", "Cid");
+        List<Prescription> prescriptions =
+                prescriptionRepository.findByDoctorFirstNameAndDoctorLastName("Doctor", "Cid");
 
         assertEquals(0, prescriptions.size());
     }
 
     @Test
     public void getPrescriptionsByPrescriptionStatusTest() {
-        List<Prescription> prescriptions =
-                prescriptionRepository.getPrescriptionsByPrescriptionStatus(Status.APPROVED);
+        List<Prescription> prescriptions = prescriptionRepository.findByPrescriptionStatus(Status.APPROVED);
 
         assertEquals(1, prescriptions.size());
     }
 
     @Test
     public void getPrescriptionsByPrescriptionStatusEmptyListTest() {
-        List<Prescription> prescriptions =
-                prescriptionRepository.getPrescriptionsByPrescriptionStatus(Status.DENIED);
+        List<Prescription> prescriptions = prescriptionRepository.findByPrescriptionStatus(Status.DENIED);
 
         assertEquals(0, prescriptions.size());
     }

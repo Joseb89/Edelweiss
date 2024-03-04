@@ -42,7 +42,8 @@ public class AppointmentServiceTest {
 
     @Test
     public void getAppointmentsByDoctorNameTest() {
-        when(appointmentRepository.getAppointmentsByDoctorName(anyString(), anyString()))
+        when(appointmentRepository
+                .findByDoctorFirstNameAndDoctorLastNameOrderByAppointmentDate(anyString(), anyString()))
                 .thenReturn(getAppointmentsByDoctorName());
 
         List<AppointmentDTO> appointments =

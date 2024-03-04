@@ -39,7 +39,7 @@ public class PrescriptionServiceTest {
 
     @Test
     public void getPrescriptionsByDoctorNameTest() {
-        when(prescriptionRepository.getPrescriptionsByDoctorName(anyString(), anyString()))
+        when(prescriptionRepository.findByDoctorFirstNameAndDoctorLastName(anyString(), anyString()))
                 .thenReturn(getPrescriptionsByDoctorName());
 
         List<PrescriptionDTO> prescriptions =
@@ -50,7 +50,7 @@ public class PrescriptionServiceTest {
 
     @Test
     public void getPrescriptionsByPrescriptionStatusTest() {
-        when(prescriptionRepository.getPrescriptionsByPrescriptionStatus(any(Status.class)))
+        when(prescriptionRepository.findByPrescriptionStatus(any(Status.class)))
                 .thenReturn(getPrescriptionsByPrescriptionStatus());
 
         List<PrescriptionDTO> prescriptions =
