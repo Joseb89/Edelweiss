@@ -22,12 +22,9 @@ import java.time.LocalDate;
 @Service
 public class DoctorAppointmentService {
 
-    private final AuthUtils authUtils;
-
     private final WebClient webClient;
 
-    public DoctorAppointmentService(AuthUtils authUtils, WebClient.Builder builder) {
-        this.authUtils = authUtils;
+    public DoctorAppointmentService(WebClient.Builder builder) {
         this.webClient = builder.baseUrl("http://localhost:8085/physician").build();
     }
 
@@ -43,7 +40,7 @@ public class DoctorAppointmentService {
         if (appointmentDateIsNotValid(newAppointment))
             throw new AppointmentException("Appointment date must be today or later date.");
 
-        LoginDTO loginDTO = authUtils.getUserDetails();
+        LoginDTO loginDTO = AuthUtils.getUserDetails();
 
         newAppointment.setDoctorFirstName(loginDTO.firstName());
         newAppointment.setDoctorLastName(loginDTO.lastName());
@@ -67,7 +64,7 @@ public class DoctorAppointmentService {
      * @return - the list of the doctor's appointments
      */
     public Flux<AppointmentDTO> getAppointments() {
-        LoginDTO loginDTO = authUtils.getUserDetails();
+        LoginDTO loginDTO = AuthUtils.getUserDetails();
 
         return webClient.get()
                 .uri("/myAppointments/" + loginDTO.firstName() + "/" + loginDTO.lastName())

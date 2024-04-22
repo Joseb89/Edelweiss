@@ -1,10 +1,16 @@
 package com.jaab.edelweiss.controller;
 
+import com.jaab.edelweiss.config.AuthDTO;
+import com.jaab.edelweiss.dto.LoginDTO;
 import com.jaab.edelweiss.model.Doctor;
 import com.jaab.edelweiss.service.DoctorService;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import com.jaab.edelweiss.service.JwtService;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.http.*;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -19,8 +25,39 @@ public class DoctorController {
 
     private final DoctorService doctorService;
 
-    public DoctorController(DoctorService doctorService) {
+    private final JwtService jwtService;
+
+    private final AuthenticationManager authenticationManager;
+
+    public DoctorController(DoctorService doctorService, JwtService jwtService, AuthenticationManager authenticationManager) {
         this.doctorService = doctorService;
+        this.jwtService = jwtService;
+        this.authenticationManager = authenticationManager;
+    }
+
+    @PostMapping(value = "/login",
+            consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public String login(@RequestBody AuthDTO authDTO, HttpServletResponse response) {
+
+        Authentication authentication = authenticationManager
+                .authenticate(new UsernamePasswordAuthenticationToken(authDTO.email(), authDTO.password()));
+
+        LoginDTO loginDTO = (LoginDTO) authentication.getPrincipal();
+
+        if (authentication.isAuthenticated()) {
+            String accessToken = jwtService.generateToken(loginDTO);
+
+            ResponseCookie cookie = ResponseCookie.from("accessToken", accessToken)
+                    .httpOnly(true)
+                    .secure(false)
+                    .path("/physician/")
+                    .build();
+
+           response.setHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+
+           return accessToken;
+        } else
+            throw new UsernameNotFoundException("Authentication failed.");
     }
 
     /**

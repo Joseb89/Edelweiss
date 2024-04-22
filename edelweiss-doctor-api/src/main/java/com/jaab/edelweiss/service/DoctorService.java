@@ -24,8 +24,6 @@ public class DoctorService {
 
     private final DoctorRepository doctorRepository;
 
-    private final AuthUtils authUtils;
-
     private final PasswordEncoder passwordEncoder;
 
     /**
@@ -48,7 +46,7 @@ public class DoctorService {
      * @return - the updated doctor
      */
     public Doctor updateDoctorInfo(Map<String, Object> fields) {
-        LoginDTO loginDTO = authUtils.getUserDetails();
+        LoginDTO loginDTO = AuthUtils.getUserDetails();
 
         Doctor doctor = getDoctorById(loginDTO.id());
 

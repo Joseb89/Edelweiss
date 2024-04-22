@@ -22,13 +22,12 @@ import java.rmi.ServerException;
 @Service
 public class DoctorPrescriptionService {
 
-    private final AuthUtils authUtils;
-
     private final WebClient webClient;
 
-    public DoctorPrescriptionService(AuthUtils authUtils, WebClient.Builder builder) {
-        this.authUtils = authUtils;
-        this.webClient = builder.baseUrl("http://localhost:8084/physician").build();
+    public DoctorPrescriptionService(WebClient.Builder builder) {
+        this.webClient = builder
+                .baseUrl("http://localhost:8084/physician")
+                .build();
     }
 
     /**
@@ -46,7 +45,7 @@ public class DoctorPrescriptionService {
         if (prescriptionDosageIsNotValid(newPrescription))
             throw new PrescriptionException("Prescription dosage must be between 1cc and 127cc.");
 
-        LoginDTO loginDTO = authUtils.getUserDetails();
+        LoginDTO loginDTO = AuthUtils.getUserDetails();
 
         newPrescription.setDoctorFirstName(loginDTO.firstName());
         newPrescription.setDoctorLastName(loginDTO.lastName());
@@ -58,7 +57,7 @@ public class DoctorPrescriptionService {
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
                 .onStatus(HttpStatusCode::is4xxClientError,
-                        response -> response.bodyToMono(String.class).map(Exception::new))
+                        response -> response.bodyToMono(Exception.class).flatMap(Mono::error))
                 .onStatus(HttpStatusCode::is5xxServerError,
                         response -> response.bodyToMono(String.class).map(ServerException::new))
                 .bodyToMono(PrescriptionDTO.class);
@@ -70,7 +69,7 @@ public class DoctorPrescriptionService {
      * @return - the list of the doctor's prescriptions
      */
     public Flux<PrescriptionDTO> getPrescriptions() {
-        LoginDTO loginDTO = authUtils.getUserDetails();
+        LoginDTO loginDTO = AuthUtils.getUserDetails();
 
         return webClient.get()
                 .uri("/myPrescriptions/" + loginDTO.firstName() + "/" + loginDTO.lastName())
