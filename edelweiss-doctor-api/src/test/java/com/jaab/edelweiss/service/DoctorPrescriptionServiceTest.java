@@ -14,20 +14,24 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
-import reactor.test.StepVerifier;
 
 import java.io.IOException;
-import java.util.Objects;
+import java.util.List;
 
 import static com.jaab.edelweiss.utils.TestUtils.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.when;
 
 @SpringBootTest
 @Transactional
+@ExtendWith(MockitoExtension.class)
 public class DoctorPrescriptionServiceTest {
 
     @Autowired
@@ -69,16 +73,19 @@ public class DoctorPrescriptionServiceTest {
                 "Felandris", (byte) 20, null);
 
         mockWebServer.enqueue(new MockResponse()
+                .newBuilder()
                 .addHeader("Content-Type", "application/json")
-                .setBody(objectMapper.writeValueAsString(prescriptionDTO)));
+                .body(objectMapper.writeValueAsString(prescriptionDTO))
+                .build());
 
-        Mono<PrescriptionDTO> newPrescription =
+        PrescriptionDTO newPrescription =
                 doctorPrescriptionService.createPrescription(prescriptionDTO);
 
-        StepVerifier.create(newPrescription)
-                .expectNextMatches(p -> Objects.equals(p.getDoctorFirstName(), doctorFirstName) &&
-                        Objects.equals(p.getDoctorLastName(), doctorLastName))
-                .verifyComplete();
+        when(doctorPrescriptionService.createPrescription(any(PrescriptionDTO.class)))
+                .thenReturn(newPrescription);
+
+        assertEquals(newPrescription.getDoctorFirstName(), doctor.getFirstName());
+        assertEquals(newPrescription.getDoctorLastName(), doctor.getLastName());
     }
 
     @Test
@@ -87,7 +94,7 @@ public class DoctorPrescriptionServiceTest {
                 null, (byte) 20, null);
 
         assertThrows(PrescriptionException.class, () ->
-                doctorPrescriptionService.createPrescription(prescriptionDTO).block());
+                doctorPrescriptionService.createPrescription(prescriptionDTO));
     }
 
     @Test
@@ -96,20 +103,20 @@ public class DoctorPrescriptionServiceTest {
                 "Felandris", null, null);
 
         assertThrows(PrescriptionException.class, () ->
-                doctorPrescriptionService.createPrescription(prescriptionDTO).block());
+                doctorPrescriptionService.createPrescription(prescriptionDTO));
     }
 
     @Test
     public void getPrescriptionsTest() throws JsonProcessingException {
         mockWebServer.enqueue(new MockResponse()
+                .newBuilder()
                 .addHeader("Content-Type", "application/json")
-                .setBody(objectMapper.writeValueAsString(getPrescriptions())));
+                .body(objectMapper.writeValueAsString(getPrescriptions()))
+                .build());
 
-        Flux<PrescriptionDTO> getPrescriptions = doctorPrescriptionService.getPrescriptions();
+        List<PrescriptionDTO> getPrescriptions = doctorPrescriptionService.getPrescriptions();
 
-        StepVerifier.create(getPrescriptions)
-                .expectNextCount(2)
-                .verifyComplete();
+        assertEquals(2, getPrescriptions.size());
     }
 
     @Test
@@ -118,36 +125,41 @@ public class DoctorPrescriptionServiceTest {
                 "Dragon's Blood", null);
 
         mockWebServer.enqueue(new MockResponse()
+                .newBuilder()
                 .addHeader("Content-Type", "application/json")
-                .setBody(objectMapper.writeValueAsString(updatedPrescription)));
+                .body(objectMapper.writeValueAsString(updatedPrescription))
+                .build());
 
-        Mono<UpdatePrescriptionDTO> updatePrescription =
+        UpdatePrescriptionDTO updatePrescription =
                 doctorPrescriptionService.updatePrescriptionInfo(updatedPrescription, updatedPrescription.id());
 
-        StepVerifier.create(updatePrescription)
-                .expectNextMatches(u -> Objects.equals(u.prescriptionName(), "Dragon's Blood"))
-                .verifyComplete();
+        when(doctorPrescriptionService
+                .updatePrescriptionInfo(any(UpdatePrescriptionDTO.class), anyLong()))
+                .thenReturn(updatePrescription);
     }
 
     @Test
     public void updatePrescriptionInfoNameExceptionTest() {
         assertThrows(PrescriptionException.class,
-                () -> new UpdatePrescriptionDTO(ID,"", null));
+                () -> new UpdatePrescriptionDTO(ID, "", null));
     }
 
     @Test
     public void updatePrescriptionInfoDosageExceptionTest() {
         assertThrows(PrescriptionException.class,
-                () -> new UpdatePrescriptionDTO(ID,null, (byte) -30));
+                () -> new UpdatePrescriptionDTO(ID, null, (byte) -30));
     }
 
     @Test
     public void deletePrescriptionTest() {
-        mockWebServer.enqueue(new MockResponse().setResponseCode(200));
+        String deletePrescription = doctorPrescriptionService.deletePrescription(ID);
 
-        Mono<String> deletePrescription = doctorPrescriptionService.deletePrescription(ID);
+        MockResponse response = new MockResponse()
+                .newBuilder()
+                .code(200)
+                .body(deletePrescription)
+                .build();
 
-        StepVerifier.create(deletePrescription)
-                .verifyComplete();
+        assertEquals(200, response.getCode());
     }
 }

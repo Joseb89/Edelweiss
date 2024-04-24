@@ -9,10 +9,10 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.rmi.ServerException;
+import java.util.List;
 
 /**
  * This class is a service for creating new prescriptions and maintaining their information
@@ -37,7 +37,7 @@ public class DoctorPrescriptionService {
      * @return - the new prescription
      * @throws PrescriptionException if the doctor inputs invalid data for the prescription
      */
-    public Mono<PrescriptionDTO> createPrescription(PrescriptionDTO newPrescription)
+    public PrescriptionDTO createPrescription(PrescriptionDTO newPrescription)
             throws PrescriptionException {
         if (prescriptionNameIsNotValid(newPrescription))
             throw new PrescriptionException("Please specify prescription name.");
@@ -60,7 +60,8 @@ public class DoctorPrescriptionService {
                         response -> response.bodyToMono(Exception.class).flatMap(Mono::error))
                 .onStatus(HttpStatusCode::is5xxServerError,
                         response -> response.bodyToMono(String.class).map(ServerException::new))
-                .bodyToMono(PrescriptionDTO.class);
+                .bodyToMono(PrescriptionDTO.class)
+                .block();
     }
 
     /**
@@ -68,7 +69,7 @@ public class DoctorPrescriptionService {
      *
      * @return - the list of the doctor's prescriptions
      */
-    public Flux<PrescriptionDTO> getPrescriptions() {
+    public List<PrescriptionDTO> getPrescriptions() {
         LoginDTO loginDTO = AuthUtils.getUserDetails();
 
         return webClient.get()
@@ -79,7 +80,9 @@ public class DoctorPrescriptionService {
                         response -> response.bodyToMono(String.class).map(Exception::new))
                 .onStatus(HttpStatusCode::is5xxServerError,
                         response -> response.bodyToMono(String.class).map(ServerException::new))
-                .bodyToFlux(PrescriptionDTO.class);
+                .bodyToFlux(PrescriptionDTO.class)
+                .collectList()
+                .block();
     }
 
     /**
@@ -89,7 +92,7 @@ public class DoctorPrescriptionService {
      * @param prescriptionId  - the ID of the prescription
      * @return - the updated prescription
      */
-    public Mono<UpdatePrescriptionDTO> updatePrescriptionInfo(UpdatePrescriptionDTO prescriptionDTO,
+    public UpdatePrescriptionDTO updatePrescriptionInfo(UpdatePrescriptionDTO prescriptionDTO,
                                                               Long prescriptionId) {
         return webClient.patch()
                 .uri("/updatePrescriptionInfo/" + prescriptionId)
@@ -101,7 +104,8 @@ public class DoctorPrescriptionService {
                         response -> response.bodyToMono(String.class).map(Exception::new))
                 .onStatus(HttpStatusCode::is5xxServerError,
                         response -> response.bodyToMono(String.class).map(ServerException::new))
-                .bodyToMono(UpdatePrescriptionDTO.class);
+                .bodyToMono(UpdatePrescriptionDTO.class)
+                .block();
     }
 
     /**
@@ -110,7 +114,7 @@ public class DoctorPrescriptionService {
      * @param prescriptionId - the ID of the prescription
      * @return - the DELETE request
      */
-    public Mono<String> deletePrescription(Long prescriptionId) {
+    public String deletePrescription(Long prescriptionId) {
         return webClient.delete()
                 .uri("/deletePrescription/" + prescriptionId)
                 .retrieve()
@@ -118,7 +122,8 @@ public class DoctorPrescriptionService {
                         response -> response.bodyToMono(String.class).map(Exception::new))
                 .onStatus(HttpStatusCode::is5xxServerError,
                         response -> response.bodyToMono(String.class).map(ServerException::new))
-                .bodyToMono(String.class);
+                .bodyToMono(String.class)
+                .block();
     }
 
     /**

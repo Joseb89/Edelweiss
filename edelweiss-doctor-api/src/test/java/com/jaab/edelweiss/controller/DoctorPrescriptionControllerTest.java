@@ -11,8 +11,6 @@ import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 import static com.jaab.edelweiss.utils.TestUtils.ID;
 import static com.jaab.edelweiss.utils.TestUtils.getPrescriptions;
@@ -63,7 +61,7 @@ public class DoctorPrescriptionControllerTest {
     @Test
     public void getPrescriptionsTest() {
         when(doctorPrescriptionService.getPrescriptions())
-                .thenReturn(Flux.fromIterable(getPrescriptions()));
+                .thenReturn(getPrescriptions());
 
         webTestClient.get()
                 .uri("/physician/myPrescriptions")
@@ -78,7 +76,7 @@ public class DoctorPrescriptionControllerTest {
                 new UpdatePrescriptionDTO(TestUtils.ID, "Ambrosia", (byte) 40);
 
         when(doctorPrescriptionService.updatePrescriptionInfo(any(UpdatePrescriptionDTO.class), anyLong()))
-                .thenReturn(Mono.just(updatedPrescription));
+                .thenReturn(updatedPrescription);
 
         webTestClient.patch()
                 .uri("/physician/updatePrescriptionInfo/" + updatedPrescription.id())

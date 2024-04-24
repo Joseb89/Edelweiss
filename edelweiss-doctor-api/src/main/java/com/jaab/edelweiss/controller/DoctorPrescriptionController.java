@@ -7,8 +7,8 @@ import com.jaab.edelweiss.service.DoctorPrescriptionService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 /**
  * This class is a controller for the endpoints that create and maintain prescription data
@@ -32,7 +32,7 @@ public class DoctorPrescriptionController {
      * @return - HTTP status response with the new prescription
      */
     @PostMapping(value = "/newPrescription")
-    public ResponseEntity<Mono<PrescriptionDTO>> createPrescription(@RequestBody PrescriptionDTO prescription) {
+    public ResponseEntity<PrescriptionDTO> createPrescription(@RequestBody PrescriptionDTO prescription) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(doctorPrescriptionService.createPrescription(prescription));
     }
@@ -43,7 +43,7 @@ public class DoctorPrescriptionController {
      * @return - HTTP status response with the list of the doctor's prescriptions
      */
     @GetMapping(value = "/myPrescriptions")
-    public ResponseEntity<Flux<PrescriptionDTO>> getPrescriptions() {
+    public ResponseEntity<List<PrescriptionDTO>> getPrescriptions() {
         return ResponseEntity.ok(doctorPrescriptionService.getPrescriptions());
     }
 
@@ -55,7 +55,7 @@ public class DoctorPrescriptionController {
      * @return - HTTP status response with the updated information
      */
     @PatchMapping(value = "/updatePrescriptionInfo/{prescriptionId}")
-    public ResponseEntity<Mono<UpdatePrescriptionDTO>> updatePrescriptionInfo(
+    public ResponseEntity<UpdatePrescriptionDTO> updatePrescriptionInfo(
             @RequestBody UpdatePrescriptionDTO prescriptionDTO, @PathVariable Long prescriptionId) {
         return ResponseEntity.ok(doctorPrescriptionService.updatePrescriptionInfo(prescriptionDTO, prescriptionId));
     }
@@ -67,7 +67,7 @@ public class DoctorPrescriptionController {
      * @return - the DELETE request
      */
     @DeleteMapping(value = "/deletePrescription/{prescriptionId}")
-    public ResponseEntity<Mono<String>> deletePrescription(@PathVariable Long prescriptionId) {
+    public ResponseEntity<String> deletePrescription(@PathVariable Long prescriptionId) {
         return ResponseEntity.ok(doctorPrescriptionService.deletePrescription(prescriptionId));
     }
 

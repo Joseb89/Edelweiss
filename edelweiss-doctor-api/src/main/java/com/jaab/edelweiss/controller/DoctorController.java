@@ -6,6 +6,7 @@ import com.jaab.edelweiss.model.Doctor;
 import com.jaab.edelweiss.service.DoctorService;
 import com.jaab.edelweiss.service.JwtService;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.*;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -21,6 +22,7 @@ import java.util.Map;
  * @author Joseph Barr
  */
 @RestController
+@RequiredArgsConstructor
 public class DoctorController {
 
     private final DoctorService doctorService;
@@ -28,12 +30,6 @@ public class DoctorController {
     private final JwtService jwtService;
 
     private final AuthenticationManager authenticationManager;
-
-    public DoctorController(DoctorService doctorService, JwtService jwtService, AuthenticationManager authenticationManager) {
-        this.doctorService = doctorService;
-        this.jwtService = jwtService;
-        this.authenticationManager = authenticationManager;
-    }
 
     @PostMapping(value = "/login",
             consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)

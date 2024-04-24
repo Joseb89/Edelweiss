@@ -6,8 +6,8 @@ import com.jaab.edelweiss.dto.UpdatePrescriptionDTO;
 import com.jaab.edelweiss.model.Status;
 import com.jaab.edelweiss.service.PrescriptionService;
 import org.springframework.web.bind.annotation.*;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 @RestController
 public class PrescriptionController {
@@ -26,8 +26,8 @@ public class PrescriptionController {
      * @return - the new prescription
      */
     @PostMapping(value = "/physician/newPrescription")
-    public Mono<PrescriptionDTO> createPrescription(@RequestBody PrescriptionDTO prescriptionDTO) {
-        return Mono.just(prescriptionService.createPrescription(prescriptionDTO));
+    public PrescriptionDTO createPrescription(@RequestBody PrescriptionDTO prescriptionDTO) {
+        return prescriptionService.createPrescription(prescriptionDTO);
     }
 
     /**
@@ -39,9 +39,9 @@ public class PrescriptionController {
      * @return - the list of the doctor's prescriptions
      */
     @GetMapping(value = "/physician/myPrescriptions/{firstName}/{lastName}")
-    public Flux<PrescriptionDTO> getPrescriptionsByDoctorName(@PathVariable String firstName,
+    public List<PrescriptionDTO> getPrescriptionsByDoctorName(@PathVariable String firstName,
                                                               @PathVariable String lastName) {
-        return Flux.fromIterable(prescriptionService.getPrescriptionsByDoctorName(firstName, lastName));
+        return prescriptionService.getPrescriptionsByDoctorName(firstName, lastName);
     }
 
     /**
@@ -50,8 +50,8 @@ public class PrescriptionController {
      * @return - the list of PENDING prescriptions
      */
     @GetMapping(value = "/pharmacy/getPendingPrescriptions")
-    public Flux<PrescriptionDTO> getPendingPrescriptions() {
-        return Flux.fromIterable(prescriptionService.getPrescriptionsByPrescriptionStatus(Status.PENDING));
+    public List<PrescriptionDTO> getPendingPrescriptions() {
+        return prescriptionService.getPrescriptionsByPrescriptionStatus(Status.PENDING);
     }
 
     /**
@@ -62,9 +62,9 @@ public class PrescriptionController {
      * @return - the updated prescription
      */
     @PatchMapping(value = "/physician/updatePrescriptionInfo/{prescriptionId}")
-    public Mono<PrescriptionDTO> updatePrescriptionInfo(@RequestBody UpdatePrescriptionDTO prescriptionDTO,
+    public PrescriptionDTO updatePrescriptionInfo(@RequestBody UpdatePrescriptionDTO prescriptionDTO,
                                                         @PathVariable Long prescriptionId) {
-        return Mono.just(prescriptionService.updatePrescriptionInfo(prescriptionDTO, prescriptionId));
+        return prescriptionService.updatePrescriptionInfo(prescriptionDTO, prescriptionId);
     }
 
     /**
@@ -76,9 +76,9 @@ public class PrescriptionController {
      * @return - the PrescriptionDTO object containing the updated status
      */
     @PatchMapping(value = "/pharmacy/approvePrescription/{prescriptionId}")
-    public Mono<PrescriptionDTO> approvePrescription(@RequestBody PrescriptionStatusDTO status,
+    public PrescriptionDTO approvePrescription(@RequestBody PrescriptionStatusDTO status,
                                                      @PathVariable Long prescriptionId) {
-        return Mono.just(prescriptionService.approvePrescription(status, prescriptionId));
+        return prescriptionService.approvePrescription(status, prescriptionId);
     }
 
     /**
